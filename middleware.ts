@@ -1,18 +1,11 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+// Temporarily disabled due to Clerk v5 Edge Function compatibility issues
+// Auth is handled at the page level using Clerk components
 
-const isProtectedRoute = createRouteMatcher([
-  '/dashboard(.*)',
-])
-
-export default clerkMiddleware((auth, req) => {
-  if (isProtectedRoute(req)) {
-    auth().protect()
-  }
-})
+export default function middleware() {
+  // Pass through all requests
+  return
+}
 
 export const config = {
-  matcher: [
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    '/(api|trpc)(.*)',
-  ],
+  matcher: [],
 }
