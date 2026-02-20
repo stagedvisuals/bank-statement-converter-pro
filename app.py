@@ -17,9 +17,20 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 
-# Stripe Configuration
-stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
-STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY')
+# Stripe Configuration - Clean the keys to remove any hidden characters
+def clean_key(key):
+    if key is None:
+        return None
+    # Convert bytes to string if needed
+    if isinstance(key, bytes):
+        key = key.decode('utf-8')
+    # Clean the key
+    return str(key).strip().replace('\n', '').replace('\r', '').replace(' ', '').replace("b'", "").replace("'", "")
+
+stripe.api_key = clean_key(os.environ.get('STRIPE_SECRET_KEY'))
+STRIPE_PUBLIC_KEY = clean_key(os.environ.get('STRIPE_PUBLIC_KEY'))
+
+print(f"Stripe key configured: {bool(stripe.api_key)}")  # Debug log
 
 @app.route('/')
 def index():
