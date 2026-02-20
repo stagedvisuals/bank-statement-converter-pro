@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs'
+import { auth } from '@clerk/nextjs/server'
 import { supabase } from './supabase'
 
 export async function getOrCreateUser(clerkId: string, email: string) {

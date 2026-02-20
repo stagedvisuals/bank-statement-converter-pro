@@ -1,4 +1,5 @@
-import { auth, UserButton } from '@clerk/nextjs'
+import { auth } from '@clerk/nextjs/server'
+import { UserButton } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
 import { supabase, isDemoMode } from '@/lib/supabase'
 import FileConverter from '@/components/file-converter'
