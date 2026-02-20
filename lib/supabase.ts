@@ -3,14 +3,14 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
-// Check if using placeholder
-const isPlaceholder = !supabaseUrl || supabaseUrl.includes('placeholder') || !supabaseKey || supabaseKey.includes('placeholder')
+// Check if properly configured
+const isConfigured = supabaseUrl && !supabaseUrl.includes('placeholder') && supabaseKey && supabaseKey.length > 20
 
 // Mock database for demo mode
 const mockUsers: any[] = []
 const mockConversions: any[] = []
 
-export const supabase = isPlaceholder ? {
+export const supabase = !isConfigured ? {
   // Mock client
   from: (table: string) => ({
     select: () => ({
@@ -66,4 +66,4 @@ export type Conversion = {
   completed_at?: string
 }
 
-export const isDemoMode = isPlaceholder
+export const isDemoMode = !isConfigured
