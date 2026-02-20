@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Betaling Succesvol | BSC Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        neon: { blue: '#00f3ff', purple: '#b026ff' },
+                        dark: { 900: '#0a0a0f', 800: '#12121a' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background: linear-gradient(135deg, #0a0a0f 0%, #12121a 100%); }
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="text-gray-300 font-sans min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md p-8">
+        <div class="glass rounded-3xl p-8 text-center">
+            <div class="text-6xl mb-6">🎉</div>
+            <h1 class="text-3xl font-bold text-white mb-4">Betaling Succesvol!</h1>
+            <p class="text-gray-400 mb-8">
+                Bedankt voor je aankoop. Je credits zijn toegevoegd aan je account.
+            </p>
+            <a href="{{ url_for('dashboard') }}" class="inline-block px-8 py-4 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-dark-900 font-bold hover:shadow-lg transition-all">
+                Naar Dashboard →
+            </a>
+        </div>
+    </div>
+</body>
+</html>
