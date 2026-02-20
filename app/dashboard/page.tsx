@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 export default function Dashboard() {
-  const { isLoaded, isSignedIn, user } = useAuth()
+  const { isLoaded, isSignedIn } = useAuth()
   const router = useRouter()
   const [credits, setCredits] = useState(2)
 
