@@ -1,6 +1,18 @@
 import Link from 'next/link'
+import { useAuth } from '@clerk/nextjs'
+import { useEffect } from 'react'
+import { useRouter } from 'next/router'
 
 export default function Home() {
+  const { isSignedIn } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (isSignedIn) {
+      router.push('/dashboard')
+    }
+  }, [isSignedIn, router])
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black text-white">
       <h1 className="text-4xl font-bold mb-4">Bank Statement Converter Pro</h1>

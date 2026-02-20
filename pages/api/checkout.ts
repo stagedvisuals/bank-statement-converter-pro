@@ -1,22 +1,24 @@
-export const runtime = 'nodejs'
-
-import { NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import type { NextApiRequest, NextApiResponse } from 'next'
+import { getAuth } from '@clerk/nextjs/server'
 import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16',
 })
 
-export async function POST(req: Request) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' })
+  }
+
   try {
-    const { userId } = auth()
+    const { userId } = getAuth(req)
     
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return res.status(401).json({ error: 'Unauthorized' })
     }
 
-    const { priceId } = await req.json()
+    const { priceId } = req.body
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card', 'ideal'],
@@ -43,9 +45,9 @@ export async function POST(req: Request) {
       },
     })
 
-    return NextResponse.json({ url: session.url })
+    return res.status(200).json({ url: session.url })
   } catch (error: any) {
     console.error('Checkout error:', error)
-    return NextResponse.json({ error: error.message || 'Failed to create checkout' }, { status: 500 })
+    return res.status(500).json({ error: error.message || 'Failed to create checkout' })
   }
 }

@@ -2,7 +2,7 @@ import { SignIn } from '@clerk/nextjs'
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
       <div className="glass rounded-3xl p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold gradient-text mb-2">BSC Pro</h1>
