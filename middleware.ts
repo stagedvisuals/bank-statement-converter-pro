@@ -1,11 +1,7 @@
-// Temporarily disabled due to Clerk v5 Edge Function compatibility issues
-// Auth is handled at the page level using Clerk components
-
-export default function middleware() {
-  // Pass through all requests
-  return
-}
+// Middleware temporarily disabled due to Clerk v5 Edge compatibility
+// Auth handled at page level
+// This file can be safely deleted or left empty
 
 export const config = {
-  matcher: [],
+  matcher: ['/non-existent-path'],
 }
