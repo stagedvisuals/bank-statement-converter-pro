@@ -1,27 +1,18 @@
-'use client'
-
-import { useAuth } from '@clerk/nextjs'
-import { useEffect } from 'react'
-import LandingPage from '@/components/landing-page'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function Home() {
-  const { isLoaded, isSignedIn } = useAuth()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (isLoaded && isSignedIn) {
-      router.push('/dashboard')
-    }
-  }, [isLoaded, isSignedIn, router])
-
-  if (!isLoaded) {
-    return <div className="min-h-screen flex items-center justify-center text-white">Laden...</div>
-  }
-
-  if (isSignedIn) {
-    return null
-  }
-
-  return <LandingPage />
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black text-white">
+      <h1 className="text-4xl font-bold mb-4">Bank Statement Converter Pro</h1>
+      <p className="text-gray-400 mb-8">By Artur Bagdasarjan</p>
+      <div className="space-x-4">
+        <Link href="/login" className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-700">
+          Login
+        </Link>
+        <Link href="/register" className="px-6 py-3 bg-green-600 rounded-lg hover:bg-green-700">
+          Register
+        </Link>
+      </div>
+    </div>
+  )
 }
