@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --neon-blue: #00f3ff;
+  --neon-purple: #b026ff;
+}
+
+body {
+  background: linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #1a1a2e 100%);
+  color: #d1d5db;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
