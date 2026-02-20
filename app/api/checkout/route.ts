@@ -9,6 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(req: Request) {
   try {
     const { userId } = auth()
+    
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -32,8 +33,8 @@ export async function POST(req: Request) {
         },
       ],
       mode: priceId === 'starter' ? 'payment' : 'subscription',
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?canceled=true`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://saas-factory-nine.vercel.app'}/dashboard?success=true`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://saas-factory-nine.vercel.app'}/dashboard?canceled=true`,
       metadata: {
         userId,
         priceId,
@@ -41,8 +42,8 @@ export async function POST(req: Request) {
     })
 
     return NextResponse.json({ url: session.url })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Checkout error:', error)
-    return NextResponse.json({ error: 'Failed to create checkout' }, { status: 500 })
+    return NextResponse.json({ error: error.message || 'Failed to create checkout' }, { status: 500 })
   }
 }

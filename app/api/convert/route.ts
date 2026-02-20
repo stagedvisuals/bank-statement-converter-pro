@@ -1,20 +1,12 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { supabase, isDemoMode } from '@/lib/supabase'
-import { deductCredit } from '@/lib/users'
 
 export async function POST(req: Request) {
   try {
     const { userId } = auth()
-
+    
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Check credits
-    const hasCredits = await deductCredit(userId)
-    if (!hasCredits) {
-      return NextResponse.json({ error: 'No credits available' }, { status: 403 })
     }
 
     // Get file
@@ -25,10 +17,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
     }
 
-    // Parse PDF text (simplified for demo)
+    // Read file content
     const text = await file.text()
     
-    // Extract transactions (basic pattern)
+    // Extract transactions (basic pattern matching)
     const lines = text.split('\n')
     const transactions = []
     for (const line of lines) {
@@ -54,8 +46,8 @@ export async function POST(req: Request) {
       transactionCount: transactions.length,
     })
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Conversion error:', error)
-    return NextResponse.json({ error: 'Conversion failed' }, { status: 500 })
+    return NextResponse.json({ error: error.message || 'Conversion failed' }, { status: 500 })
   }
 }

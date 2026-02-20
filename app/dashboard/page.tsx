@@ -1,15 +1,28 @@
-import { auth } from '@clerk/nextjs/server'
-import { UserButton } from '@clerk/nextjs'
-import { redirect } from 'next/navigation'
-import { supabase, isDemoMode } from '@/lib/supabase'
+'use client'
+
+import { useAuth, UserButton } from '@clerk/nextjs'
+import { useEffect, useState } from 'react'
 import FileConverter from '@/components/file-converter'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
-export default async function Dashboard() {
-  const { userId } = auth()
+export default function Dashboard() {
+  const { isLoaded, isSignedIn, user } = useAuth()
+  const router = useRouter()
+  const [credits, setCredits] = useState(2)
 
-  if (!userId) {
-    redirect('/login')
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push('/login')
+    }
+  }, [isLoaded, isSignedIn, router])
+
+  if (!isLoaded) {
+    return <div className="min-h-screen flex items-center justify-center text-white">Laden...</div>
+  }
+
+  if (!isSignedIn) {
+    return null
   }
 
   return (
@@ -20,11 +33,8 @@ export default async function Dashboard() {
           <div className="flex justify-between h-16 items-center">
             <Link href="/" className="text-xl font-bold gradient-text">BSC Pro</Link>
             <div className="flex items-center space-x-4">
-              {isDemoMode && (
-                <span className="text-yellow-500 text-sm">Demo Mode</span>
-              )}
               <span className="text-gray-400">
-                Credits: <span className="text-[var(--neon-blue)] font-bold">2</span>
+                Credits: <span className="text-[var(--neon-blue)] font-bold">{credits}</span>
               </span>
               <UserButton afterSignOutUrl="/" />
             </div>
