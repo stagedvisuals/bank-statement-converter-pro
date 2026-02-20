@@ -19,10 +19,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { userId } = getAuth(req)
+    const { userId, sessionClaims } = getAuth(req)
     
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    // Check Pro role
+    const role = sessionClaims?.metadata?.role as string
+    const isPro = role === 'pro' || role === 'admin'
+    
+    if (!isPro) {
+      return res.status(403).json({ error: 'Pro subscription required' })
     }
 
     // Parse form with file
