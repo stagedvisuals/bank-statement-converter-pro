@@ -21,7 +21,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///bankconverter.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///:memory:')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
@@ -300,7 +300,10 @@ def health():
 
 # Create database tables
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+    except:
+        pass  # Database might already exist or use in-memory for serverless
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
