@@ -19,18 +19,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { userId, sessionClaims } = getAuth(req)
+    const { userId } = getAuth(req)
     
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' })
-    }
-
-    // Check Pro role
-    const role = sessionClaims?.metadata?.role as string
-    const isPro = role === 'pro' || role === 'admin'
-    
-    if (!isPro) {
-      return res.status(403).json({ error: 'Pro subscription required' })
     }
 
     // Parse form with file
@@ -48,11 +40,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Read PDF content
     let pdfText = ''
     try {
-      // Try to extract text from PDF
       const fileBuffer = fs.readFileSync(file.filepath)
       pdfText = fileBuffer.toString('utf-8')
-      
-      // Clean up temp file
       fs.unlinkSync(file.filepath)
     } catch (parseError: any) {
       fs.unlinkSync(file.filepath)
