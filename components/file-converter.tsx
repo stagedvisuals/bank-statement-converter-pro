@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Loader2, Download, FileText } from 'lucide-react'
 
@@ -8,36 +8,36 @@ export default function FileConverter() {
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<{ downloadUrl: string; transactionCount: number } | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    if (acceptedFiles.length > 0) {
-      setFile(acceptedFiles[0])
-      setResult(null)
-    }
-  }, [])
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      'application/pdf': ['.pdf'],
-    },
-    maxFiles: 1,
-  })
+  const handleFileSelect = (selectedFile: File) => {
+    console.log('File selected:', selectedFile.name)
+    setFile(selectedFile)
+    setError(null)
+  }
 
   const handleConvert = async () => {
-    if (!file) return
+    if (!file) {
+      setError('Geen bestand geselecteerd')
+      return
+    }
 
+    console.log('Starting conversion...')
     setLoading(true)
+    setError(null)
+    
     try {
       const formData = new FormData()
       formData.append('file', file)
 
+      console.log('Sending request to /api/convert')
       const res = await fetch('/api/convert', {
         method: 'POST',
         body: formData,
       })
 
       const data = await res.json()
+      console.log('Response:', data)
 
       if (!res.ok) {
         throw new Error(data.error || 'Conversion failed')
@@ -45,7 +45,8 @@ export default function FileConverter() {
 
       setResult(data)
     } catch (error: any) {
-      alert(error.message)
+      console.error('Conversion error:', error)
+      setError(error.message || 'Upload failed')
     } finally {
       setLoading(false)
     }
@@ -54,30 +55,27 @@ export default function FileConverter() {
   return (
     <div className="space-y-6">
       <div
-        {...getRootProps()}
-        className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
-          isDragActive
-            ? 'border-[var(--neon-blue)] bg-[var(--neon-blue)]/10'
-            : 'border-gray-700 hover:border-[var(--neon-blue)]'
-        }`}
+        className="border-2 border-dashed border-gray-600 rounded-xl p-8 text-center cursor-pointer hover:border-[var(--neon-blue)] transition-colors"
+        onClick={() => document.getElementById('file-input')?.click()}
       >
-        <input {...getInputProps()} />
+        <input
+          type="file"
+          id="file-input"
+          accept=".pdf"
+          className="hidden"
+          onChange={(e) => {
+            const selected = e.target.files?.[0]
+            if (selected) handleFileSelect(selected)
+          }}
+        />
         <FileText className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-        {isDragActive ? (
-          <p className="text-[var(--neon-blue)]">Drop het PDF bestand hier...</p>
-        ) : (
-          <>
-            <p className="text-gray-300">Sleep PDF hierheen of klik om te uploaden</p>
-            <p className="text-gray-500 text-sm mt-2">Alleen PDF bestanden</p>
-          </>
-        )}
+        <p className="text-gray-300">Klik om PDF te uploaden</p>
+        {file && <p className="text-[var(--neon-blue)] mt-2">{file.name}</p>}
       </div>
 
-      {file && (
-        <div className="glass rounded-lg p-4">
-          <p className="text-gray-300">
-            Geselecteerd: <span className="text-white font-medium">{file.name}</span>
-          </p>
+      {error && (
+        <div className="p-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300">
+          Error: {error}
         </div>
       )}
 
