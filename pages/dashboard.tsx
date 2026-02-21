@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 
 export default function Dashboard() {
-  const { isLoaded, isSignedIn, user } = useAuth()
+  const { isLoaded, isSignedIn } = useAuth()
   const router = useRouter()
   const [file, setFile] = useState<File | null>(null)
   const [converting, setConverting] = useState(false)
