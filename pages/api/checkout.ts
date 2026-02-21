@@ -2,7 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getAuth } from '@clerk/nextjs/server'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+// Initialize Stripe with secret key
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2023-10-16',
 })
 
@@ -12,6 +13,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
+    // Check if Stripe key is configured
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error('STRIPE_SECRET_KEY not configured')
+      return res.status(500).json({ error: 'Payment system not configured' })
+    }
+
     const { userId } = getAuth(req)
     
     if (!userId) {
@@ -37,8 +44,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       ],
       mode: priceId === 'starter' ? 'payment' : 'subscription',
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://saas-factory-nine.vercel.app'}/dashboard?success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://saas-factory-nine.vercel.app'}/dashboard?canceled=true`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://saas-factory-bnpyop1wv-stagedvisuals-projects.vercel.app'}/dashboard?success=true`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://saas-factory-bnpyop1wv-stagedvisuals-projects.vercel.app'}/dashboard?canceled=true`,
       metadata: {
         userId,
         priceId,
