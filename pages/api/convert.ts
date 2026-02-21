@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getAuth } from '@clerk/nextjs/server'
 import formidable from 'formidable'
 import fs from 'fs'
+import pdfParse from 'pdf-parse'
 
 // Disable body parser for file upload
 export const config = {
@@ -37,14 +38,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'No file uploaded' })
     }
 
-    // Read PDF content
+    console.log('PDF file received:', file.originalFilename || file.newFilename)
+
+    // Read PDF content using pdf-parse
     let pdfText = ''
     try {
-      const fileBuffer = fs.readFileSync(file.filepath)
-      pdfText = fileBuffer.toString('utf-8')
+      const dataBuffer = fs.readFileSync(file.filepath)
+      const pdfData = await pdfParse(dataBuffer)
+      pdfText = pdfData.text
       fs.unlinkSync(file.filepath)
+      console.log('PDF parsed successfully, text length:', pdfText.length)
     } catch (parseError: any) {
       fs.unlinkSync(file.filepath)
+      console.error('PDF parsing error:', parseError)
       return res.status(400).json({ 
         error: 'PDF parsing failed',
         details: parseError.message 

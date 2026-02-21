@@ -1,19 +1,25 @@
 'use client'
 
 import { useState } from 'react'
-import { useDropzone } from 'react-dropzone'
-import { Loader2, Download, FileText } from 'lucide-react'
+import { Loader2, Download, FileText, CheckCircle } from 'lucide-react'
 
 export default function FileConverter() {
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<{ downloadUrl: string; transactionCount: number } | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [uploadSuccess, setUploadSuccess] = useState(false)
 
-  const handleFileSelect = (selectedFile: File) => {
-    console.log('File selected:', selectedFile.name)
-    setFile(selectedFile)
-    setError(null)
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0]
+    if (selectedFile) {
+      console.log('Bestand ontvangen:', selectedFile.name)
+      setFile(selectedFile)
+      setUploadSuccess(true)
+      setError(null)
+      // Reset success message after 3 seconds
+      setTimeout(() => setUploadSuccess(false), 3000)
+    }
   }
 
   const handleConvert = async () => {
@@ -22,7 +28,7 @@ export default function FileConverter() {
       return
     }
 
-    console.log('Starting conversion...')
+    console.log('Starting conversion for file:', file.name)
     setLoading(true)
     setError(null)
     
@@ -54,24 +60,41 @@ export default function FileConverter() {
 
   return (
     <div className="space-y-6">
-      <div
-        className="border-2 border-dashed border-gray-600 rounded-xl p-8 text-center cursor-pointer hover:border-[var(--neon-blue)] transition-colors"
-        onClick={() => document.getElementById('file-input')?.click()}
-      >
+      <div className="border-2 border-dashed border-gray-600 rounded-xl p-8 text-center hover:border-[var(--neon-blue)] transition-colors">
         <input
           type="file"
           id="file-input"
           accept=".pdf"
           className="hidden"
-          onChange={(e) => {
-            const selected = e.target.files?.[0]
-            if (selected) handleFileSelect(selected)
-          }}
+          onChange={handleFileSelect}
         />
-        <FileText className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-        <p className="text-gray-300">Klik om PDF te uploaden</p>
-        {file && <p className="text-[var(--neon-blue)] mt-2">{file.name}</p>}
+        <label htmlFor="file-input" className="cursor-pointer block">
+          <FileText className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+          <p className="text-gray-300">Klik om PDF te uploaden</p>
+          <p className="text-gray-500 text-sm mt-2">Max 10MB</p>
+        </label>
       </div>
+
+      {/* File selected indicator */}
+      {file && (
+        <div className="p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
+          <div className="flex items-center gap-3">
+            <CheckCircle className="w-5 h-5 text-blue-400" />
+            <div>
+              <p className="text-blue-300 font-medium">Bestand geselecteerd:</p>
+              <p className="text-white">{file.name}</p>
+              <p className="text-gray-400 text-sm">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Upload success message */}
+      {uploadSuccess && (
+        <div className="p-3 bg-green-500/20 border border-green-500/30 rounded-lg text-green-300 text-center">
+          ✓ Bestand succesvol geüpload!
+        </div>
+      )}
 
       {error && (
         <div className="p-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300">
@@ -87,7 +110,7 @@ export default function FileConverter() {
         {loading ? (
           <span className="flex items-center justify-center">
             <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-            Converteren...
+            Converteren met AI...
           </span>
         ) : (
           'Converteer naar Excel'
