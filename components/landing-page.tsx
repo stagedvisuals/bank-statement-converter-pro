@@ -7,9 +7,12 @@ import { useAuth } from '@clerk/nextjs'
 export default function LandingPage() {
   const { isSignedIn } = useAuth()
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleCheckout = async (priceId: string) => {
+    console.log('Checkout clicked:', priceId)
     setLoading(true)
+    setError(null)
     try {
       const res = await fetch('/api/checkout', {
         method: 'POST',
@@ -17,9 +20,16 @@ export default function LandingPage() {
         body: JSON.stringify({ priceId }),
       })
       const data = await res.json()
-      if (data.url) window.location.href = data.url
-    } catch (error) {
-      console.error(error)
+      console.log('Checkout response:', data)
+      if (data.url) {
+        window.location.href = data.url
+      } else if (data.error) {
+        setError(data.error)
+        console.error('Checkout error:', data.error)
+      }
+    } catch (error: any) {
+      console.error('Checkout fetch error:', error)
+      setError(error.message || 'Payment failed')
     }
     setLoading(false)
   }
@@ -84,6 +94,12 @@ export default function LandingPage() {
               {isSignedIn ? 'Naar Dashboard →' : 'Start Gratis Trial →'}
             </Link>
           </div>
+          
+          {error && (
+            <div className="text-red-400 text-center mb-4 p-4 bg-red-500/20 rounded-lg">
+              Error: {error}
+            </div>
+          )}
         </div>
       </section>
 
