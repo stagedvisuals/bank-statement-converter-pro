@@ -6,8 +6,10 @@ export default function TermsOfService() {
   return (
     <div className="min-h-screen bg-fintech-bg">
       <Head>
-        <title>Terms of Service | BSC Pro</title>
-        <meta name="description" content="Algemene Voorwaarden van BSC Pro" />
+        <title>Terms of Service | BSC Pro - Bank Statement Converter</title>
+        <meta name="description" content="Algemene Voorwaarden van Bank Statement Converter Pro. Lees onze voorwaarden voor gebruik." />
+        <link rel="canonical" href="https://www.bscpro.nl/terms/" />
+        <meta name="robots" content="index, follow" />
       </Head>
 
       {/* Header */}

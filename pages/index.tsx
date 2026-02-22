@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useAuth } from '@clerk/nextjs'
 import { useRouter } from 'next/router'
+import Head from 'next/head'
 import { 
   FileText, 
   Zap, 
@@ -19,7 +19,8 @@ import {
   ArrowRight,
   Brain,
   PieChart,
-  Edit3
+  Edit3,
+  Info
 } from 'lucide-react'
 import Pricing from '../components/Pricing'
 import FAQ from '../components/FAQ'
@@ -35,9 +36,9 @@ function TrustLogo({ name }: { name: string }) {
 }
 
 export default function Home() {
-  const { isSignedIn } = useAuth()
   const router = useRouter()
   const [scrolled, setScrolled] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,21 +49,53 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    if (isSignedIn) {
+    // Check if user is logged in
+    const session = localStorage.getItem('bscpro_session')
+    setIsLoggedIn(!!session)
+  }, [])
+
+  useEffect(() => {
+    if (isLoggedIn) {
       router.push('/dashboard')
     }
-  }, [isSignedIn, router])
+  }, [isLoggedIn, router])
 
   return (
-    <div className="min-h-screen bg-fintech-bg">
+    <>
+      <Head>
+        <title>BSC Pro | De Snelste Bank Statement Converter (PDF naar Excel)</title>
+        <meta name="description" content="Zet bankafschriften in seconden om naar Excel, CSV of JSON. Veilig, snel en AI-gestuurd. Ondersteunt alle Nederlandse banken." />
+        <meta name="keywords" content="Bank statement converter, PDF naar Excel bankafschrift, bankgegevens extraheren, bankafschriften converteren, Excel export bank, PDF naar CSV, boekhouding automatisering, financiële data extractie, ING Rabobank ABN AMRO export" />
+        <meta property="og:title" content="BSC Pro | De Snelste Bank Statement Converter (PDF naar Excel)" />
+        <meta property="og:description" content="Zet bankafschriften in seconden om naar Excel, CSV of JSON. Veilig, snel en AI-gestuurd." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.bscpro.nl" />
+        <meta property="og:image" content="https://www.bscpro.nl/images/logo.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="BSC Pro | De Snelste Bank Statement Converter" />
+        <meta name="twitter:description" content="Zet bankafschriften in seconden om naar Excel, CSV of JSON." />
+        <meta name="twitter:image" content="https://www.bscpro.nl/images/logo.jpg" />
+        <link rel="canonical" href="https://www.bscpro.nl/" />
+        <meta name="robots" content="index, follow" />
+        <meta name="googlebot" content="index, follow" />
+      </Head>
+      <div className="min-h-screen bg-fintech-bg">
       {/* Sticky Navigation */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrolled ? 'glass card-shadow' : 'bg-transparent'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
-            <Link href="/" className="text-2xl font-bold gradient-text">
-              BSC Pro
+            <Link href="/" className="flex items-center gap-3">
+              <img 
+                src="/images/logo.jpg" 
+                alt="BSC Pro Logo" 
+                className="h-10 w-auto rounded-lg"
+              />
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold gradient-text">BSC Pro</span>
+                <span className="text-xs text-slate">Bank Statement Converter</span>
+              </div>
             </Link>
             <div className="hidden md:flex items-center space-x-8">
               <Link href="#hoe-werkt-het" className="text-slate hover:text-navy transition-colors font-medium">
@@ -104,13 +137,20 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="animate-slide-up">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full mb-6">
-                <Zap className="w-4 h-4 text-accent" />
-                <span className="text-accent font-medium text-sm">AI Financial Document Processor</span>
+              <div className="flex items-center gap-4 mb-6">
+                <img 
+                  src="/images/logo.jpg" 
+                  alt="BSC Pro Logo" 
+                  className="h-20 w-auto rounded-xl shadow-lg"
+                />
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full">
+                  <Zap className="w-4 h-4 text-accent" />
+                  <span className="text-accent font-medium text-sm">AI Financial Document Processor</span>
+                </div>
               </div>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-navy mb-6 leading-tight">
-                Converteer bankafschriften, creditcards & facturen naar{' '}
+                De slimste manier om bankafschriften te converteren naar{' '}
                 <span className="text-success">Excel/CSV</span>
               </h1>
               
@@ -170,6 +210,25 @@ export default function Home() {
             <TrustLogo name="Bunq" />
             <TrustLogo name="Revolut" />
           </div>
+        </div>
+      </section>
+
+      {/* Over Ons Section */}
+      <section id="over-ons" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full mb-6">
+            <Info className="w-4 h-4 text-accent" />
+            <span className="text-accent font-medium text-sm">Over Ons</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-bold text-navy mb-6">
+            Wat is BSC Pro?
+          </h2>
+          <p className="text-lg text-slate leading-relaxed mb-6">
+            <strong>BSC Pro</strong> staat voor <strong>Bank Statement Converter Pro</strong>. Wij zijn een innovatief Nederlands bedrijf dat gebruik maakt van kunstmatige intelligentie om bankafschriften automatisch om te zetten naar overzichtelijke Excel- en CSV-bestanden.
+          </p>
+          <p className="text-lg text-slate leading-relaxed">
+            Onze AI-technologie herkent transacties, categoriseert uitgaven en detecteert onregelmatigheden - bespaar uren werk en voorkom fouten in je boekhouding. Geschikt voor alle Nederlandse banken en volledig GDPR-compliant.
+          </p>
         </div>
       </section>
 
@@ -382,9 +441,9 @@ export default function Home() {
             <div>
               <h4 className="font-semibold text-white mb-4">Bedrijf</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link href="#" className="text-slate hover:text-white transition-colors">Over ons</Link></li>
-                <li><Link href="#" className="text-slate hover:text-white transition-colors">Contact</Link></li>
-                <li><Link href="#" className="text-slate hover:text-white transition-colors">Blog</Link></li>
+                <li><Link href="#over-ons" className="text-slate hover:text-white transition-colors">Over ons</Link></li>
+                <li><Link href="mailto:info@bscpro.nl" className="text-slate hover:text-white transition-colors">Contact: info@bscpro.nl</Link></li>
+                <li><span className="text-slate">Bank Statement Converter Pro</span></li>
               </ul>
             </div>
             <div>
@@ -398,7 +457,7 @@ export default function Home() {
           </div>
           <div className="pt-8 border-t border-navy-lighter flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-slate text-sm">
-              © 2026 BSC Pro. Alle rechten voorbehouden.
+              © 2026 Bank Statement Converter Pro. Alle rechten voorbehouden.
             </p>
             <div className="flex gap-6">
               <Link href="/login" className="text-slate hover:text-white transition-colors text-sm">Login</Link>
@@ -408,5 +467,6 @@ export default function Home() {
         </div>
       </footer>
     </div>
+    </>
   )
 }

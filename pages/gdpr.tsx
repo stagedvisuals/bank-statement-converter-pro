@@ -6,8 +6,10 @@ export default function GDPR() {
   return (
     <div className="min-h-screen bg-fintech-bg">
       <Head>
-        <title>GDPR / AVG Verklaring | BSC Pro</title>
-        <meta name="description" content="GDPR en AVG verklaring van BSC Pro" />
+        <title>GDPR / AVG Verklaring | BSC Pro - Bank Statement Converter</title>
+        <meta name="description" content="GDPR en AVG verklaring van Bank Statement Converter Pro. Data veiligheid en compliance." />
+        <link rel="canonical" href="https://www.bscpro.nl/gdpr/" />
+        <meta name="robots" content="index, follow" />
       </Head>
 
       {/* Header */}

@@ -8,6 +8,9 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
+// Admin email for notifications
+const ADMIN_EMAIL = 'arthybagdas@gmail.com'
+
 interface EmailTemplate {
   subject: string
   html: string
@@ -99,6 +102,66 @@ function getWelcomeEmail(userName: string): EmailTemplate {
   }
 }
 
+function getDailyDigestEmail(data: any): EmailTemplate {
+  return {
+    subject: `🌑 BSC Pro Daily Digest - ${data.date}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #0F172A; padding: 30px; text-align: center;">
+          <h1 style="color: #10B981; margin: 0;">BSC Pro</h1>
+          <p style="color: #94A3B8; margin: 10px 0 0 0;">Daily Digest</p>
+        </div>
+        
+        <div style="padding: 30px; background: #ffffff;">
+          <h2 style="color: #0F172A;">📊 Statistieken voor ${data.date}</h2>
+          
+          <div style="background: #F8FAFC; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 10px; color: #64748B;">Nieuwe gebruikers</td>
+                <td style="padding: 10px; text-align: right; font-weight: bold; color: #0F172A;">${data.newUsers}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; color: #64748B;">Conversies</td>
+                <td style="padding: 10px; text-align: right; font-weight: bold; color: #0F172A;">${data.conversions}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; color: #64748B;">Chat gesprekken</td>
+                <td style="padding: 10px; text-align: right; font-weight: bold; color: #0F172A;">${data.chats || 0}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; color: #64748B;">Contact formulieren</td>
+                <td style="padding: 10px; text-align: right; font-weight: bold; color: #0F172A;">${data.contacts || 0}</td>
+              </tr>
+              <tr style="border-top: 2px solid #E2E8F0;">
+                <td style="padding: 10px; color: #0F172A; font-weight: bold;">Geschatte omzet</td>
+                <td style="padding: 10px; text-align: right; font-weight: bold; color: #10B981; font-size: 18px;">€${data.revenue.toFixed(2)}</td>
+              </tr>
+            </table>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="https://www.bscpro.nl/dashboard" 
+               style="background: #10B981; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
+              Ga naar Dashboard
+            </a>
+          </div>
+          
+          <p style="color: #94A3B8; font-size: 14px; text-align: center;">
+            🚀 Status: OPERATIONAL
+          </p>
+        </div>
+        
+        <div style="background: #F1F5F9; padding: 20px; text-align: center;">
+          <p style="color: #64748B; font-size: 14px; margin: 0;">
+            © 2026 BSC Pro
+          </p>
+        </div>
+      </div>
+    `
+  }
+}
+
 // Main API handler
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -109,14 +172,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: 'Resend not configured' })
   }
 
-  const { to, type, userName, fileName, transactionCount } = req.body
+  const { to, type, userName, fileName, transactionCount, ...digestData } = req.body
 
-  if (!to || !type) {
-    return res.status(400).json({ error: 'Missing required fields' })
+  // Validate recipient email
+  const recipient = to || ADMIN_EMAIL
+
+  if (!type) {
+    return res.status(400).json({ error: 'Missing email type' })
   }
 
   try {
     let emailTemplate: EmailTemplate
+    let finalRecipient = recipient
 
     switch (type) {
       case 'conversion_complete':
@@ -125,35 +192,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       case 'welcome':
         emailTemplate = getWelcomeEmail(userName)
         break
+      case 'daily_digest':
+        emailTemplate = getDailyDigestEmail(digestData)
+        finalRecipient = ADMIN_EMAIL // Force admin email for digests
+        break
       default:
         return res.status(400).json({ error: 'Unknown email type' })
     }
 
     // Send email via Resend
     const { data, error } = await resend.emails.send({
-      from: 'BSC Pro <noreply@bscpro.nl>',
-      to: [to],
+      from: 'BSC Pro <info@bscpro.nl>',
+      to: [finalRecipient],
       subject: emailTemplate.subject,
       html: emailTemplate.html,
     })
 
     if (error) {
       console.error('Resend error:', error)
-      return res.status(500).json({ error: 'Failed to send email' })
+      return res.status(500).json({ error: 'Failed to send email', details: error })
     }
 
     // Log to database
     if (supabaseUrl && supabaseServiceKey) {
       const supabase = createClient(supabaseUrl, supabaseServiceKey)
       await supabase.from('email_notifications').insert({
-        email: to,
+        email: finalRecipient,
         type: type,
         status: 'sent',
         sent_at: new Date().toISOString()
       })
     }
 
-    return res.status(200).json({ success: true, id: data?.id })
+    return res.status(200).json({ success: true, id: data?.id, recipient: finalRecipient })
 
   } catch (error) {
     console.error('Email service error:', error)

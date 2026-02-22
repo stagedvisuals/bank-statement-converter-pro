@@ -11,6 +11,7 @@ const { createClient } = require('@supabase/supabase-js')
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const ADMIN_EMAIL = 'arthybagdas@gmail.com'
 
 async function generateDailyDigest() {
   if (!supabaseUrl || !supabaseServiceKey) {
@@ -20,7 +21,6 @@ async function generateDailyDigest() {
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
   const today = new Date().toISOString().split('T')[0]
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
 
   console.log(`Generating daily digest for ${today}...`)
 
@@ -33,7 +33,7 @@ async function generateDailyDigest() {
 
     if (usersError) console.error('Error fetching users:', usersError)
 
-    // Get conversions today (you'll need to create this table)
+    // Get conversions today
     const { count: conversions, error: convError } = await supabase
       .from('conversions')
       .select('*', { count: 'exact', head: true })
@@ -49,9 +49,16 @@ async function generateDailyDigest() {
 
     if (chatError) console.error('Error fetching chats:', chatError)
 
-    // Get revenue (estimate based on conversions)
-    // This is simplified - you'd want proper order tracking
-    const estimatedRevenue = (conversions || 0) * 2 // €2 per conversion avg
+    // Get contact messages
+    const { count: contacts, error: contactError } = await supabase
+      .from('contact_messages')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', `${today}T00:00:00`)
+
+    if (contactError) console.error('Error fetching contacts:', contactError)
+
+    // Calculate revenue
+    const estimatedRevenue = (conversions || 0) * 2
 
     // Store daily analytics
     await supabase.from('daily_analytics').upsert({
@@ -63,43 +70,48 @@ async function generateDailyDigest() {
     }, { onConflict: 'date' })
 
     // Generate digest message
-    const digest = {
-      date: today,
-      summary: {
-        newUsers: newUsers || 0,
-        conversions: conversions || 0,
-        chatConversations: chats || 0,
-        estimatedRevenue: estimatedRevenue
-      },
-      message: `
+    const digestMessage = `
 🌑 BSC PRO DAILY DIGEST - ${today}
 
 📊 STATISTICS:
 • Nieuwe gebruikers: ${newUsers || 0}
 • Conversies vandaag: ${conversions || 0}
 • Chat gesprekken: ${chats || 0}
+• Contact formulieren: ${contacts || 0}
 • Geschatte omzet: €${estimatedRevenue.toFixed(2)}
 
 🚀 Status: OPERATIONAL
-      `.trim()
+    `.trim()
+
+    console.log(digestMessage)
+
+    // Send email notification
+    try {
+      const response = await fetch('https://www.bscpro.nl/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: ADMIN_EMAIL,
+          type: 'daily_digest',
+          date: today,
+          newUsers: newUsers || 0,
+          conversions: conversions || 0,
+          chats: chats || 0,
+          contacts: contacts || 0,
+          revenue: estimatedRevenue
+        })
+      })
+
+      if (!response.ok) {
+        console.error('Failed to send daily digest email')
+      } else {
+        console.log(`Daily digest sent to ${ADMIN_EMAIL}`)
+      }
+    } catch (emailError) {
+      console.error('Error sending email:', emailError)
     }
 
-    // Send to Arthur via Telegram (using OpenClaw message tool)
-    // This would need to be integrated with the actual messaging system
-    console.log(digest.message)
-    
-    // You could also send email:
-    // await fetch('https://bscpro.nl/api/send-email', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({
-    //     to: 'arthur@your-email.com',
-    //     type: 'daily_digest',
-    //     ...digest
-    //   })
-    // })
-
-    console.log('Daily digest generated successfully')
+    console.log('Daily digest completed successfully')
     process.exit(0)
 
   } catch (error) {

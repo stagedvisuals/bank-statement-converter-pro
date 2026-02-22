@@ -21,14 +21,7 @@ JOUW ROL:
 4. Wees vriendelijk, professioneel en beknopt
 5. Als je het antwoord niet weet, verwijs naar support@bscpro.ai
 
-ANTWOORD ALTIJD IN HET NEDERLANDS.
-
-Voorbeeld vragen die je kunt beantwoorden:
-- "Hoe werkt het?" → Leg de 3 stappen uit (upload, AI analyse, download)
-- "Is het veilig?" → Leg GDPR compliance en 24u delete uit
-- "Welke banken?" → Noem de belangrijkste Nederlandse banken
-- "Hoeveel kost het?" → Leg de 3 prijzen uit
-- "Wat is smart categorisatie?" → Leg uit dat AI automatisch categorieën toewijst`
+ANTWOORD ALTIJD IN HET NEDERLANDS.`
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -40,6 +33,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!message) {
     return res.status(400).json({ error: 'Message is required' })
   }
+
+  let conversationId: string | undefined
 
   try {
     // Store user message in database
@@ -53,7 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .eq('session_id', sessionId)
         .single()
 
-      let conversationId = conversation?.id
+      conversationId = conversation?.id
 
       if (!conversationId) {
         const { data: newConv } = await supabase
@@ -74,57 +69,124 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    // Call AI API (Moonshot/Kimi)
-    const response = await fetch('https://api.moonshot.cn/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.MOONSHOT_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'moonshot-v1-8k',
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          ...history.slice(-5), // Keep last 5 messages for context
-          { role: 'user', content: message }
-        ],
-        temperature: 0.7,
-        max_tokens: 500
-      })
-    })
+    // Check if AI is available
+    const moonshotKey = process.env.MOONSHOT_API_KEY
+    let aiResponse: string
 
-    if (!response.ok) {
-      throw new Error('AI API error')
+    if (moonshotKey) {
+      try {
+        // Call AI API (Moonshot/Kimi)
+        const response = await fetch('https://api.moonshot.cn/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${moonshotKey}`
+          },
+          body: JSON.stringify({
+            model: 'moonshot-v1-8k',
+            messages: [
+              { role: 'system', content: SYSTEM_PROMPT },
+              ...history.slice(-5),
+              { role: 'user', content: message }
+            ],
+            temperature: 0.7,
+            max_tokens: 500
+          })
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          aiResponse = data.choices?.[0]?.message?.content || 'Sorry, ik kon je vraag niet verwerken.'
+        } else {
+          // AI unavailable - use fallback
+          aiResponse = getFallbackResponse(message)
+        }
+      } catch (error) {
+        // AI error - use fallback
+        aiResponse = getFallbackResponse(message)
+      }
+    } else {
+      // No AI key - use fallback
+      aiResponse = getFallbackResponse(message)
     }
 
-    const data = await response.json()
-    const aiResponse = data.choices?.[0]?.message?.content || 'Sorry, ik kon je vraag niet verwerken.'
-
     // Store AI response in database
-    if (supabaseUrl && supabaseServiceKey && sessionId) {
+    if (supabaseUrl && supabaseServiceKey && conversationId) {
       const supabase = createClient(supabaseUrl, supabaseServiceKey)
-      
-      const { data: conversation } = await supabase
-        .from('chat_conversations')
-        .select('id')
-        .eq('session_id', sessionId)
-        .single()
-
-      if (conversation?.id) {
-        await supabase.from('chat_messages').insert({
-          conversation_id: conversation.id,
-          role: 'assistant',
-          content: aiResponse
-        })
-      }
+      await supabase.from('chat_messages').insert({
+        conversation_id: conversationId,
+        role: 'assistant',
+        content: aiResponse
+      })
     }
 
     return res.status(200).json({ response: aiResponse })
 
   } catch (error) {
     console.error('Chat error:', error)
-    return res.status(500).json({ 
-      response: 'Sorry, er is een technische storing. Probeer het later opnieuw of neem contact op via support@bscpro.ai.'
+    return res.status(200).json({ 
+      response: 'Bedankt voor je bericht! Ons support team neemt zo snel mogelijk contact met je op. Voor dringende vragen, mail naar support@bscpro.ai'
     })
   }
+}
+
+// Fallback responses when AI is unavailable
+function getFallbackResponse(message: string): string {
+  const lowerMsg = message.toLowerCase()
+  
+  if (lowerMsg.includes('prijs') || lowerMsg.includes('kost') || lowerMsg.includes('euro') || lowerMsg.includes('€')) {
+    return `Onze prijzen zijn:
+• Basic: €2 per document (pay-as-you-go)
+• Business: €15/maand (50 conversies)
+• Enterprise: €30/maand (onbeperkt)
+
+Meer info op https://bscpro.nl/#pricing`
+  }
+  
+  if (lowerMsg.includes('veilig') || lowerMsg.includes('privacy') || lowerMsg.includes('gdpr') || lowerMsg.includes('avg')) {
+    return `Ja, BSC Pro is volledig veilig:
+• GDPR/AVG compliant
+• 24-uurs data-delete
+• AES-256 versleuteling
+• Geen AI training op jouw data
+• Servers binnen de EU`
+  }
+  
+  if (lowerMsg.includes('bank') || lowerMsg.includes('ing') || lowerMsg.includes('rabobank') || lowerMsg.includes('abn')) {
+    return `We ondersteunen alle Nederlandse banken:
+• ING, Rabobank, ABN AMRO
+• Bunq, Revolut
+• SNS, ASN, Triodos
+• En alle andere Nederlandse banken`
+  }
+  
+  if (lowerMsg.includes('werkt') || lowerMsg.includes('hoe') || lowerMsg.includes('uitleg')) {
+    return `Zo werkt BSC Pro:
+1. Upload je PDF bankafschrift
+2. Onze AI analyseert en categoriseert automatisch
+3. Download je Excel/CSV bestand
+
+Het duurt minder dan 30 seconden!`
+  }
+  
+  if (lowerMsg.includes('hallo') || lowerMsg.includes('hi') || lowerMsg.includes('goedendag')) {
+    return `Hallo! Welkom bij BSC Pro. Ik ben je AI assistent (momenteel in onderhoudsmodus). 
+
+Ik kan je helpen met vragen over:
+• Prijzen en abonnementen
+• Veiligheid en privacy
+• Ondersteunde banken
+• Hoe het werkt
+
+Wat wil je weten?`
+  }
+  
+  // Default response
+  return `Bedankt voor je bericht! 
+
+Ik ben momenteel in onderhoudsmodus, maar je bericht is opgeslagen. Ons support team neemt zo snel mogelijk contact met je op.
+
+Voor dringende vragen:
+📧 support@bscpro.ai
+🌐 https://bscpro.nl`
 }

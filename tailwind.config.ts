@@ -23,9 +23,9 @@ const config: Config = {
           lighter: '#CBD5E1',
         },
         success: {
-          DEFAULT: '#10B981',
-          dark: '#059669',
-          light: '#34D399',
+          DEFAULT: '#0D9488',
+          dark: '#0F766E',
+          light: '#14B8A6',
         },
         danger: {
           DEFAULT: '#EF4444',
@@ -38,9 +38,9 @@ const config: Config = {
           light: '#FCD34D',
         },
         accent: {
-          DEFAULT: '#3B82F6',
-          light: '#60A5FA',
-          dark: '#2563EB',
+          DEFAULT: '#0891B2',
+          light: '#22D3EE',
+          dark: '#0E7490',
         },
         fintech: {
           bg: '#F8FAFC',

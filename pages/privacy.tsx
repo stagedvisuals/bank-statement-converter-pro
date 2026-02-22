@@ -6,8 +6,11 @@ export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-fintech-bg">
       <Head>
-        <title>Privacy Policy | BSC Pro</title>
-        <meta name="description" content="Privacybeleid van BSC Pro - AI Financial Document Processor" />
+        <title>Privacy Policy | BSC Pro - Bank Statement Converter</title>
+        <meta name="description" content="Privacybeleid van Bank Statement Converter Pro. Wij nemen uw privacy uiterst serieus. AVG/GDPR compliant." />
+        <meta name="keywords" content="BSC Pro privacy, bankgegevens veiligheid, AVG compliant" />
+        <link rel="canonical" href="https://www.bscpro.nl/privacy/" />
+        <meta name="robots" content="index, follow" />
       </Head>
 
       {/* Header */}

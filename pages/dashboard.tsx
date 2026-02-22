@@ -1,4 +1,3 @@
-import { useAuth, useUser, UserButton } from '@clerk/nextjs'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
@@ -20,7 +19,9 @@ import {
   Shield,
   AlertCircle,
   Brain,
-  Tag
+  Tag,
+  LogOut,
+  User
 } from 'lucide-react'
 
 interface Transaction {
@@ -105,9 +106,9 @@ function SimplePieChart({ data }: { data: Record<string, number> }) {
 }
 
 export default function Dashboard() {
-  const { isLoaded, isSignedIn } = useAuth()
-  const { user } = useUser()
   const router = useRouter()
+  const [user, setUser] = useState<any>(null)
+  const [isLoaded, setIsLoaded] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const [converting, setConverting] = useState(false)
   const [result, setResult] = useState<any>(null)
@@ -117,15 +118,31 @@ export default function Dashboard() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [summary, setSummary] = useState<any>(null)
 
-  const role = user?.publicMetadata?.role as string
+  const role = user?.role || 'user'
   const isPro = role === 'pro' || role === 'admin'
   const isEnterprise = role === 'enterprise' || role === 'admin'
 
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
+    // Check session
+    const session = localStorage.getItem('bscpro_session')
+    const userData = localStorage.getItem('bscpro_user')
+    
+    if (!session) {
       router.push('/login')
+      return
     }
-  }, [isLoaded, isSignedIn, router])
+    
+    if (userData) {
+      setUser(JSON.parse(userData))
+    }
+    setIsLoaded(true)
+  }, [router])
+  
+  const handleLogout = () => {
+    localStorage.removeItem('bscpro_session')
+    localStorage.removeItem('bscpro_user')
+    router.push('/login')
+  }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
@@ -255,7 +272,7 @@ export default function Dashboard() {
     document.body.removeChild(link)
   }
 
-  if (!isLoaded || !isSignedIn) {
+  if (!isLoaded || !user) {
     return <div className="min-h-screen flex items-center justify-center bg-fintech-bg"><div className="text-navy">Laden...</div></div>
   }
 
@@ -268,7 +285,16 @@ export default function Dashboard() {
             <div className="flex items-center space-x-4">
               {isPro && <span className="px-3 py-1 bg-success/10 text-success text-xs font-bold rounded-full">PRO</span>}
               <span className="text-slate text-sm">Credits: <span className="text-success font-bold">{isPro ? '∞' : '2'}</span></span>
-              <UserButton afterSignOutUrl="/" />
+              <div className="flex items-center gap-2">
+                <span className="text-slate text-sm hidden md:inline">{user?.email}</span>
+                <button 
+                  onClick={handleLogout}
+                  className="p-2 text-slate hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
+                  title="Uitloggen"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -443,7 +469,7 @@ export default function Dashboard() {
             <div className="bg-white rounded-2xl p-6 card-shadow border border-fintech-border">
               <h3 className="font-bold text-navy mb-4">Account</h3>
               <div className="space-y-3">
-                <div className="flex justify-between"><span className="text-slate">Email</span><span className="text-navy font-medium text-sm truncate max-w-[150px]">{user?.primaryEmailAddress?.emailAddress}</span></div>
+                <div className="flex justify-between"><span className="text-slate">Email</span><span className="text-navy font-medium text-sm truncate max-w-[150px]">{user?.email}</span></div>
                 <div className="flex justify-between"><span className="text-slate">Plan</span><span className={`font-medium text-sm ${isPro ? 'text-success' : 'text-slate'}`}>{isEnterprise ? 'Enterprise' : isPro ? 'Business' : 'Free'}</span></div>
                 <div className="flex justify-between"><span className="text-slate">Credits</span><span className="text-navy font-bold">{isPro ? '∞' : '2'}</span></div>
               </div>

@@ -3,15 +3,15 @@
 @tailwind utilities;
 
 :root {
-  /* Fintech Professional Color Palette */
+  /* BSC Pro Brand Colors - Teal/Cyan Palette matching logo */
   --navy: #0F172A;
   --navy-light: #1E293B;
   --slate: #64748B;
   --slate-light: #94A3B8;
-  --success: #10B981;
-  --success-dark: #059669;
-  --accent: #3B82F6;
-  --accent-light: #60A5FA;
+  --success: #0D9488;
+  --success-dark: #0F766E;
+  --accent: #0891B2;
+  --accent-light: #22D3EE;
   --light: #F8FAFC;
   --light-gray: #F1F5F9;
   --border: #E2E8F0;
@@ -53,7 +53,7 @@ body {
 
 /* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, #0F172A 0%, #3B82F6 100%);
+  background: linear-gradient(135deg, #0D9488 0%, #0891B2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -61,7 +61,7 @@ body {
 
 /* Success gradient */
 .gradient-success {
-  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  background: linear-gradient(135deg, #0D9488 0%, #0F766E 100%);
 }
 
 /* Card shadows */
@@ -92,7 +92,7 @@ body {
 }
 
 .text-success {
-  color: #10B981;
+  color: #0D9488;
 }
 
 /* Custom scrollbar */
@@ -129,10 +129,10 @@ input[type="range"]::-webkit-slider-thumb {
   appearance: none;
   width: 24px;
   height: 24px;
-  background: #10B981;
+  background: #0D9488;
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.4);
   transition: transform 0.15s ease;
 }
 
@@ -143,9 +143,9 @@ input[type="range"]::-webkit-slider-thumb:hover {
 input[type="range"]::-moz-range-thumb {
   width: 24px;
   height: 24px;
-  background: #10B981;
+  background: #0D9488;
   border-radius: 50%;
   cursor: pointer;
   border: none;
-  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.4);
 }

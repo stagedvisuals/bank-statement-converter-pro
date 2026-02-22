@@ -44,8 +44,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       ],
       mode: priceId === 'starter' ? 'payment' : 'subscription',
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://saas-factory-bnpyop1wv-stagedvisuals-projects.vercel.app'}/dashboard?success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://saas-factory-bnpyop1wv-stagedvisuals-projects.vercel.app'}/dashboard?canceled=true`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://bscpro.nl'}/dashboard?success=true`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://bscpro.nl'}/dashboard?canceled=true`,
       metadata: {
         userId,
         priceId,
