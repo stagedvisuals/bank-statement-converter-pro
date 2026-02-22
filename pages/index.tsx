@@ -16,7 +16,10 @@ import {
   Building2,
   CreditCard,
   Receipt,
-  ArrowRight
+  ArrowRight,
+  Brain,
+  PieChart,
+  Edit3
 } from 'lucide-react'
 import Pricing from '../components/Pricing'
 import FAQ from '../components/FAQ'
@@ -158,7 +161,7 @@ export default function Home() {
       <section className="py-12 bg-white border-y border-fintech-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center text-slate text-sm mb-6 font-medium uppercase tracking-wider">
-            Vertrouwd door ondernemers uit heel Nederland
+            Ondersteunde bankformaten:
           </p>
           <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8">
             <TrustLogo name="ING" />
@@ -222,49 +225,53 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Grid */}
+      {/* AI Intelligence Features */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full mb-4">
+              <Brain className="w-4 h-4 text-accent" />
+              <span className="text-accent font-medium text-sm">AI Financial Intelligence</span>
+            </div>
             <h2 className="text-3xl sm:text-4xl font-bold text-navy mb-4">
-              Alle Documenttypes Ondersteund
+              Meer dan alleen Converteren
             </h2>
             <p className="text-slate text-lg max-w-2xl mx-auto">
-              Van bankafschriften tot creditcard statements - wij converteren het allemaal
+              Onze AI analyseert je financiële data en geeft direct bruikbare inzichten
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 rounded-xl bg-fintech-bg border border-fintech-border text-center">
+            <div className="p-6 rounded-xl bg-fintech-bg border border-fintech-border text-center hover:card-shadow-hover transition-all">
               <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Building2 className="w-6 h-6 text-accent" />
+                <Brain className="w-6 h-6 text-accent" />
               </div>
-              <h3 className="font-bold text-navy mb-2">Bankafschriften</h3>
-              <p className="text-sm text-slate">Alle Nederlandse banken</p>
+              <h3 className="font-bold text-navy mb-2">Smart Categorisatie</h3>
+              <p className="text-sm text-slate">AI herkent automatisch Huisvesting, Marketing, Personeel en meer</p>
             </div>
             
-            <div className="p-6 rounded-xl bg-fintech-bg border border-fintech-border text-center">
+            <div className="p-6 rounded-xl bg-fintech-bg border border-fintech-border text-center hover:card-shadow-hover transition-all">
               <div className="w-12 h-12 bg-success/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <CreditCard className="w-6 h-6 text-success" />
+                <Shield className="w-6 h-6 text-success" />
               </div>
-              <h3 className="font-bold text-navy mb-2">Creditcards</h3>
-              <p className="text-sm text-slate">Visa, Mastercard, Amex</p>
+              <h3 className="font-bold text-navy mb-2">AI Fraude Detectie</h3>
+              <p className="text-sm text-slate">Detecteert dubbele transacties en verdachte patronen automatisch</p>
             </div>
             
-            <div className="p-6 rounded-xl bg-fintech-bg border border-fintech-border text-center">
+            <div className="p-6 rounded-xl bg-fintech-bg border border-fintech-border text-center hover:card-shadow-hover transition-all">
               <div className="w-12 h-12 bg-navy/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Receipt className="w-6 h-6 text-navy" />
+                <PieChart className="w-6 h-6 text-navy" />
               </div>
-              <h3 className="font-bold text-navy mb-2">Facturen</h3>
-              <p className="text-sm text-slate">PDF facturen & bonnen</p>
+              <h3 className="font-bold text-navy mb-2">Directe Insights</h3>
+              <p className="text-sm text-slate">Zie direct je grootste kostenposten en cashflow analyse</p>
             </div>
             
-            <div className="p-6 rounded-xl bg-fintech-bg border border-fintech-border text-center">
+            <div className="p-6 rounded-xl bg-fintech-bg border border-fintech-border text-center hover:card-shadow-hover transition-all">
               <div className="w-12 h-12 bg-warning/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <FileText className="w-6 h-6 text-warning" />
+                <Edit3 className="w-6 h-6 text-warning" />
               </div>
-              <h3 className="font-bold text-navy mb-2">Meer formats</h3>
-              <p className="text-sm text-slate">CSV, Excel export</p>
+              <h3 className="font-bold text-navy mb-2">Preview & Bewerk</h3>
+              <p className="text-sm text-slate">Controleer en corrigeer AI resultaten voordat je exporteert</p>
             </div>
           </div>
         </div>
@@ -367,9 +374,9 @@ export default function Home() {
             <div>
               <h4 className="font-semibold text-white mb-4">Product</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link href="#hoe-werkt-het" className="text-slate hover:text-white transition-colors">Hoe het werkt</Link></li>
-                <li><Link href="#pricing" className="text-slate hover:text-white transition-colors">Prijzen</Link></li>
-                <li><Link href="#" className="text-slate hover:text-white transition-colors">API Docs</Link></li>
+                <li><Link href="/#hoe-werkt-het" className="text-slate hover:text-white transition-colors">Hoe het werkt</Link></li>
+                <li><Link href="/#pricing" className="text-slate hover:text-white transition-colors">Prijzen</Link></li>
+                <li><Link href="/api-docs" className="text-slate hover:text-white transition-colors">API Docs</Link></li>
               </ul>
             </div>
             <div>
@@ -383,9 +390,9 @@ export default function Home() {
             <div>
               <h4 className="font-semibold text-white mb-4">Legal</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link href="#" className="text-slate hover:text-white transition-colors">Privacy Policy</Link></li>
-                <li><Link href="#" className="text-slate hover:text-white transition-colors">Terms of Service</Link></li>
-                <li><Link href="#" className="text-slate hover:text-white transition-colors">GDPR</Link></li>
+                <li><Link href="/privacy" className="text-slate hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="text-slate hover:text-white transition-colors">Terms of Service</Link></li>
+                <li><Link href="/gdpr" className="text-slate hover:text-white transition-colors">GDPR</Link></li>
               </ul>
             </div>
           </div>

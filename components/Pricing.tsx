@@ -102,7 +102,7 @@ export default function Pricing() {
               <span className="text-4xl font-bold text-navy">€30</span>
               <span className="text-slate">/maand</span>
             </div>
-            <p className="text-sm text-slate mb-6">Onbeperkt. API-toegang. Alles in Business plus:</p>
+            <p className="text-sm text-slate mb-6">Onbeperkt. Volledige AI API. Alles in Business plus:</p>
             <ul className="space-y-3 mb-8">
               <li className="flex items-center gap-3 text-sm">
                 <Check className="w-5 h-5 text-success flex-shrink-0" />
@@ -110,7 +110,11 @@ export default function Pricing() {
               </li>
               <li className="flex items-center gap-3 text-sm">
                 <Check className="w-5 h-5 text-success flex-shrink-0" />
-                <span>API-toegang</span>
+                <span>API voor automatische categorisatie</span>
+              </li>
+              <li className="flex items-center gap-3 text-sm">
+                <Check className="w-5 h-5 text-success flex-shrink-0" />
+                <span>JSON export met AI risk scores</span>
               </li>
               <li className="flex items-center gap-3 text-sm">
                 <Check className="w-5 h-5 text-success flex-shrink-0" />
@@ -121,12 +125,12 @@ export default function Pricing() {
                 <span>Directe export: Twinfield, Exact, SnelStart</span>
               </li>
             </ul>
-            <Link 
-              href="/register" 
+            <a 
+              href="mailto:support@bscpro.ai?subject=Enterprise%20Plan%20Aanvraag" 
               className="block w-full py-3 text-center border-2 border-navy text-navy font-semibold rounded-xl hover:bg-navy hover:text-white transition-all"
             >
               Contact Sales
-            </Link>
+            </a>
           </div>
         </div>
       </div>

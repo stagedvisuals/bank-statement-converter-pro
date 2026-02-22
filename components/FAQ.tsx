@@ -14,15 +14,18 @@ function FAQItem({ question, answer }: FAQItemProps) {
   return (
     <div className="border-b border-fintech-border last:border-0">
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full py-5 flex items-center justify-between text-left hover:bg-fintech-bg/50 transition-colors rounded-lg px-2"
+        className="w-full py-5 flex items-center justify-between text-left hover:bg-fintech-bg/50 transition-colors rounded-lg px-2 cursor-pointer"
       >
         <span className="font-semibold text-navy pr-4">{question}</span>
-        {isOpen ? (
-          <ChevronUp className="w-5 h-5 text-slate flex-shrink-0" />
-        ) : (
-          <ChevronDown className="w-5 h-5 text-slate flex-shrink-0" />
-        )}
+        <span className="flex-shrink-0">
+          {isOpen ? (
+            <ChevronUp className="w-5 h-5 text-slate" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-slate" />
+          )}
+        </span>
       </button>
       {isOpen && (
         <div className="pb-5 px-2 animate-fade-in">
@@ -37,19 +40,27 @@ export default function FAQ() {
   const faqItems = [
     {
       question: "Is mijn data veilig? (GDPR/AVG compliant)",
-      answer: "Absoluut. We zijn volledig GDPR/AVG compliant. Alle data wordt versleuteld opgeslagen (AES-256) en verwerkt binnen de EU. We verkopen nooit data aan derden en gebruiken je documenten alleen voor de conversie."
+      answer: "Absoluut. We zijn volledig GDPR/AVG compliant. Alle data wordt versleuteld opgeslagen (AES-256) en verwerkt binnen de EU. We verkopen nooit data aan derden en gebruiken je documenten alleen voor de conversie. In tegenstelling tot andere tools gebruiken wij jouw financiële data niet om onze AI-modellen te trainen."
     },
     {
       question: "Hoe snel worden mijn documenten verwijderd?",
-      answer: "Direct na conversie wordt je document automatisch verwijderd van onze servers. We hanteren een strikt 24-uurs data-delete beleid. Je kunt ook direct na downloaden zelf je document verwijderen uit je dashboard."
+      answer: "Direct na conversie wordt je document automatisch gemarkeerd voor verwijdering. We hanteren een strikt 24-uurs data-delete beleid. Na 24 uur zijn je bestanden definitief verwijderd van al onze servers. Je kunt ook direct na downloaden zelf je document verwijderen uit je dashboard."
     },
     {
       question: "Hoe nauwkeurig is de AI conversie?",
-      answer: "Onze AI behaalt 99.2% nauwkeurigheid op standaard bankafschriften. Bij complexe documenten of onduidelijke scans kan dit iets lager liggen. Je ontvangt altijd een overzicht om te controleren voordat je downloadt."
+      answer: "Onze AI behaalt 99.2% nauwkeurigheid op standaard bankafschriften. Bij complexe documenten of onduidelijke scans kan dit iets lager liggen. Je ontvangt altijd een preview om te controleren voordat je definitief downloadt. Enterprise gebruikers zien een 'confidence score' per transactie."
     },
     {
       question: "Welke banken en documenten worden ondersteund?",
-      answer: "We ondersteunen alle Nederlandse banken: ING, Rabobank, ABN AMRO, Bunq, Revolut, SNS, ASN, Triodos en meer. Daarnaast werken we met creditcard afschriften (Mastercard, Visa, Amex) en PDF facturen."
+      answer: "We ondersteunen alle Nederlandse banken: ING, Rabobank, ABN AMRO, Bunq, Revolut, SNS, ASN, Triodos en meer. Daarnaast werken we met creditcard afschriften (Mastercard, Visa, Amex) en PDF facturen. Heb je een specifiek formaat? Neem contact op, we voegen nieuwe banken snel toe."
+    },
+    {
+      question: "Kan ik mijn geconverteerde data nog bewerken?",
+      answer: "Ja! Voordat je de definitieve Excel downloadt, krijg je een preview te zien waarin je transacties kunt bewerken, toevoegen of verwijderen. Zo heb je volledige controle over de output voordat deze naar je boekhouding gaat."
+    },
+    {
+      question: "Wat is het verschil tussen de abonnementen?",
+      answer: "Basic (€2/doc) is pay-as-you-go voor incidenteel gebruik. Business (€15/maand) biedt 50 conversies per maand met batch processing en priority support. Enterprise (€30/maand) geeft onbeperkte conversies, API toegang, JSON export en een dedicated account manager."
     }
   ]
 

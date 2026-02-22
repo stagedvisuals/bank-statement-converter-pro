@@ -16,7 +16,9 @@
   --light-gray: #F1F5F9;
   --border: #E2E8F0;
   --danger: #EF4444;
+  --danger-light: #FCA5A5;
   --warning: #F59E0B;
+  --warning-light: #FCD34D;
 }
 
 * {
