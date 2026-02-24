@@ -244,7 +244,7 @@ export default function AccountantsPage() {
                 <div style={{ fontSize: '48px', fontWeight: 800, color: '#00D4FF' }}>€149</div>
                 <div style={{ color: '#94A3B8', fontSize: '14px' }}>per maand</div>
               </div>
-              <div style={{ spaceY: '12px' }}>
+              <div>
                 {[
                   'Whitelabel portal met jouw branding',
                   'Onbeperkt aantal klanten',
