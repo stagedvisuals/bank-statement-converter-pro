@@ -29,6 +29,7 @@ interface Transaction {
   category: string;
   categoryName: string;
   categoryEmoji: string;
+  categoryBgColor?: string;
   btw: { rate: number; description: string };
 }
 
@@ -117,6 +118,7 @@ export default function Dashboard() {
         category: t.category || 'overig',
         categoryName: t.categoryName || 'Overig',
         categoryEmoji: t.categoryEmoji || '📦',
+        categoryBgColor: t.categoryBgColor || '',
         btw: t.btw || { rate: 21, description: 'Standaard tarief' }
       }));
 
