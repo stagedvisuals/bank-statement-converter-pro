@@ -27,6 +27,22 @@ interface Transaction {
   omschrijving: string;
   bedrag: number;
   category: string;
+  categoryName: string;
+  categoryEmoji: string;
+  btw: { rate: number; description: string };
+}
+
+interface CategorySummary {
+  id: string;
+  count: number;
+  total: number;
+  percentage: string;
+  category: {
+    name: string;
+    emoji: string;
+    color: string;
+    bgColor: string;
+  };
 }
 
 export default function Dashboard() {
@@ -38,6 +54,7 @@ export default function Dashboard() {
   const [bank, setBank] = useState<string>('');
   const [rekeningnummer, setRekeningnummer] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const [categorySummary, setCategorySummary] = useState<CategorySummary[]>([]);
 
   useEffect(() => {
     const session = localStorage.getItem('bscpro_session');
@@ -97,12 +114,16 @@ export default function Dashboard() {
         datum: t.datum || '',
         omschrijving: t.omschrijving || 'Onbekend',
         bedrag: parseFloat(t.bedrag) || 0,
-        category: t.category || 'Overig'
+        category: t.category || 'overig',
+        categoryName: t.categoryName || 'Overig',
+        categoryEmoji: t.categoryEmoji || '📦',
+        btw: t.btw || { rate: 21, description: 'Standaard tarief' }
       }));
 
       setTransactions(formatted);
       setBank(data.bank || 'Onbekend');
       setRekeningnummer(data.rekeningnummer || '');
+      setCategorySummary(data.categorySummary || []);
       setScanStatus('done');
 
     } catch (err: any) {
@@ -329,6 +350,58 @@ export default function Dashboard() {
               </p>
             </div>
 
+            {/* Category Summary - NEW */}
+            {categorySummary.length > 0 && (
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">🏷 Automatisch Gecategoriseerd</h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Pie Chart Visualization */}
+                  <div>
+                    <h4 className="text-sm font-medium text-slate-500 mb-3">Verdeling van je uitgaven</h4>
+                    <div className="space-y-2">
+                      {categorySummary.slice(0, 6).map((cat) => (
+                        <div key={cat.id} className="flex items-center gap-3">
+                          <span className="text-xl">{cat.category.emoji}</span>
+                          <div className="flex-1">
+                            <div className="flex justify-between text-sm mb-1">
+                              <span className="text-slate-700">{cat.category.name}</span>
+                              <span className="text-slate-500">{cat.percentage}%</span>
+                            </div>
+                            <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-blue-500 rounded-full transition-all"
+                                style={{ width: `${cat.percentage}%` }}
+                              />
+                            </div>
+                          </div>
+                          <span className="text-sm font-medium text-slate-700">€{cat.total.toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Category Stats */}
+                  <div className="bg-slate-50 rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-slate-500 mb-3">BTW-klaar overzicht</h4>
+                    <div className="space-y-3">
+                      {categorySummary.slice(0, 6).map((cat) => (
+                        <div key={cat.id} className={`flex items-center justify-between p-2 rounded-lg ${cat.category.bgColor}`}>
+                          <div className="flex items-center gap-2">
+                            <span>{cat.category.emoji}</span>
+                            <span className="text-sm font-medium text-slate-700">{cat.category.name}</span>
+                          </div>
+                          <span className="text-sm text-slate-600">{cat.count} transacties</span>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="mt-4 text-xs text-slate-500">
+                      ✨ Alle transacties zijn automatisch gecategoriseerd en BTW-percentages toegekend. Klaar voor je aangifte!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Transaction Summary */}
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
               <div className="p-6 border-b border-slate-200">
@@ -381,10 +454,15 @@ export default function Dashboard() {
                   </thead>
                   <tbody className="divide-y divide-slate-200">
                     {transactions.map((t) => (
-                      <tr key={t.id} className="hover:bg-slate-50">
+                      <tr key={t.id} className={`hover:bg-slate-50 ${t.categoryBgColor || ''}`}>
                         <td className="px-6 py-4 text-sm text-slate-900">{t.datum}</td>
                         <td className="px-6 py-4 text-sm text-slate-900">{t.omschrijving}</td>
-                        <td className="px-6 py-4 text-sm text-slate-500">{t.category}</td>
+                        <td className="px-6 py-4 text-sm">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100">
+                            <span>{t.categoryEmoji || '📦'}</span>
+                            <span className="text-slate-700">{t.categoryName || 'Overig'}</span>
+                          </span>
+                        </td>
                         <td className={`px-6 py-4 text-sm font-medium text-right ${t.bedrag >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                           {t.bedrag >= 0 ? '+' : ''}€{t.bedrag.toFixed(2)}
                         </td>

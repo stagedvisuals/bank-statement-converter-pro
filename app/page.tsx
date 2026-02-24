@@ -234,8 +234,8 @@ export default function Home() {
               <div className="w-16 h-16 rounded-2xl bg-green-100 flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl">📥</span>
               </div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">Download je Excel bestand</h3>
-              <p className="text-slate-600 text-sm">Krijg direct een professioneel Excel bestand klaar voor je boekhouding of administratie.</p>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">Download je gecategoriseerde bestand</h3>
+              <p className="text-slate-600 text-sm">Excel met automatische categorisering, BTW-overzicht en MT940 export. Klaar voor je boekhouding!</p>
             </div>
           </div>
         </div>
@@ -250,16 +250,17 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
             {[
               { icon: Clock, title: 'Direct resultaat', desc: 'Upload je PDF en binnen 10 seconden heb je een Excel bestand' },
               { icon: Shield, title: 'Veilig & AVG-proof', desc: 'Je data wordt na 24 uur automatisch verwijderd. Geen zorgen.' },
               { icon: CheckCircle, title: '99.5% nauwkeurig', desc: 'Onze AI herkent zelfs de meest complexe bankafschriften' },
               { icon: Database, title: 'MT940 Export ⭐', desc: 'Als enige in NL: directe MT940 export voor Exact, Twinfield, AFAS en SnelStart' },
+              { icon: TrendingUp, title: 'Automatisch gecategoriseerd 🏷', desc: 'Transacties worden direct gesorteerd. BTW-aangifte in minuten, niet uren.', highlight: true },
             ].map((feature) => (
-              <div key={feature.title} className={`p-6 rounded-xl border transition-all hover:shadow-md ${feature.title.includes('MT940') ? 'bg-yellow-50 border-yellow-200 hover:border-yellow-300' : 'bg-slate-50 border-slate-100 hover:border-blue-200'}`}>
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-4 ${feature.title.includes('MT940') ? 'bg-yellow-100' : 'bg-blue-100'}`}>
-                  <feature.icon className={`w-5 h-5 ${feature.title.includes('MT940') ? 'text-yellow-600' : 'text-blue-500'}`} />
+              <div key={feature.title} className={`p-6 rounded-xl border transition-all hover:shadow-md ${feature.title.includes('MT940') ? 'bg-yellow-50 border-yellow-200 hover:border-yellow-300' : feature.highlight ? 'bg-purple-50 border-purple-200 hover:border-purple-300' : 'bg-slate-50 border-slate-100 hover:border-blue-200'}`}>
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-4 ${feature.title.includes('MT940') ? 'bg-yellow-100' : feature.highlight ? 'bg-purple-100' : 'bg-blue-100'}`}>
+                  <feature.icon className={`w-5 h-5 ${feature.title.includes('MT940') ? 'text-yellow-600' : feature.highlight ? 'text-purple-600' : 'text-blue-500'}`} />
                 </div>
                 <h3 className="text-base font-semibold text-slate-900 mb-2">{feature.title}</h3>
                 <p className="text-sm text-slate-600">{feature.desc}</p>
@@ -547,9 +548,9 @@ export default function Home() {
                 </div>
 
                 <ul className="space-y-2.5 mb-6">
-                  {['50 afschriften/maand', 'Alle export-formaten', 'E-mail support', 'Priority verwerking'].map((item) => (
-                    <li key={item} className="flex items-center gap-2 text-sm text-slate-700">
-                      <Check className="w-4 h-4 text-blue-500" />
+                  {['50 afschriften/maand', '✓ Automatische categorisering (BTW-klaar)', 'Alle export-formaten', 'E-mail support', 'Priority verwerking'].map((item) => (
+                    <li key={item} className={`flex items-center gap-2 text-sm ${item.includes('categorisering') ? 'text-purple-700 font-medium' : 'text-slate-700'}`}>
+                      <Check className={`w-4 h-4 ${item.includes('categorisering') ? 'text-purple-500' : 'text-blue-500'}`} />
                       {item}
                     </li>
                   ))}
@@ -583,9 +584,9 @@ export default function Home() {
                 </div>
 
                 <ul className="space-y-2.5 mb-6">
-                  {['Onbeperkt afschriften', '✓ MT940 export (Exact, Twinfield, AFAS)', 'API toegang', 'Priority support', 'Dedicated account manager'].map((item) => (
-                    <li key={item} className={`flex items-center gap-2 text-sm ${item.includes('MT940') ? 'text-yellow-700 font-medium' : 'text-slate-700'}`}>
-                      <Check className={`w-4 h-4 ${item.includes('MT940') ? 'text-yellow-500' : 'text-blue-500'}`} />
+                  {['Onbeperkt afschriften', '✓ MT940 export (Exact, Twinfield, AFAS)', '✓ Automatische categorisering (BTW-klaar)', 'API toegang', 'Priority support', 'Dedicated account manager'].map((item) => (
+                    <li key={item} className={`flex items-center gap-2 text-sm ${item.includes('MT940') ? 'text-yellow-700 font-medium' : item.includes('categorisering') ? 'text-purple-700 font-medium' : 'text-slate-700'}`}>
+                      <Check className={`w-4 h-4 ${item.includes('MT940') ? 'text-yellow-500' : item.includes('categorisering') ? 'text-purple-500' : 'text-blue-500'}`} />
                       {item}
                     </li>
                   ))}
@@ -651,6 +652,10 @@ export default function Home() {
               {
                 q: "Wat is MT940 en waarom is dit handig?",
                 a: "MT940 is het internationale standaardformaat voor bankafschriften. Alle grote boekhoudpakketten (Exact, Twinfield, AFAS, SnelStart) accepteren MT940 bestanden voor directe import. Je hoeft geen handmatige invoer meer te doen!"
+              },
+              {
+                q: "Hoe werkt de automatische categorisering?",
+                a: "Onze AI analyseert elke transactie en wijst automatisch een categorie toe (boodschappen, horeca, brandstof, etc.). Per categorie wordt het juiste BTW-percentage toegekend. Je krijgt een BTW-overzicht dat direct klaar is voor je aangifte."
               },
               {
                 q: "Wat als mijn conversie niet klopt?",
