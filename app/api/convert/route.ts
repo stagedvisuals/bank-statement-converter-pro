@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import ExcelJS from 'exceljs'
 import { categorizeTransactions, getCategorySummary, getBTWSummary, CATEGORIES, BTW_RATES } from '@/lib/categorization'
 import pdfParse from 'pdf-parse'
+import sharp from 'sharp'
+import { promises as fs } from 'fs'
+import { join } from 'path'
 
 export const runtime = 'nodejs'
 
@@ -356,28 +359,56 @@ export async function PUT(req: NextRequest) {
     
     const categorySummary = getCategorySummary(categorizedTransactions)
     
+    // ========== LOAD AND CONVERT LOGO ==========
+    let logoImageId: number | undefined
+    try {
+      const logoPath = join(process.cwd(), 'public', 'logo.svg')
+      const svgBuffer = await fs.readFile(logoPath)
+      
+      // Convert SVG to PNG using sharp
+      const pngBuffer = await sharp(svgBuffer)
+        .resize(300, 120, { fit: 'contain', background: { r: 10, g: 22, b: 40, alpha: 1 } })
+        .png()
+        .toBuffer()
+      
+      // Add image to workbook
+      logoImageId = workbook.addImage({
+        base64: pngBuffer.toString('base64'),
+        extension: 'png',
+      })
+    } catch (logoError) {
+      console.log('Could not load logo:', logoError)
+    }
+    
     // ========== TRANSACTIONS SHEET ==========
     const wsTrans = workbook.addWorksheet('Transacties')
     
-    // Add header section (4 rows)
+    // Add logo image if loaded
+    if (logoImageId !== undefined) {
+      wsTrans.addImage(logoImageId, {
+        tl: { col: 0, row: 0 },
+        ext: { width: 300, height: 120 }
+      })
+    }
+    
+    // Set row heights for logo area
+    wsTrans.getRow(1).height = 30
+    wsTrans.getRow(2).height = 30
+    wsTrans.getRow(3).height = 30
+    wsTrans.getRow(4).height = 20
+    
+    // Add header info
     const now = new Date()
     const exportDate = now.toLocaleDateString('nl-NL')
     const exportTime = now.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })
     
-    // Row 1: Company name with Logo text
-    wsTrans.mergeCells('A1:H1')
-    wsTrans.getCell('A1').value = 'BSC Pro - Bank Statement Converter'
-    wsTrans.getCell('A1').font = { bold: true, size: 18, color: { argb: HEADER_COLOR } }
-    wsTrans.getCell('A1').alignment = { horizontal: 'center' }
-    wsTrans.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE8F4FF' } }
-    
-    // Row 2: Tagline
+    // Row 2: Tagline (below logo)
     wsTrans.mergeCells('A2:H2')
     wsTrans.getCell('A2').value = 'www.bscpro.nl | AI-Powered Bank Statement Conversion'
     wsTrans.getCell('A2').font = { size: 10, color: { argb: 'FF0088CC' } }
     wsTrans.getCell('A2').alignment = { horizontal: 'center' }
     
-    // Row 3: Export date
+    // Row 3: Export info
     wsTrans.mergeCells('A3:H3')
     wsTrans.getCell('A3').value = `Geëxporteerd op: ${exportDate} ${exportTime} | ${bank} ${month} ${year}`
     wsTrans.getCell('A3').font = { size: 10, italic: true, color: { argb: 'FF666666' } }
@@ -466,26 +497,34 @@ export async function PUT(req: NextRequest) {
     
     // ========== SUMMARY SHEET ==========
     const wsSummary = workbook.addWorksheet('Samenvatting')
-    wsSummary.views = [{ state: 'frozen', ySplit: 3 }]
+    wsSummary.views = [{ state: 'frozen', ySplit: 4 }]
     
     // Footer with watermark
     wsSummary.headerFooter = {
       oddFooter: '&L&BSCPro.nl&C&IVertrouwelijk - Gegenereerd door AI&R&P van &N'
     }
     
-    // Title
-    wsSummary.mergeCells('A1:D1')
-    wsSummary.getCell('A1').value = 'BSC Pro - Financieel Overzicht'
-    wsSummary.getCell('A1').font = { bold: true, size: 18, color: { argb: HEADER_COLOR } }
-    wsSummary.getCell('A1').alignment = { horizontal: 'center' }
+    // Add logo to summary sheet too
+    if (logoImageId !== undefined) {
+      wsSummary.addImage(logoImageId, {
+        tl: { col: 0, row: 0 },
+        ext: { width: 300, height: 120 }
+      })
+    }
     
+    // Set row heights
+    wsSummary.getRow(1).height = 30
+    wsSummary.getRow(2).height = 30
+    wsSummary.getRow(3).height = 20
+    
+    // Title info below logo
     wsSummary.mergeCells('A2:D2')
     wsSummary.getCell('A2').value = `${bank} | ${month} ${year}`
     wsSummary.getCell('A2').alignment = { horizontal: 'center' }
-    wsSummary.getCell('A2').font = { italic: true, size: 12 }
+    wsSummary.getCell('A2').font = { italic: true, size: 12, color: { argb: 'FF0088CC' } }
     
     wsSummary.mergeCells('A3:D3')
-    wsSummary.getCell('A3').value = `Geëxporteerd: ${exportDate}`
+    wsSummary.getCell('A3').value = `Geëxporteerd: ${exportDate} ${exportTime}`
     wsSummary.getCell('A3').alignment = { horizontal: 'center' }
     wsSummary.getCell('A3').font = { italic: true, size: 10, color: { argb: 'FF888888' } }
     
