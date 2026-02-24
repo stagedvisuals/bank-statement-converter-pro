@@ -18,8 +18,8 @@ export const CATEGORIES: Category[] = [
     emoji: '🛒',
     color: 'text-green-600',
     bgColor: 'bg-green-50',
-    keywords: ['albert heijn', 'ah to go', 'jumbo', 'lidl', 'aldi', 'plus', 'dirk', 'spar', 'ekoplaza', 'marqt', 'vomar', 'hoogvliet', 'dekamarkt', 'dirk van den broek', 'jan linders', 'coop', 'attent', 'poiesz', 'nettorama', 'bas van der heijden', 'kruidvat', 'etos', 'hema'],
-    patterns: [/^ah\s/i, /^jumbo\s/i]
+    keywords: ['albert heijn', 'ah to go', 'jumbo', 'lidl', 'aldi', 'plus', 'dirk', 'spar', 'ekoplaza', 'marqt', 'vomar', 'hoogvliet', 'dekamarkt', 'dirk van den broek', 'jan linders', 'coop', 'attent', 'poiesz', 'nettorama', 'bas van der heijden', 'kruidvat', 'etos', 'hema', 'deka', 'vishandel', 'slagerij', 'bakkerij', 'groente', 'fruit'],
+    patterns: [/^ah\s/i, /^jumbo\s/i, /^lidl\s/i, /^plus\s/i]
   },
   {
     id: 'huur',
@@ -27,8 +27,8 @@ export const CATEGORIES: Category[] = [
     emoji: '🏠',
     color: 'text-blue-600',
     bgColor: 'bg-blue-50',
-    keywords: ['huur', 'hypotheek', 'woning', 'vve', 'vereniging van eigenaren', 'servicekosten'],
-    patterns: [/^huur/i, /^hypotheek/i]
+    keywords: ['huur', 'hypotheek', 'woning', 'vve', 'vereniging van eigenaren', 'servicekosten', 'overboeking'],
+    patterns: [/^huur/i, /^hypotheek/i, /overboeking.*huur/i, /huur.*overboeking/i]
   },
   {
     id: 'salaris',
@@ -36,8 +36,8 @@ export const CATEGORIES: Category[] = [
     emoji: '💼',
     color: 'text-emerald-600',
     bgColor: 'bg-emerald-50',
-    keywords: ['salaris', 'loon', 'payroll', 'uitbetaling', 'werkgever'],
-    patterns: [/^salaris/i, /^loon/i, /sal\s?\d{4}/i]
+    keywords: ['salaris', 'loon', 'payroll', 'uitbetaling', 'werkgever', 'salarisbetaling'],
+    patterns: [/^salaris/i, /^loon/i, /sal\s?\d{4}/i, /salarisbetaling/i]
   },
   {
     id: 'brandstof',
@@ -45,8 +45,8 @@ export const CATEGORIES: Category[] = [
     emoji: '⛽️',
     color: 'text-red-600',
     bgColor: 'bg-red-50',
-    keywords: ['shell', 'bp', 'esso', 'tinq', 'total', 'tamoil', 'gulf', 'caltex', 'makro tank', 'bvdw', 'tango', 'argos', 'ldf', 'parkeren tank'],
-    patterns: [/\btank\b/i, /\bstation\b/i]
+    keywords: ['shell', 'bp', 'esso', 'tinq', 'total', 'tamoil', 'gulf', 'caltex', 'makro tank', 'bvdw', 'tango', 'argos', 'ldf', 'parkeren tank', 'tankstation'],
+    patterns: [/\btank\b/i, /\bstation\b/i, /brandstof/i]
   },
   {
     id: 'horeca',
@@ -54,8 +54,8 @@ export const CATEGORIES: Category[] = [
     emoji: '🍽',
     color: 'text-orange-600',
     bgColor: 'bg-orange-50',
-    keywords: ['restaurant', 'cafe', 'bar', 'lunchroom', 'cafetaria', 'snackbar', 'eethuis', 'grill', 'pizzeria', 'grand cafe', 'hotel', 'brasserie', 'bistro'],
-    patterns: [/restaurant/i, /caf[eé]/i, /lunch/i, /diner/i, /terras/i]
+    keywords: ['restaurant', 'cafe', 'bar', 'lunchroom', 'cafetaria', 'snackbar', 'eethuis', 'grill', 'pizzeria', 'grand cafe', 'hotel', 'brasserie', 'bistro', 'mcdonalds', 'kfc', 'burger king', 'subway', 'dominos', 'new york pizza', 'thuisbezorgd', 'uber eats', 'deliveroo'],
+    patterns: [/restaurant/i, /caf[eé]/i, /lunch/i, /diner/i, /terras/i, /thuisbezorgd/i, /uber eats/i, /deliveroo/i]
   },
   {
     id: 'telecom',
@@ -63,8 +63,8 @@ export const CATEGORIES: Category[] = [
     emoji: '📱',
     color: 'text-purple-600',
     bgColor: 'bg-purple-50',
-    keywords: ['kpn', 'vodafone', 't-mobile', 'simyo', 'tele2', 'ben', 'hollandsnieuwe', 'ziggo', 'xs4all', 'online', 'canaldigitaal', 'dishtv', 'telfort', 'kpn mobiel'],
-    patterns: [/^kpn/i, /^vodafone/i, /^t-mobile/i, /^ziggo/i]
+    keywords: ['kpn', 'vodafone', 't-mobile', 'simyo', 'tele2', 'ben', 'hollandsnieuwe', 'ziggo', 'xs4all', 'online', 'canaldigitaal', 'dishtv', 'telfort', 'kpn mobiel', 'telefoon', 'internet', 'tv pakket'],
+    patterns: [/^kpn/i, /^vodafone/i, /^t-mobile/i, /^ziggo/i, /^tele2/i, /^telfort/i]
   },
   {
     id: 'transport',
@@ -72,8 +72,8 @@ export const CATEGORIES: Category[] = [
     emoji: '🚗',
     color: 'text-cyan-600',
     bgColor: 'bg-cyan-50',
-    keywords: ['ns', 'nederlandse spoorwegen', 'ov-chipkaart', 'ov pay', 'gvb', 'htm', 'ret', 'connexxion', 'qbuzz', 'arriva', 'syntus', 'keolis', 'eurostar', 'thalys', 'flixbus', 'blablacar', 'uber', 'bolt', 'felyx', 'check', 'parkeren', 'garage'],
-    patterns: [/^ns\s/i, /ov-chip/i, /parkeren/i, /garage/i, /taxi/i]
+    keywords: ['ns', 'nederlandse spoorwegen', 'ov-chipkaart', 'ov pay', 'gvb', 'htm', 'ret', 'connexxion', 'qbuzz', 'arriva', 'syntus', 'keolis', 'eurostar', 'thalys', 'flixbus', 'blablacar', 'uber', 'bolt', 'felyx', 'check', 'parkeren', 'garage', 'tanken'],
+    patterns: [/^ns\s/i, /ov-chip/i, /parkeren/i, /garage/i, /taxi/i, /bolt/i, /felyx/i]
   },
   {
     id: 'software',
@@ -81,8 +81,35 @@ export const CATEGORIES: Category[] = [
     emoji: '💻',
     color: 'text-indigo-600',
     bgColor: 'bg-indigo-50',
-    keywords: ['adobe', 'microsoft', 'google', 'aws', 'amazon web', 'dropbox', 'slack', 'zoom', 'notion', 'atlassian', 'github', 'gitlab', 'jetbrains', 'intuit', 'quickbooks', 'xero', 'exact', 'twinfield', 'moneybird', 'afas', 'visma', 'yuki', 'silvasoft'],
-    patterns: [/software/i, /subscription/i, /licentie/i, /license/i, /saas/i]
+    keywords: ['adobe', 'microsoft', 'google', 'aws', 'amazon web', 'dropbox', 'slack', 'zoom', 'notion', 'atlassian', 'github', 'gitlab', 'jetbrains', 'intuit', 'quickbooks', 'xero', 'exact', 'twinfield', 'moneybird', 'afas', 'visma', 'yuki', 'silvasoft', 'shopify', 'woocommerce', 'wordpress'],
+    patterns: [/software/i, /subscription/i, /licentie/i, /license/i, /saas/i, /cloud/i]
+  },
+  {
+    id: 'abonnementen',
+    name: 'Abonnementen',
+    emoji: '📺',
+    color: 'text-pink-600',
+    bgColor: 'bg-pink-50',
+    keywords: ['spotify', 'netflix', 'disney', 'amazon prime', 'hbo', 'videoland', 'apple tv', 'youtube', 'deezer', 'tidal', 'soundcloud', 'pathe', 'cineville', 'sport', 'fitness', 'basic fit', 'anytime fitness', 'jumbo sports'],
+    patterns: [/^spotify$/i, /^netflix$/i, /^disney/i, /amazon prime/i, /hbo/i, /videoland/i, /apple tv/i, /youtube premium/i, /deezer/i, /tidal/i]
+  },
+  {
+    id: 'zorg',
+    name: 'Zorg',
+    emoji: '🏥',
+    color: 'text-teal-600',
+    bgColor: 'bg-teal-50',
+    keywords: ['zorgverzekering', 'cz', 'vgz', 'menzis', 'zilveren kruis', 'achmea', 'onvz', 'pma', 'univé', 'zorg', 'tandarts', 'huisarts', 'fysio', 'fysiotherapie', 'apotheek', 'medicijnen', 'hospital', 'ziekenhuis', 'mondzorg', 'orthodontist', 'bril', 'opticien', 'pearle', 'hans anders', 'eye wish'],
+    patterns: [/zorgverzekering/i, /^cz\s/i, /^vgz/i, /^menzis/i, /^zilveren kruis/i, /zorg/i, /tandarts/i, /huisarts/i, /fysio/i, /apotheek/i]
+  },
+  {
+    id: 'overheid',
+    name: 'Overheid',
+    emoji: '🏛️',
+    color: 'text-amber-700',
+    bgColor: 'bg-amber-50',
+    keywords: ['belastingdienst', 'belasting', 'toeslagen', 'duo', 'ib-groep', 'gemeente', 'waterschap', 'provincie', 'rijksoverheid', 'kvk', 'kamer van koophandel', 'cbr', 'rdw', 'immigratie', 'ind', 'svb', 'uitkering', 'ww', 'bijstand', 'aow', 'pensioen', 'premie'],
+    patterns: [/belastingdienst/i, /^belasting/i, /toeslag/i, /^duo/i, /ib-groep/i, /gemeente/i, /waterschap/i, /uitkering/i, /ww-uitkering/i]
   },
   {
     id: 'bankkosten',
@@ -90,8 +117,8 @@ export const CATEGORIES: Category[] = [
     emoji: '🏦',
     color: 'text-slate-600',
     bgColor: 'bg-slate-50',
-    keywords: ['bankkosten', 'rente', 'kosten', 'transactiekosten', 'abonnement', 'maandkosten'],
-    patterns: [/kosten/i, /rente/i, /bank/i, /^kst/i]
+    keywords: ['bankkosten', 'rente', 'kosten', 'transactiekosten', 'maandkosten', 'ING', 'Rabobank', 'ABN AMRO', 'SNS', 'Bunq', 'Triodos'],
+    patterns: [/^kosten/i, /rente/i, /bankkosten/i, /^kst/i, /transactiekosten/i]
   },
   {
     id: 'overig',
@@ -112,6 +139,9 @@ export const BTW_RATES: Record<string, { rate: number; description: string }> = 
   'telecom': { rate: 21, description: 'Hoge BTW tarief' },
   'transport': { rate: 9, description: 'Lage BTW tarief' },
   'software': { rate: 21, description: 'Hoge BTW tarief' },
+  'abonnementen': { rate: 21, description: 'Hoge BTW tarief' },
+  'zorg': { rate: 0, description: 'BTW vrijgesteld' },
+  'overheid': { rate: 0, description: 'BTW vrijgesteld' },
   'huur': { rate: 0, description: 'BTW vrijgesteld' },
   'salaris': { rate: 0, description: 'Geen BTW van toepassing' },
   'bankkosten': { rate: 0, description: 'BTW vrijgesteld' },

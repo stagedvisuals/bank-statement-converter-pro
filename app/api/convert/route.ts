@@ -76,6 +76,14 @@ async function processPdfWithGroq(pdfText: string, fileName: string): Promise<an
   ]
 }
 
+Important categorization rules:
+- "Belastingdienst" = government tax payment (overheid)
+- Monthly transfers with fixed amounts = likely rent (huur)
+- "Zorgverzekering", "CZ", "VGZ", "Menzis", "Zilveren Kruis" = healthcare insurance (zorg)
+- "Spotify", "Netflix", "Disney+", "HBO", "Videoland" = subscriptions (abonnementen)
+- "Overboeking" with same amount every month = rent (huur)
+- Use Dutch descriptions from the bank statement
+
 Important:
 - Amount should be positive for income, negative for expenses
 - Date format: DD-MM-YYYY
