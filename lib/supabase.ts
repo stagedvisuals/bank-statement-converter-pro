@@ -1,10 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 // Check if properly configured
-const isConfigured = supabaseUrl && !supabaseUrl.includes('placeholder') && supabaseKey && supabaseKey.length > 20
+const isConfigured = supabaseUrl && !supabaseUrl.includes('placeholder') && supabaseAnonKey && supabaseAnonKey.length > 20
 
 // Mock database for demo mode
 const mockUsers: any[] = []
@@ -42,7 +42,16 @@ export const supabase = !isConfigured ? {
       getPublicUrl: () => ({ data: { publicUrl: 'https://example.com/mock.xlsx' } })
     })
   }
-} as any : createClient(supabaseUrl, supabaseKey)
+} as any : createClient(supabaseUrl, supabaseAnonKey)
+
+// Server-side admin client (only use in API routes)
+export const createAdminClient = () => {
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!serviceRoleKey) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set')
+  }
+  return createClient(supabaseUrl, serviceRoleKey)
+}
 
 // Database types
 export type User = {

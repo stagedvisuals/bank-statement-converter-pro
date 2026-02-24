@@ -5,86 +5,93 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log('[API Register] Request received:', req.method)
+  console.log('[Register] Request received:', req.method)
 
   if (req.method !== 'POST') {
-    console.log('[API Register] Method not allowed:', req.method)
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  console.log('[API Register] Supabase configured:', !!supabaseUrl && !!supabaseServiceKey)
-
   if (!supabaseUrl || !supabaseServiceKey) {
-    console.error('[API Register] Supabase not configured')
-    return res.status(500).json({ error: 'Supabase not configured' })
+    console.error('[Register] Missing env vars:', { url: !!supabaseUrl, key: !!supabaseServiceKey })
+    return res.status(500).json({ error: 'Server configuration error' })
   }
 
   const { email, password, name } = req.body
-  console.log('[API Register] Registration attempt for:', email)
+  console.log('[Register] Attempt for:', email)
 
   if (!email || !password) {
-    console.log('[API Register] Missing email or password')
-    return res.status(400).json({ error: 'Email and password are required' })
-  }
-
-  if (password.length < 6) {
-    console.log('[API Register] Password too short')
-    return res.status(400).json({ error: 'Password must be at least 6 characters' })
+    return res.status(400).json({ error: 'Email and password required' })
   }
 
   try {
-    console.log('[API Register] Creating Supabase client')
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
-    
-    console.log('[API Register] Attempting sign up')
-    // Sign up with Supabase Auth
-    const { data, error } = await supabase.auth.signUp({
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    })
+
+    // Try admin create first (no email sent, auto-confirmed)
+    const { data, error } = await supabase.auth.admin.createUser({
       email,
       password,
-      options: {
-        data: {
-          full_name: name || email.split('@')[0]
-        }
-      }
+      email_confirm: true,
+      user_metadata: { full_name: name || email.split('@')[0] }
     })
 
     if (error) {
-      console.error('[API Register] Supabase auth error:', error)
-      return res.status(400).json({ error: error.message })
-    }
+      console.log('[Register] Admin create failed:', error.message)
+      
+      // If user already exists
+      if (error.message?.includes('already') || error.code === 'user_already_exists') {
+        return res.status(400).json({ error: 'Dit emailadres is al geregistreerd' })
+      }
 
-    console.log('[API Register] Auth successful, user ID:', data.user?.id)
-
-    // Create profile
-    if (data.user) {
-      console.log('[API Register] Creating profile in public.profiles')
-      const { error: profileError } = await supabase.from('profiles').insert({
-        id: data.user.id,
-        email: data.user.email,
-        full_name: name || email.split('@')[0],
-        role: 'user',
-        created_at: new Date().toISOString()
+      // Try regular signUp as fallback
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: name || email.split('@')[0] } }
       })
 
+      if (signUpError) {
+        console.error('[Register] SignUp also failed:', signUpError)
+        return res.status(400).json({ error: signUpError.message })
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'Registratie succesvol - check je email',
+        user: { id: signUpData.user?.id, email: signUpData.user?.email }
+      })
+    }
+
+    console.log('[Register] User created:', data.user?.id)
+
+    // Try to create profile, but don't fail if it doesn't work
+    if (data.user) {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: data.user.id,
+          email: data.user.email,
+          full_name: name || email.split('@')[0],
+          role: 'user',
+          created_at: new Date().toISOString()
+        }, { onConflict: 'id' })
+
       if (profileError) {
-        console.error('[API Register] Profile creation error:', profileError)
+        console.log('[Register] Profile error (non-fatal):', profileError.message)
       } else {
-        console.log('[API Register] Profile created successfully')
+        console.log('[Register] Profile created')
       }
     }
 
-    console.log('[API Register] Sending success response')
     return res.status(200).json({
       success: true,
-      message: 'Registration successful',
-      user: {
-        id: data.user?.id,
-        email: data.user?.email
-      }
+      message: 'Account succesvol aangemaakt',
+      user: { id: data.user?.id, email: data.user?.email }
     })
 
   } catch (error: any) {
-    console.error('[API Register] Unexpected error:', error)
-    return res.status(500).json({ error: 'Internal server error', details: error.message })
+    console.error('[Register] Unexpected error:', error)
+    return res.status(500).json({ error: 'Er is iets misgegaan. Probeer later opnieuw.' })
   }
 }

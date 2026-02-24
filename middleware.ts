@@ -18,6 +18,8 @@ const publicRoutes = [
   '/api/auth/login',
   '/api/auth/register',
   '/api/auth/session',
+  '/api/convert',
+  '/api/convert/',
 ]
 
 // Check if route is public
@@ -27,39 +29,35 @@ function isPublicRoute(pathname: string): boolean {
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const method = request.method
   
-  console.log('[Middleware]', pathname, 'Public:', isPublicRoute(pathname))
+  console.log('[Middleware]', method, pathname)
+  
+  // Handle CORS preflight requests
+  if (method === 'OPTIONS') {
+    const response = new NextResponse(null, { status: 200 })
+    response.headers.set('Access-Control-Allow-Origin', '*')
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH')
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    return response
+  }
   
   // CORS headers for bscpro.nl
   const response = NextResponse.next()
-  response.headers.set('Access-Control-Allow-Origin', 'https://www.bscpro.nl')
+  response.headers.set('Access-Control-Allow-Origin', '*')
   response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
   response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   
   // Allow public routes
   if (isPublicRoute(pathname)) {
-    console.log('[Middleware] Allowing public route:', pathname)
+    console.log('[Middleware] Allowing route:', pathname)
     return response
   }
   
-  // Check for session token in cookie or header
-  const sessionToken = request.cookies.get('sb-access-token')?.value || 
-                       request.headers.get('authorization')?.replace('Bearer ', '')
-  
-  console.log('[Middleware] Protected route:', pathname, 'Has token:', !!sessionToken)
-  
-  // For protected routes, we'll let the client-side handle the redirect
-  // This prevents the middleware from blocking
-  if (!sessionToken) {
-    console.log('[Middleware] No session, allowing client-side redirect')
-    // Don't block - let the page handle the redirect
-    return response
-  }
-  
-  console.log('[Middleware] Session found, allowing access')
+  console.log('[Middleware] Protected route:', pathname)
   return response
 }
 
 export const config = {
-  matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
+  matcher: ['/((?!.*\..*|_next).*)', '/', '/(api|trpc)(.*)'],
 }

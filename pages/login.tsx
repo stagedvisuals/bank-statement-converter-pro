@@ -12,9 +12,12 @@ export default function LoginPage() {
 
   useEffect(() => {
     // Check if already logged in
-    const session = localStorage.getItem('bscpro_session')
-    if (session) {
-      router.push('/dashboard')
+    const sessionStr = localStorage.getItem('bscpro_session')
+    if (sessionStr) {
+      const session = JSON.parse(sessionStr)
+      if (session?.access_token) {
+        router.push('/dashboard')
+      }
     }
   }, [router])
 
