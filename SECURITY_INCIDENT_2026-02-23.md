@@ -43,7 +43,7 @@ cd /tmp && wget https://repo1.maven.org/maven2/com/madgag/bfg/1.14.0/bfg-1.14.0.
 #### Create passwords.txt:
 ```bash
 # Create file with OLD leaked key:
-echo "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzcXBwaWVyZ3BhZ21reG94ZHRjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTYxNzg1NSwiZXhwIjoyMDg3MTkzODU1fQ.Zx0bSf9yXbpMJNek6ZPNL9gtN233yB-7JScUMGrdZCI" > passwords.txt
+echo "[REDACTED_OLD_SUPABASE_KEY]" > passwords.txt
 ```
 
 #### Run BFG:
@@ -68,7 +68,7 @@ git push --force
 pip install git-filter-repo
 
 # Run filter
-git filter-repo --replace-text <(echo "OLD_KEY==>NEW_KEY")
+git filter-repo --replace-text <(echo "[REDACTED_OLD_KEY]==>[REDACTED_NEW_KEY]")
 
 # Force push
 git push origin --force --all
@@ -78,7 +78,7 @@ git push origin --force --all
 
 Check if key is still in history:
 ```bash
-git log --all --full-history -p -- .env.local | grep "OLD_KEY"
+git log --all --full-history -p -- .env.local | grep "[REDACTED]"
 ```
 
 If nothing shows up: ✅ SUCCESS
