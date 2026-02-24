@@ -7,9 +7,9 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "BSC Pro | Bank Statement Converter",
-  description: "Transform bank statements into perfect Excel/CSV data with AI-powered accuracy. Fast, secure, and reliable.",
-  keywords: "bank statement converter, PDF to Excel, bank statement to CSV, financial data extraction",
+  title: "BSC Pro | Bank Statement Converter voor Boekhouders",
+  description: "Converteer PDF bankafschriften automatisch naar Excel, CSV en MT940. 99.5% nauwkeurig. Tijd besparen voor boekhouders en ondernemers.",
+  keywords: "bank statement converter, PDF naar Excel, bankafschrift converter, MT940 export, boekhouding automatisering",
 };
 
 export default function RootLayout({

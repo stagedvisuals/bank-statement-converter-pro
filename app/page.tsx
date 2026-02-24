@@ -250,42 +250,72 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How It Works - 3 Steps */}
-      <section className="py-16 bg-white">
+      {/* How It Works - 3 Steps - BSCPro Huisstijl */}
+      <section style={{ background: '#0A1628', padding: '64px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3">
-              In 3 stappen klaar
+            <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#FFFFFF', marginBottom: '12px' }}>
+              Hoe werkt het?
             </h2>
-            <p className="text-slate-600">Van PDF naar Excel in minder dan een minuut</p>
+            <p style={{ color: '#94A3B8', fontSize: '16px' }}>Van PDF naar Excel in minder dan een minuut</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Step 1 */}
             <div className="text-center">
-              <div className="w-16 h-16 rounded-2xl bg-blue-100 flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl">📤</span>
+              <div style={{ 
+                width: '64px', 
+                height: '64px', 
+                borderRadius: '16px', 
+                background: 'rgba(0, 212, 255, 0.1)', 
+                border: '2px solid #00D4FF',
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                margin: '0 auto 16px' 
+              }}>
+                <Upload style={{ width: '28px', height: '28px', color: '#00D4FF' }} />
               </div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">Upload je PDF bankafschrift</h3>
-              <p className="text-slate-600 text-sm">Sleep je PDF naar onze tool of klik om te uploaden. Alle Nederlandse banken ondersteund.</p>
+              <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#FFFFFF', marginBottom: '8px' }}>Upload je PDF</h3>
+              <p style={{ color: '#94A3B8', fontSize: '14px' }}>Sleep je PDF bankafschrift naar onze tool. Alle Nederlandse banken ondersteund.</p>
             </div>
 
             {/* Step 2 */}
             <div className="text-center">
-              <div className="w-16 h-16 rounded-2xl bg-purple-100 flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl">🤖</span>
+              <div style={{ 
+                width: '64px', 
+                height: '64px', 
+                borderRadius: '16px', 
+                background: 'rgba(0, 212, 255, 0.1)', 
+                border: '2px solid #00D4FF',
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                margin: '0 auto 16px' 
+              }}>
+                <Zap style={{ width: '28px', height: '28px', color: '#00D4FF' }} />
               </div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">AI verwerkt in seconden</h3>
-              <p className="text-slate-600 text-sm">Onze AI herkent automatisch alle transacties, datums en bedragen met 99.5% nauwkeurigheid.</p>
+              <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#FFFFFF', marginBottom: '8px' }}>AI verwerkt automatisch</h3>
+              <p style={{ color: '#94A3B8', fontSize: '14px' }}>Onze AI herkent alle transacties, datums en bedragen met 99.5% nauwkeurigheid.</p>
             </div>
 
             {/* Step 3 */}
             <div className="text-center">
-              <div className="w-16 h-16 rounded-2xl bg-green-100 flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl">📥</span>
+              <div style={{ 
+                width: '64px', 
+                height: '64px', 
+                borderRadius: '16px', 
+                background: 'rgba(0, 212, 255, 0.1)', 
+                border: '2px solid #00D4FF',
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                margin: '0 auto 16px' 
+              }}>
+                <FileSpreadsheet style={{ width: '28px', height: '28px', color: '#00D4FF' }} />
               </div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">Download je gecategoriseerde bestand</h3>
-              <p className="text-slate-600 text-sm">Excel met automatische categorisering, BTW-overzicht en MT940 export. Klaar voor je boekhouding!</p>
+              <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#FFFFFF', marginBottom: '8px' }}>Download Excel/CSV/MT940</h3>
+              <p style={{ color: '#94A3B8', fontSize: '14px' }}>Met automatische categorisering, BTW-overzicht en MT940 export. Klaar voor je boekhouding!</p>
             </div>
           </div>
         </div>
@@ -762,10 +792,9 @@ export default function Home() {
           <div className="mt-8 pt-8 border-t border-slate-800">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
               <p>
-                © 2026 BSC<span className="text-blue-500">PRO</span>. Alle rechten voorbehouden.
+                © 2026 BSC<span style={{ color: '#00D4FF' }}>PRO</span>. Alle rechten voorbehouden.
               </p>
               <p className="flex items-center gap-4">
-                <span>KvK: 12345678 • Amsterdam</span>
                 <span>Data opgeslagen in Nederland 🇳🇱</span>
               </p>
             </div>
