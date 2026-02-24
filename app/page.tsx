@@ -42,31 +42,32 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <nav style={{ background: '#0A1628', padding: '0 24px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0, 212, 255, 0.1)' }} className="fixed top-0 left-0 right-0 z-50">
-        {/* Logo links */}
+      <nav style={{ background: '#0A1628', padding: '0 16px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0, 212, 255, 0.1)' }} className="fixed top-0 left-0 right-0 z-50">
+        {/* Logo links - 44px voor mobiele leesbaarheid */}
         <Link href="/">
-          <img src="/logo-transparent.svg" alt="BSC Pro" height="36" style={{ display: 'block', height: '36px', width: 'auto' }} />
+          <img src="/logo-transparent.svg" alt="BSC Pro" style={{ display: 'block', height: '44px', width: 'auto' }} />
         </Link>
         
-        {/* Menu midden */}
+        {/* Menu midden - alleen desktop */}
         <div className="hidden md:flex items-center gap-8">
           <a href="#calculator" style={{ color: '#94A3B8', fontSize: '14px', textDecoration: 'none', transition: 'color 0.2s' }} className="hover:text-white">Bereken je winst</a>
           <a href="#pricing" style={{ color: '#94A3B8', fontSize: '14px', textDecoration: 'none', transition: 'color 0.2s' }} className="hover:text-white">Prijzen</a>
           <Link href="/login" style={{ color: '#94A3B8', fontSize: '14px', textDecoration: 'none', transition: 'color 0.2s' }} className="hover:text-white">Inloggen</Link>
         </div>
         
-        {/* Knop rechts */}
+        {/* Knop rechts - donkerblauw voor professionele uitstraling */}
         <Link href="/register">
           <button style={{ 
-            background: '#00D4FF', 
-            color: '#0A1628', 
+            background: '#0066CC', 
+            color: '#FFFFFF', 
             fontWeight: 700, 
             borderRadius: '8px', 
-            padding: '10px 20px',
+            padding: '10px 16px',
             border: 'none',
             cursor: 'pointer',
-            fontSize: '14px',
-            transition: 'all 0.2s'
+            fontSize: '13px',
+            transition: 'all 0.2s',
+            whiteSpace: 'nowrap'
           }} className="hover:brightness-110">
             2 gratis proberen
           </button>
@@ -77,59 +78,63 @@ export default function Home() {
       <section className="pt-20 pb-12 md:pt-24 md:pb-16 bg-gradient-to-b from-white to-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
-            {/* Trust Bar */}
-            <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+            {/* Trust Bar - mobiel vriendelijk op 1 rij */}
+            <div style={{ display: 'flex', flexWrap: 'nowrap', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '24px', overflowX: 'auto' }}>
               <div style={{ 
                 background: 'rgba(0, 212, 255, 0.08)', 
                 border: '1px solid rgba(0, 212, 255, 0.25)', 
                 borderRadius: '999px', 
-                padding: '6px 16px',
+                padding: '4px 10px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px'
+                gap: '4px',
+                flexShrink: 0
               }}>
                 <div className="flex">
                   {[1,2,3,4,5].map((i) => (
-                    <Star key={i} className="w-4 h-4" style={{ color: '#FACC15', fill: '#FACC15' }} />
+                    <Star key={i} className="w-3 h-3" style={{ color: '#FACC15', fill: '#FACC15' }} />
                   ))}
                 </div>
-                <span style={{ fontSize: '14px', fontWeight: 600, color: '#0A1628' }}>4.9/5</span>
+                <span style={{ fontSize: '11px', fontWeight: 600, color: '#0A1628', whiteSpace: 'nowrap' }}>4.9/5</span>
               </div>
               <div style={{ 
                 background: 'rgba(0, 212, 255, 0.08)', 
                 border: '1px solid rgba(0, 212, 255, 0.25)', 
                 borderRadius: '999px', 
-                padding: '6px 16px',
+                padding: '4px 10px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px'
+                gap: '4px',
+                flexShrink: 0
               }}>
-                <Users className="w-4 h-4" style={{ color: '#0088CC' }} />
-                <span style={{ fontSize: '14px', fontWeight: 600, color: '#0A1628' }}>100+ boekhouders</span>
+                <Users className="w-3 h-3" style={{ color: '#0088CC' }} />
+                <span style={{ fontSize: '11px', fontWeight: 600, color: '#0A1628', whiteSpace: 'nowrap' }}>100+ boekhouders</span>
               </div>
               <div style={{ 
                 background: 'rgba(0, 212, 255, 0.08)', 
                 border: '1px solid rgba(0, 212, 255, 0.25)', 
                 borderRadius: '999px', 
-                padding: '6px 16px',
+                padding: '4px 10px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px'
+                gap: '4px',
+                flexShrink: 0
               }}>
-                <Database className="w-4 h-4" style={{ color: '#0088CC' }} />
-                <span style={{ fontSize: '14px', fontWeight: 600, color: '#0A1628' }}>MT940 Export</span>
+                <Database className="w-3 h-3" style={{ color: '#0088CC' }} />
+                <span style={{ fontSize: '11px', fontWeight: 600, color: '#0A1628', whiteSpace: 'nowrap' }}>MT940</span>
               </div>
               <div style={{ 
                 background: 'rgba(0, 212, 255, 0.08)', 
                 border: '1px solid rgba(0, 212, 255, 0.25)', 
                 borderRadius: '999px', 
-                padding: '6px 16px',
+                padding: '4px 10px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px'
+                gap: '4px',
+                flexShrink: 0
               }}>
-                <span style={{ fontSize: '16px' }}>🇳🇱</span>
-                <span style={{ fontSize: '14px', fontWeight: 600, color: '#0A1628' }}>#1 in NL</span>
+                <span style={{ fontSize: '12px' }}>🇳🇱</span>
+                <span style={{ fontSize: '11px', fontWeight: 600, color: '#0A1628', whiteSpace: 'nowrap' }}>#1 in NL</span>
               </div>
             </div>
 
@@ -142,13 +147,27 @@ export default function Home() {
               99.5% nauwkeurig. Geen handmatige invoer meer.
             </p>
 
-            {/* CTA Row */}
+            {/* CTA Row - Futuristische styling */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
               <Link href="/register">
-                <Button size="lg" className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-6 text-lg font-semibold shadow-lg shadow-blue-500/25 w-full sm:w-auto">
-                  <Upload className="w-5 h-5 mr-2" />
+                <button style={{
+                  background: '#0A1628',
+                  color: '#00D4FF',
+                  border: '2px solid #00D4FF',
+                  borderRadius: '8px',
+                  padding: '16px 32px',
+                  fontSize: '18px',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  boxShadow: '0 0 20px rgba(0, 212, 255, 0.2)'
+                }} className="w-full sm:w-auto hover:brightness-110">
+                  <Upload className="w-5 h-5" />
                   Probeer het gratis
-                </Button>
+                </button>
               </Link>
               <span className="text-sm text-slate-500">Je eerste 2 conversies zijn van ons</span>
             </div>
@@ -736,6 +755,7 @@ export default function Home() {
               <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
               <Link href="/voorwaarden" className="hover:text-white transition-colors">Voorwaarden</Link>
               <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
+              <a href="mailto:support@bscpro.nl" className="hover:text-white transition-colors" style={{ color: '#00D4FF' }}>Hulp nodig?</a>
             </div>
           </div>
           
