@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import ExcelJS from 'exceljs'
 import { categorizeTransactions, getCategorySummary, getBTWSummary, CATEGORIES, BTW_RATES } from '@/lib/categorization'
-import { pdf } from 'pdf-to-img'
+import pdfParse from 'pdf-parse'
 
 export const runtime = 'nodejs'
 
@@ -14,50 +14,33 @@ function generateMT940(transactions: any[], bank: string, accountNumber: string 
   const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '')
   const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, '')
   
-  // Calculate opening and closing balance
   const totalAmount = transactions.reduce((sum, t) => sum + (parseFloat(t.bedrag) || 0), 0)
   const openingBalance = 0
   const closingBalance = openingBalance + totalAmount
-  
-  // Determine currency (default EUR)
   const currency = 'EUR'
   
-  // Build MT940 content
   let mt940 = ''
-  
-  // Record 20 - Transaction Reference Number
   mt940 += `:20:BSCPro-${dateStr}-${timeStr}\r\n`
-  
-  // Record 25 - Account Identification
   mt940 += `:25:${accountNumber}\r\n`
-  
-  // Record 28C - Statement Number/Sequence Number
   mt940 += `:28C:00001/001\r\n`
   
-  // Record 60F - Opening Balance
   const openBalanceStr = Math.abs(openingBalance).toFixed(2).replace('.', ',')
   const openSign = openingBalance >= 0 ? 'C' : 'D'
   mt940 += `:60F:${openSign}${dateStr}${currency}${openBalanceStr}\r\n`
   
-  // Transaction records (61 and 86)
   transactions.forEach((t, index) => {
     const amount = parseFloat(t.bedrag) || 0
     const txDate = t.datum ? t.datum.replace(/-/g, '').slice(0, 8) : dateStr
     const entryDate = txDate
     const amountStr = Math.abs(amount).toFixed(2).replace('.', ',')
     const sign = amount >= 0 ? 'C' : 'D'
-    const fundsCode = '' // Optional
     const txRef = `TRX${(index + 1).toString().padStart(5, '0')}`
     
-    // Record 61 - Statement Line
-    mt940 += `:61:${txDate}${entryDate}${sign}${fundsCode}${amountStr}NTRF${txRef}\r\n`
-    
-    // Record 86 - Information to Account Owner
+    mt940 += `:61:${txDate}${entryDate}${sign}${amountStr}NTRF${txRef}\r\n`
     const description = (t.omschrijving || 'Transactie').substring(0, 65)
     mt940 += `:86:${description}\r\n`
   })
   
-  // Record 62F - Closing Balance
   const closeBalanceStr = Math.abs(closingBalance).toFixed(2).replace('.', ',')
   const closeSign = closingBalance >= 0 ? 'C' : 'D'
   mt940 += `:62F:${closeSign}${dateStr}${currency}${closeBalanceStr}\r\n`
@@ -65,52 +48,50 @@ function generateMT940(transactions: any[], bank: string, accountNumber: string 
   return mt940
 }
 
-// Supported image types
-const SUPPORTED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg']
-
-async function convertPdfToPng(pdfBuffer: Buffer): Promise<Buffer[]> {
-  const buffers: Buffer[] = []
-  const document = await pdf(pdfBuffer, { scale: 2 })
-  for await (const image of document) {
-    buffers.push(image)
-  }
-  return buffers
-}
-
-// Process single page with Groq Vision
-async function processPageWithGroq(pngBuffer: Buffer, pageNum: number): Promise<any> {
-  const base64Image = pngBuffer.toString('base64')
+// Process PDF text with Groq text model
+async function processPdfWithGroq(pdfText: string, fileName: string): Promise<any> {
+  console.log(`[Groq Text] Processing PDF: ${fileName}`)
+  console.log(`[Groq Text] PDF text length: ${pdfText.length} characters`)
+  console.log(`[Groq Text] PDF text preview:`, pdfText.substring(0, 500))
   
-  console.log(`[Groq Vision] Processing page ${pageNum}...`)
-  console.log(`[Groq Vision] API URL: ${GROQ_BASE_URL}/chat/completions`)
-  console.log(`[Groq Vision] Image size: ${Math.round(base64Image.length / 1024)} KB`)
+  // Truncate text if too long (Groq has token limits)
+  const maxChars = 15000
+  const truncatedText = pdfText.length > maxChars ? pdfText.substring(0, maxChars) + '\n...[truncated]' : pdfText
   
   const requestBody = {
-    model: 'llama-3.2-11b-vision-preview',
+    model: 'llama-3.3-70b-versatile',
     messages: [
       {
+        role: 'system',
+        content: 'You are a bank statement parser. Extract all transactions from the provided text and return them as a JSON object. Identify the bank name and account number if present.'
+      },
+      {
         role: 'user',
-        content: [
-          {
-            type: 'text',
-            text: 'Extract all transactions from this bank statement page. Return as JSON with fields: date (DD-MM-YYYY), description, amount (positive for income, negative for expenses). Format: {"bank": "bank name", "rekeningnummer": "IBAN", "transacties": [{"datum": "DD-MM-YYYY", "omschrijving": "description", "bedrag": -123.45}]}'
-          },
-          {
-            type: 'image_url',
-            image_url: { 
-              url: `data:image/png;base64,${base64Image}` 
-            }
-          }
-        ]
+        content: `Extract all bank transactions from this bank statement text and return as JSON with this exact format:
+{
+  "bank": "bank name (e.g., ING, Rabobank, ABN AMRO)",
+  "rekeningnummer": "IBAN if found",
+  "transacties": [
+    {"datum": "DD-MM-YYYY", "omschrijving": "transaction description", "bedrag": -123.45}
+  ]
+}
+
+Important:
+- Amount should be positive for income, negative for expenses
+- Date format: DD-MM-YYYY
+- Return ONLY valid JSON, no markdown, no explanation
+
+Bank statement text:
+${truncatedText}`
       }
     ],
     temperature: 0.1,
     max_tokens: 4096
   }
   
-  console.log('[Groq Vision] Request body:', JSON.stringify(requestBody, null, 2).substring(0, 500) + '...')
+  console.log('[Groq Text] Sending request to Groq...')
   
-  const visionResponse = await fetch(`${GROQ_BASE_URL}/chat/completions`, {
+  const response = await fetch(`${GROQ_BASE_URL}/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -119,52 +100,50 @@ async function processPageWithGroq(pngBuffer: Buffer, pageNum: number): Promise<
     body: JSON.stringify(requestBody)
   })
   
-  console.log(`[Groq Vision] Response status: ${visionResponse.status}`)
-  console.log(`[Groq Vision] Response headers:`, JSON.stringify(Object.fromEntries(visionResponse.headers.entries())))
+  console.log(`[Groq Text] Response status: ${response.status}`)
   
-  if (!visionResponse.ok) {
-    const errorText = await visionResponse.text()
-    console.error(`[Groq Vision] Error response: ${errorText}`)
-    throw new Error(`Groq Vision API failed: ${visionResponse.status} - ${errorText}`)
+  if (!response.ok) {
+    const errorText = await response.text()
+    console.error(`[Groq Text] Error response: ${errorText}`)
+    throw new Error(`Groq API failed: ${response.status} - ${errorText}`)
   }
   
-  // Get raw text first for debugging
-  const rawText = await visionResponse.text()
-  console.log(`[Groq Vision] Raw response length: ${rawText.length}`)
-  console.log(`[Groq Vision] Raw response:`, rawText.substring(0, 1000))
+  const rawText = await response.text()
+  console.log(`[Groq Text] Raw response length: ${rawText.length}`)
   
-  // Parse JSON
   let aiData: any
   try {
     aiData = JSON.parse(rawText)
   } catch (parseError) {
-    console.error(`[Groq Vision] JSON parse error:`, parseError)
-    console.error(`[Groq Vision] Full raw response:`, rawText)
-    throw new Error(`Failed to parse Groq response as JSON: ${parseError}`)
+    console.error(`[Groq Text] JSON parse error:`, parseError)
+    console.error(`[Groq Text] Full raw response:`, rawText)
+    throw new Error(`Failed to parse Groq response as JSON`)
   }
-  
-  console.log(`[Groq Vision] Response received for page ${pageNum}`)
   
   const aiContent = aiData.choices?.[0]?.message?.content || ''
   
-  // Check for empty response
   if (!aiContent || aiContent.trim() === '') {
-    console.log(`[Groq Vision] Leeg antwoord van Groq voor pagina ${pageNum}`)
-    console.log(`[Groq Vision] Volledige response:`, JSON.stringify(aiData))
+    console.log(`[Groq Text] Empty response from Groq`)
+    console.log(`[Groq Text] Full response:`, JSON.stringify(aiData))
     return { transacties: [], rekeningnummer: '' }
   }
   
-  console.log(`[Groq Vision] AI Response content:`, aiContent.substring(0, 600))
+  console.log(`[Groq Text] AI Response content:`, aiContent.substring(0, 1000))
   
   // Parse JSON from response
   let parsedData: any = { transacties: [], rekeningnummer: '' }
   try {
+    // Try to find JSON in the response (in case there's markdown or extra text)
     const jsonMatch = aiContent.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
       parsedData = JSON.parse(jsonMatch[0])
+    } else {
+      // Try parsing the whole content
+      parsedData = JSON.parse(aiContent)
     }
   } catch (e) {
-    console.log(`[Groq Vision] JSON parse failed for page ${pageNum}:`, e)
+    console.log(`[Groq Text] JSON parse failed:`, e)
+    console.log(`[Groq Text] Raw content:`, aiContent)
   }
   
   return parsedData
@@ -190,46 +169,38 @@ export async function POST(req: NextRequest) {
     let bank = 'Onbekend'
     let accountNumber = ''
     
-    // Check if file is PDF or image
+    // Check if file is PDF
     const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
     
     if (isPdf) {
-      // Convert PDF to PNG images
-      console.log('[Vision Scanner] Converting PDF to PNG...')
+      // Extract text from PDF using pdf-parse
+      console.log('[Vision Scanner] Extracting text from PDF...')
       console.log(`[Vision Scanner] PDF buffer size: ${buffer.length} bytes`)
       
-      let pngBuffers: Buffer[]
+      let pdfData
       try {
-        pngBuffers = await convertPdfToPng(buffer)
-        console.log(`[Vision Scanner] PDF converted to ${pngBuffers.length} PNG images`)
+        pdfData = await pdfParse(buffer)
+        console.log(`[Vision Scanner] PDF text extracted: ${pdfData.text.length} characters`)
+        console.log(`[Vision Scanner] PDF pages: ${pdfData.numpages}`)
       } catch (pdfError) {
-        console.error('[Vision Scanner] PDF conversion failed:', pdfError)
-        throw new Error(`PDF conversion failed: ${pdfError}`)
+        console.error('[Vision Scanner] PDF parsing failed:', pdfError)
+        throw new Error(`PDF parsing failed: ${pdfError}`)
       }
       
-      // Process each page
-      for (let i = 0; i < pngBuffers.length; i++) {
-        console.log(`[Vision Scanner] Processing page ${i + 1}/${pngBuffers.length}, size: ${pngBuffers[i].length} bytes`)
-        const pageData = await processPageWithGroq(pngBuffers[i], i + 1)
-        
-        if (pageData.transacties && pageData.transacties.length > 0) {
-          allTransactions = [...allTransactions, ...pageData.transacties]
-        }
-        
-        // Use bank name and account from first page
-        if (i === 0) {
-          bank = pageData.bank || 'Onbekend'
-          accountNumber = pageData.rekeningnummer || ''
-        }
-      }
+      // Process the extracted text with Groq
+      const result = await processPdfWithGroq(pdfData.text, file.name)
+      
+      allTransactions = result.transacties || []
+      bank = result.bank || 'Onbekend'
+      accountNumber = result.rekeningnummer || ''
+      
     } else {
-      // Process image directly
-      console.log('[Vision Scanner] Processing image directly...')
-      const pageData = await processPageWithGroq(buffer, 1)
-      
-      allTransactions = pageData.transacties || []
-      bank = pageData.bank || 'Onbekend'
-      accountNumber = pageData.rekeningnummer || ''
+      // For images, we can't use pdf-parse
+      // Return error for now - images not supported in this version
+      return NextResponse.json({
+        error: 'Alleen PDF bestanden worden ondersteund',
+        details: 'Upload een PDF bankafschrift. Afbeeldingen worden momenteel niet ondersteund.'
+      }, { status: 400 })
     }
 
     console.log(`[Vision Scanner] Total transactions extracted: ${allTransactions.length}`)
@@ -238,7 +209,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         error: 'Geen transacties gevonden',
         details: 'De AI kon geen transacties herkennen in dit document.',
-        tip: 'Zorg dat het document duidelijk leesbaar is en financiële data bevat.'
+        tip: 'Zorg dat het PDF bankafschrift duidelijk leesbaar is en financiële data bevat.'
       }, { status: 400 })
     }
 
@@ -291,29 +262,25 @@ export async function PUT(req: NextRequest) {
   try {
     const { transactions, bank = 'Onbekend' } = await req.json()
     
-    // Categorize transactions if not already done
     const categorizedTransactions = categorizeTransactions(transactions)
     
     const workbook = new ExcelJS.Workbook()
     
-    // Category color mapping for Excel
     const categoryColors: Record<string, string> = {
-      'boodschappen': 'FFD5F4E6', // Green
-      'huur': 'FFDBEAFE', // Blue
-      'salaris': 'FFD1FAE5', // Emerald
-      'brandstof': 'FFFEE2E2', // Red
-      'horeca': 'FFFFEDD5', // Orange
-      'telecom': 'FFF3E8FF', // Purple
-      'transport': 'FFCFFAFE', // Cyan
-      'software': 'FFE0E7FF', // Indigo
-      'bankkosten': 'FFF1F5F9', // Slate
-      'overig': 'FFF3F4F6' // Gray
+      'boodschappen': 'FFD5F4E6',
+      'huur': 'FFDBEAFE',
+      'salaris': 'FFD1FAE5',
+      'brandstof': 'FFFEE2E2',
+      'horeca': 'FFFFEDD5',
+      'telecom': 'FFF3E8FF',
+      'transport': 'FFCFFAFE',
+      'software': 'FFE0E7FF',
+      'bankkosten': 'FFF1F5F9',
+      'overig': 'FFF3F4F6'
     }
     
-    // ===== SHEET 1: TRANSACTIES =====
     const worksheet = workbook.addWorksheet('Transacties')
     
-    // Header
     worksheet.mergeCells('A1:G1')
     worksheet.getCell('A1').value = 'BSC PRO - AI Document Scanner'
     worksheet.getCell('A1').font = { size: 18, bold: true, color: { argb: 'FF2563EB' } }
@@ -323,7 +290,6 @@ export async function PUT(req: NextRequest) {
     worksheet.getCell('A2').value = `Bank: ${bank} | ${new Date().toLocaleDateString('nl-NL')}`
     worksheet.getCell('A2').alignment = { horizontal: 'center' }
 
-    // Summary
     const totalIn = categorizedTransactions.filter((t: any) => t.bedrag > 0).reduce((sum: number, t: any) => sum + t.bedrag, 0)
     const totalOut = categorizedTransactions.filter((t: any) => t.bedrag < 0).reduce((sum: number, t: any) => sum + Math.abs(t.bedrag), 0)
     
@@ -337,7 +303,6 @@ export async function PUT(req: NextRequest) {
     worksheet.getCell('E4').value = 'Automatisch gecategoriseerd ✨'
     worksheet.getCell('E4').font = { color: { argb: 'FF7C3AED' }, italic: true }
 
-    // Table headers - updated with new columns
     const headers = ['Datum', 'Omschrijving', 'Categorie', 'Bedrag', 'Type', 'BTW %', 'BTW Bedrag']
     const headerRow = worksheet.getRow(6)
     headers.forEach((h, i) => {
@@ -346,7 +311,6 @@ export async function PUT(req: NextRequest) {
       headerRow.getCell(i + 1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E40AF' } }
     })
 
-    // Data
     let rowNum = 7
     categorizedTransactions.forEach((t: any, index: number) => {
       const row = worksheet.getRow(rowNum++)
@@ -361,7 +325,6 @@ export async function PUT(req: NextRequest) {
       row.getCell(5).value = isIncome ? 'Inkomst' : 'Uitgave'
       row.getCell(6).value = t.btw?.rate + '%'
       
-      // Calculate BTW amount (bedrag is incl. BTW)
       const btwRate = t.btw?.rate || 0
       const amount = Math.abs(t.bedrag || 0)
       const btwAmount = btwRate > 0 ? amount * btwRate / (100 + btwRate) : 0
@@ -370,7 +333,6 @@ export async function PUT(req: NextRequest) {
       
       row.getCell(4).font = { color: { argb: isIncome ? 'FF059669' : 'FFDC2626' } }
       
-      // Apply category background color
       row.eachCell((cell) => {
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgColor.replace('#', '') } }
       })
@@ -384,7 +346,6 @@ export async function PUT(req: NextRequest) {
     worksheet.getColumn(6).width = 10
     worksheet.getColumn(7).width = 15
 
-    // ===== SHEET 2: SAMENVATTING =====
     const summarySheet = workbook.addWorksheet('Samenvatting')
     
     summarySheet.mergeCells('A1:D1')
@@ -395,7 +356,6 @@ export async function PUT(req: NextRequest) {
     summarySheet.getCell('A2').value = `Totaal: ${categorizedTransactions.length} transacties`
     summarySheet.getCell('A2').font = { italic: true }
     
-    // Category summary headers
     const sumHeaders = ['Categorie', 'Aantal', 'Totaal', 'Percentage']
     const sumHeaderRow = summarySheet.getRow(4)
     sumHeaders.forEach((h, i) => {
@@ -404,7 +364,6 @@ export async function PUT(req: NextRequest) {
       sumHeaderRow.getCell(i + 1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E40AF' } }
     })
     
-    // Category data
     const categorySummary = getCategorySummary(categorizedTransactions)
     let catRowNum = 5
     categorySummary.forEach((cat: any) => {
@@ -421,7 +380,6 @@ export async function PUT(req: NextRequest) {
     summarySheet.getColumn(3).width = 15
     summarySheet.getColumn(4).width = 12
 
-    // ===== SHEET 3: BTW OVERZICHT =====
     const btwSheet = workbook.addWorksheet('BTW overzicht')
     
     btwSheet.mergeCells('A1:D1')
@@ -432,7 +390,6 @@ export async function PUT(req: NextRequest) {
     btwSheet.getCell('A2').value = 'Klaar voor je BTW-aangifte!'
     btwSheet.getCell('A2').font = { italic: true, color: { argb: 'FF059669' } }
     
-    // BTW headers
     const btwHeaders = ['BTW Tarief', 'Omschrijving', 'Totaal bedrag', 'BTW Bedrag']
     const btwHeaderRow = btwSheet.getRow(4)
     btwHeaders.forEach((h, i) => {
@@ -441,7 +398,6 @@ export async function PUT(req: NextRequest) {
       btwHeaderRow.getCell(i + 1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E40AF' } }
     })
     
-    // BTW data
     const btwSummary = getBTWSummary(categorizedTransactions)
     let btwRowNum = 5
     let totalBTW = 0
@@ -456,7 +412,6 @@ export async function PUT(req: NextRequest) {
       totalBTW += parseFloat(btw.btwAmountFormatted)
     })
     
-    // Total row
     const totalRow = btwSheet.getRow(btwRowNum + 1)
     totalRow.getCell(3).value = 'Totaal BTW:'
     totalRow.getCell(3).font = { bold: true }
@@ -484,7 +439,7 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-// MT940 EXPORT - NEW
+// MT940 EXPORT
 export async function PATCH(req: NextRequest) {
   try {
     const { transactions, bank = 'Onbekend', rekeningnummer } = await req.json()
