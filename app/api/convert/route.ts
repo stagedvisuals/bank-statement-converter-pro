@@ -265,6 +265,15 @@ export async function POST(req: NextRequest) {
   }
 }
 
+// Helper function to sanitize values for Excel
+function sanitizeValue(value: any): any {
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'number' && isNaN(value)) return 0;
+  if (value === 'NaN') return 0;
+  if (typeof value === 'string' && value.toLowerCase() === 'nan') return 0;
+  return value;
+}
+
 // EXCEL EXPORT
 export async function PUT(req: NextRequest) {
   try {
@@ -273,165 +282,230 @@ export async function PUT(req: NextRequest) {
     const categorizedTransactions = categorizeTransactions(transactions)
     
     const workbook = new ExcelJS.Workbook()
+    workbook.creator = 'BSC Pro'
+    workbook.lastModifiedBy = 'BSC Pro'
+    workbook.created = new Date()
+    workbook.modified = new Date()
     
-    const categoryColors: Record<string, string> = {
-      'boodschappen': 'FFD5F4E6',
-      'huur': 'FFDBEAFE',
-      'salaris': 'FFD1FAE5',
-      'brandstof': 'FFFEE2E2',
-      'horeca': 'FFFFEDD5',
-      'telecom': 'FFF3E8FF',
-      'transport': 'FFCFFAFE',
-      'software': 'FFE0E7FF',
-      'bankkosten': 'FFF1F5F9',
-      'overig': 'FFF3F4F6'
-    }
+    // Colors
+    const HEADER_COLOR = 'FF1E3A5F' // Dark blue
+    const INCOME_COLOR = 'FF059669' // Green
+    const EXPENSE_COLOR = 'FFDC2626' // Red
+    const ALT_ROW_COLOR = 'FFF3F4F6' // Light gray
     
-    const worksheet = workbook.addWorksheet('Transacties')
+    // ========== TRANSACTIONS SHEET ==========
+    const wsTrans = workbook.addWorksheet('Transacties')
     
-    worksheet.mergeCells('A1:G1')
-    worksheet.getCell('A1').value = 'BSC PRO - AI Document Scanner'
-    worksheet.getCell('A1').font = { size: 18, bold: true, color: { argb: 'FF2563EB' } }
-    worksheet.getCell('A1').alignment = { horizontal: 'center' }
+    // Freeze top row
+    wsTrans.views = [{ state: 'frozen', ySplit: 1 }]
     
-    worksheet.mergeCells('A2:G2')
-    worksheet.getCell('A2').value = `Bank: ${bank} | ${new Date().toLocaleDateString('nl-NL')}`
-    worksheet.getCell('A2').alignment = { horizontal: 'center' }
-
-    const totalIn = categorizedTransactions.filter((t: any) => t.bedrag > 0).reduce((sum: number, t: any) => sum + t.bedrag, 0)
-    const totalOut = categorizedTransactions.filter((t: any) => t.bedrag < 0).reduce((sum: number, t: any) => sum + Math.abs(t.bedrag), 0)
+    // Define columns with headers
+    wsTrans.columns = [
+      { header: 'Datum', key: 'datum', width: 12 },
+      { header: 'Omschrijving', key: 'omschrijving', width: 50 },
+      { header: 'Categorie', key: 'categorie', width: 25 },
+      { header: 'Bedrag', key: 'bedrag', width: 15 },
+      { header: 'Type', key: 'type', width: 12 },
+      { header: 'BTW %', key: 'btwPerc', width: 10 },
+      { header: 'BTW Bedrag', key: 'btwBedrag', width: 15 }
+    ]
     
-    worksheet.getCell('A4').value = 'Samenvatting:'
-    worksheet.getCell('A4').font = { bold: true }
-    worksheet.getCell('B4').value = `In: €${totalIn.toFixed(2)}`
-    worksheet.getCell('B4').font = { color: { argb: 'FF059669' } }
-    worksheet.getCell('C4').value = `Uit: €${totalOut.toFixed(2)}`
-    worksheet.getCell('C4').font = { color: { argb: 'FFDC2626' } }
-    
-    worksheet.getCell('E4').value = 'Automatisch gecategoriseerd ✨'
-    worksheet.getCell('E4').font = { color: { argb: 'FF7C3AED' }, italic: true }
-
-    const headers = ['Datum', 'Omschrijving', 'Categorie', 'Bedrag', 'Type', 'BTW %', 'BTW Bedrag']
-    const headerRow = worksheet.getRow(6)
-    headers.forEach((h, i) => {
-      headerRow.getCell(i + 1).value = h
-      headerRow.getCell(i + 1).font = { bold: true, color: { argb: 'FFFFFFFF' } }
-      headerRow.getCell(i + 1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E40AF' } }
+    // Style header row
+    const headerRow = wsTrans.getRow(1)
+    headerRow.eachCell((cell) => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 }
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: HEADER_COLOR } }
+      cell.alignment = { vertical: 'middle', horizontal: 'center' }
+      cell.border = {
+        bottom: { style: 'thin', color: { argb: 'FFFFFFFF' } }
+      }
     })
-
-    let rowNum = 7
+    
+    // Calculate totals
+    const totalIn = categorizedTransactions
+      .filter((t: any) => (sanitizeValue(t.bedrag) as number) > 0)
+      .reduce((sum: number, t: any) => sum + (sanitizeValue(t.bedrag) as number), 0)
+    
+    const totalOut = categorizedTransactions
+      .filter((t: any) => (sanitizeValue(t.bedrag) as number) < 0)
+      .reduce((sum: number, t: any) => sum + Math.abs(sanitizeValue(t.bedrag) as number), 0)
+    
+    // Add transaction rows
     categorizedTransactions.forEach((t: any, index: number) => {
-      const row = worksheet.getRow(rowNum++)
-      const isIncome = t.bedrag >= 0
-      const bgColor = categoryColors[t.category] || 'FFF3F4F6'
+      const bedrag = sanitizeValue(t.bedrag) as number
+      const isIncome = bedrag > 0
+      const absBedrag = Math.abs(bedrag)
       
-      row.getCell(1).value = t.datum
-      row.getCell(2).value = t.omschrijving
-      row.getCell(3).value = `${t.categoryEmoji} ${t.categoryName}`
-      row.getCell(4).value = Math.abs(t.bedrag)
-      row.getCell(4).numFmt = '€#,##0.00'
-      row.getCell(5).value = isIncome ? 'Inkomst' : 'Uitgave'
-      row.getCell(6).value = t.btw?.rate + '%'
+      const btwRate = sanitizeValue(t.btw?.rate) || 0
+      const btwAmount = (btwRate as number) > 0 ? absBedrag * ((btwRate as number) / (100 + (btwRate as number))) : 0
       
-      const btwRate = t.btw?.rate || 0
-      const amount = Math.abs(t.bedrag || 0)
-      const btwAmount = btwRate > 0 ? amount * btwRate / (100 + btwRate) : 0
-      row.getCell(7).value = btwAmount
-      row.getCell(7).numFmt = '€#,##0.00'
-      
-      row.getCell(4).font = { color: { argb: isIncome ? 'FF059669' : 'FFDC2626' } }
-      
-      row.eachCell((cell) => {
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgColor.replace('#', '') } }
+      const row = wsTrans.addRow({
+        datum: sanitizeValue(t.datum),
+        omschrijving: sanitizeValue(t.omschrijving),
+        categorie: `${sanitizeValue(t.categoryEmoji) || ''} ${sanitizeValue(t.categoryName) || 'Overig'}`,
+        bedrag: absBedrag,
+        type: isIncome ? 'Inkomst' : 'Uitgave',
+        btwPerc: `${btwRate}%`,
+        btwBedrag: btwAmount
       })
-    })
-
-    worksheet.getColumn(1).width = 12
-    worksheet.getColumn(2).width = 45
-    worksheet.getColumn(3).width = 20
-    worksheet.getColumn(4).width = 15
-    worksheet.getColumn(5).width = 12
-    worksheet.getColumn(6).width = 10
-    worksheet.getColumn(7).width = 15
-
-    const summarySheet = workbook.addWorksheet('Samenvatting')
-    
-    summarySheet.mergeCells('A1:D1')
-    summarySheet.getCell('A1').value = '📊 Categorie Samenvatting'
-    summarySheet.getCell('A1').font = { size: 16, bold: true, color: { argb: 'FF2563EB' } }
-    
-    summarySheet.mergeCells('A2:D2')
-    summarySheet.getCell('A2').value = `Totaal: ${categorizedTransactions.length} transacties`
-    summarySheet.getCell('A2').font = { italic: true }
-    
-    const sumHeaders = ['Categorie', 'Aantal', 'Totaal', 'Percentage']
-    const sumHeaderRow = summarySheet.getRow(4)
-    sumHeaders.forEach((h, i) => {
-      sumHeaderRow.getCell(i + 1).value = h
-      sumHeaderRow.getCell(i + 1).font = { bold: true, color: { argb: 'FFFFFFFF' } }
-      sumHeaderRow.getCell(i + 1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E40AF' } }
+      
+      // Alternating row colors
+      if (index % 2 === 1) {
+        row.eachCell((cell) => {
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: ALT_ROW_COLOR } }
+        })
+      }
+      
+      // Style amount column
+      const bedragCell = row.getCell(4)
+      bedragCell.numFmt = '€#,##0.00'
+      bedragCell.font = { color: { argb: isIncome ? INCOME_COLOR : EXPENSE_COLOR } }
+      
+      // Style BTW amount
+      const btwCell = row.getCell(7)
+      btwCell.numFmt = '€#,##0.00'
     })
     
+    // ========== SUMMARY SHEET ==========
+    const wsSummary = workbook.addWorksheet('Samenvatting')
+    wsSummary.views = [{ state: 'frozen', ySplit: 1 }]
+    
+    // Title
+    wsSummary.mergeCells('A1:D1')
+    wsSummary.getCell('A1').value = 'BSC Pro - Bankafschrift Samenvatting'
+    wsSummary.getCell('A1').font = { bold: true, size: 16, color: { argb: HEADER_COLOR } }
+    wsSummary.getCell('A1').alignment = { horizontal: 'center' }
+    
+    wsSummary.mergeCells('A2:D2')
+    wsSummary.getCell('A2').value = `Bank: ${bank} | ${new Date().toLocaleDateString('nl-NL')}`
+    wsSummary.getCell('A2').alignment = { horizontal: 'center' }
+    wsSummary.getCell('A2').font = { italic: true }
+    
+    // Financial summary
+    let currentRow = 4
+    
+    wsSummary.getCell(`A${currentRow}`).value = 'FINANCIEEL OVERZICHT'
+    wsSummary.getCell(`A${currentRow}`).font = { bold: true, size: 12 }
+    currentRow++
+    
+    wsSummary.getCell(`A${currentRow}`).value = 'Totaal Inkomsten:'
+    wsSummary.getCell(`B${currentRow}`).value = totalIn
+    wsSummary.getCell(`B${currentRow}`).numFmt = '€#,##0.00'
+    wsSummary.getCell(`B${currentRow}`).font = { color: { argb: INCOME_COLOR } }
+    currentRow++
+    
+    wsSummary.getCell(`A${currentRow}`).value = 'Totaal Uitgaven:'
+    wsSummary.getCell(`B${currentRow}`).value = totalOut
+    wsSummary.getCell(`B${currentRow}`).numFmt = '€#,##0.00'
+    wsSummary.getCell(`B${currentRow}`).font = { color: { argb: EXPENSE_COLOR } }
+    currentRow++
+    
+    wsSummary.getCell(`A${currentRow}`).value = 'Saldo:'
+    wsSummary.getCell(`B${currentRow}`).value = totalIn - totalOut
+    wsSummary.getCell(`B${currentRow}`).numFmt = '€#,##0.00'
+    wsSummary.getCell(`B${currentRow}`).font = { bold: true }
+    wsSummary.getCell(`A${currentRow}`).font = { bold: true }
+    currentRow += 2
+    
+    // Category breakdown
+    wsSummary.getCell(`A${currentRow}`).value = 'VERDELING PER CATEGORIE'
+    wsSummary.getCell(`A${currentRow}`).font = { bold: true, size: 12 }
+    currentRow++
+    
+    // Headers
+    wsSummary.getCell(`A${currentRow}`).value = 'Categorie'
+    wsSummary.getCell(`B${currentRow}`).value = 'Aantal'
+    wsSummary.getCell(`C${currentRow}`).value = 'Totaal'
+    wsSummary.getCell(`D${currentRow}`).value = 'Percentage'
+    
+    const catHeaderRow = wsSummary.getRow(currentRow)
+    catHeaderRow.eachCell((cell) => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: HEADER_COLOR } }
+    })
+    currentRow++
+    
+    // Category data
     const categorySummary = getCategorySummary(categorizedTransactions)
-    let catRowNum = 5
-    categorySummary.forEach((cat: any) => {
-      const row = summarySheet.getRow(catRowNum++)
-      row.getCell(1).value = `${cat.category.emoji} ${cat.category.name}`
-      row.getCell(2).value = cat.count
-      row.getCell(3).value = cat.total
-      row.getCell(3).numFmt = '€#,##0.00'
-      row.getCell(4).value = cat.percentage + '%'
+    categorySummary.forEach((cat: any, idx: number) => {
+      wsSummary.getCell(`A${currentRow}`).value = `${cat.category.emoji} ${cat.category.name}`
+      wsSummary.getCell(`B${currentRow}`).value = sanitizeValue(cat.count)
+      wsSummary.getCell(`C${currentRow}`).value = sanitizeValue(cat.total)
+      wsSummary.getCell(`C${currentRow}`).numFmt = '€#,##0.00'
+      wsSummary.getCell(`D${currentRow}`).value = `${sanitizeValue(cat.percentage)}%`
+      
+      if (idx % 2 === 1) {
+        const row = wsSummary.getRow(currentRow)
+        row.eachCell((cell) => {
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: ALT_ROW_COLOR } }
+        })
+      }
+      currentRow++
     })
     
-    summarySheet.getColumn(1).width = 25
-    summarySheet.getColumn(2).width = 12
-    summarySheet.getColumn(3).width = 15
-    summarySheet.getColumn(4).width = 12
-
-    const btwSheet = workbook.addWorksheet('BTW overzicht')
+    // Set column widths
+    wsSummary.getColumn('A').width = 30
+    wsSummary.getColumn('B').width = 12
+    wsSummary.getColumn('C').width = 18
+    wsSummary.getColumn('D').width = 15
     
-    btwSheet.mergeCells('A1:D1')
-    btwSheet.getCell('A1').value = '🏦 BTW Overzicht'
-    btwSheet.getCell('A1').font = { size: 16, bold: true, color: { argb: 'FF2563EB' } }
+    // ========== BTW SHEET ==========
+    const wsBtw = workbook.addWorksheet('BTW Overzicht')
+    wsBtw.views = [{ state: 'frozen', ySplit: 1 }]
     
-    btwSheet.mergeCells('A2:D2')
-    btwSheet.getCell('A2').value = 'Klaar voor je BTW-aangifte!'
-    btwSheet.getCell('A2').font = { italic: true, color: { argb: 'FF059669' } }
+    wsBtw.mergeCells('A1:D1')
+    wsBtw.getCell('A1').value = 'BTW Overzicht'
+    wsBtw.getCell('A1').font = { bold: true, size: 16, color: { argb: HEADER_COLOR } }
+    wsBtw.getCell('A1').alignment = { horizontal: 'center' }
     
+    wsBtw.columns = [
+      { key: 'tarief', width: 15 },
+      { key: 'omschrijving', width: 30 },
+      { key: 'totaal', width: 18 },
+      { key: 'btw', width: 18 }
+    ]
+    
+    // Headers
     const btwHeaders = ['BTW Tarief', 'Omschrijving', 'Totaal bedrag', 'BTW Bedrag']
-    const btwHeaderRow = btwSheet.getRow(4)
     btwHeaders.forEach((h, i) => {
-      btwHeaderRow.getCell(i + 1).value = h
-      btwHeaderRow.getCell(i + 1).font = { bold: true, color: { argb: 'FFFFFFFF' } }
-      btwHeaderRow.getCell(i + 1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E40AF' } }
+      const cell = wsBtw.getCell(2, i + 1)
+      cell.value = h
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: HEADER_COLOR } }
     })
     
     const btwSummary = getBTWSummary(categorizedTransactions)
-    let btwRowNum = 5
     let totalBTW = 0
-    btwSummary.forEach((btw: any) => {
-      const row = btwSheet.getRow(btwRowNum++)
-      row.getCell(1).value = btw.rate + '%'
-      row.getCell(2).value = btw.description
-      row.getCell(3).value = btw.total
-      row.getCell(3).numFmt = '€#,##0.00'
-      row.getCell(4).value = parseFloat(btw.btwAmountFormatted)
-      row.getCell(4).numFmt = '€#,##0.00'
-      totalBTW += parseFloat(btw.btwAmountFormatted)
+    
+    btwSummary.forEach((btw: any, idx: number) => {
+      const rowNum = idx + 3
+      const btwAmt = parseFloat(sanitizeValue(btw.btwAmountFormatted) as string) || 0
+      totalBTW += btwAmt
+      
+      wsBtw.getCell(rowNum, 1).value = `${sanitizeValue(btw.rate)}%`
+      wsBtw.getCell(rowNum, 2).value = sanitizeValue(btw.description)
+      wsBtw.getCell(rowNum, 3).value = sanitizeValue(btw.total)
+      wsBtw.getCell(rowNum, 3).numFmt = '€#,##0.00'
+      wsBtw.getCell(rowNum, 4).value = btwAmt
+      wsBtw.getCell(rowNum, 4).numFmt = '€#,##0.00'
+      
+      if (idx % 2 === 1) {
+        const row = wsBtw.getRow(rowNum)
+        row.eachCell((cell) => {
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: ALT_ROW_COLOR } }
+        })
+      }
     })
     
-    const totalRow = btwSheet.getRow(btwRowNum + 1)
-    totalRow.getCell(3).value = 'Totaal BTW:'
-    totalRow.getCell(3).font = { bold: true }
-    totalRow.getCell(4).value = totalBTW
-    totalRow.getCell(4).numFmt = '€#,##0.00'
-    totalRow.getCell(4).font = { bold: true, color: { argb: 'FF059669' } }
+    // Total row
+    const totalRowNum = btwSummary.length + 4
+    wsBtw.getCell(totalRowNum, 2).value = 'TOTAAL BTW:'
+    wsBtw.getCell(totalRowNum, 2).font = { bold: true }
+    wsBtw.getCell(totalRowNum, 4).value = totalBTW
+    wsBtw.getCell(totalRowNum, 4).numFmt = '€#,##0.00'
+    wsBtw.getCell(totalRowNum, 4).font = { bold: true, color: { argb: INCOME_COLOR } }
     
-    btwSheet.getColumn(1).width = 15
-    btwSheet.getColumn(2).width = 25
-    btwSheet.getColumn(3).width = 18
-    btwSheet.getColumn(4).width = 18
-
+    // Write to buffer
     const buffer = await workbook.xlsx.writeBuffer()
     
     return new NextResponse(buffer, {
@@ -443,6 +517,7 @@ export async function PUT(req: NextRequest) {
     })
 
   } catch (error: any) {
+    console.error('Excel export error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
