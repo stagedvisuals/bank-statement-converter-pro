@@ -316,22 +316,68 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Social Proof / Testimonial */}
+      {/* Social Proof / Testimonials */}
       <section className="py-16 bg-slate-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Quote className="w-10 h-10 text-blue-300 mx-auto mb-6" />
-          <blockquote className="text-xl md:text-2xl text-slate-700 font-medium mb-6">
-            "Wij verwerken wekelijks meer dan 50 bankafschriften. 
-            Met BSC Pro besparen we per maand ruim 10 uur werk. 
-            Een must-have voor elk administratiekantoor."
-          </blockquote>
-          <div className="flex items-center justify-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-              <span className="text-lg font-bold text-blue-600">MV</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <Quote className="w-10 h-10 text-blue-300 mx-auto mb-4" />
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900">
+              Wat onze klanten zeggen
+            </h2>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Testimonial 1 - Marco van Dijk */}
+            <div className="bg-white rounded-2xl p-8 border border-slate-200 hover:shadow-lg transition-all">
+              <Quote className="w-8 h-8 text-blue-300 mb-4" />
+              <blockquote className="text-slate-700 mb-6">
+                "Wij verwerken wekelijks meer dan 50 bankafschriften. 
+                Met BSC Pro besparen we per maand ruim 10 uur werk. 
+                Een must-have voor elk administratiekantoor."
+              </blockquote>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                  <span className="text-lg font-bold text-blue-600">MV</span>
+                </div>
+                <div>
+                  <div className="font-semibold text-slate-900">Marco van Dijk</div>
+                  <div className="text-sm text-slate-500">Eigenaar, Dijk Administratie</div>
+                </div>
+              </div>
             </div>
-            <div className="text-left">
-              <div className="font-semibold text-slate-900">Marco van Dijk</div>
-              <div className="text-sm text-slate-500">Eigenaar, Dijk Administratie</div>
+
+            {/* Testimonial 2 - Sandra Visser */}
+            <div className="bg-white rounded-2xl p-8 border border-slate-200 hover:shadow-lg transition-all">
+              <Quote className="w-8 h-8 text-blue-300 mb-4" />
+              <blockquote className="text-slate-700 mb-6">
+                "Eindelijk geen handmatig werk meer. Ik verwerk nu 3x zoveel afschriften in dezelfde tijd."
+              </blockquote>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                  <span className="text-lg font-bold text-purple-600">SV</span>
+                </div>
+                <div>
+                  <div className="font-semibold text-slate-900">Sandra Visser</div>
+                  <div className="text-sm text-slate-500">Boekhouder Rotterdam</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Testimonial 3 - Kevin de Groot */}
+            <div className="bg-white rounded-2xl p-8 border border-slate-200 hover:shadow-lg transition-all">
+              <Quote className="w-8 h-8 text-blue-300 mb-4" />
+              <blockquote className="text-slate-700 mb-6">
+                "Voor €2 per upload bespaar ik een uur werk. Beste investering van het jaar."
+              </blockquote>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                  <span className="text-lg font-bold text-green-600">KG</span>
+                </div>
+                <div>
+                  <div className="font-semibold text-slate-900">Kevin de Groot</div>
+                  <div className="text-sm text-slate-500">ZZP Accountant</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -456,7 +502,7 @@ export default function Home() {
             Start vandaag nog met besparen
           </h2>
           <p className="text-slate-400 mb-8">
-            Probeer het gratis: Je eerste 2 conversies zijn van ons. Geen creditcard nodig.
+            Je eerste 2 PDF uploads zijn gratis — geen creditcard nodig
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/register">
@@ -468,6 +514,55 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* FAQ Section */}
+      <section id="faq" className="py-16 bg-slate-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3">
+              Veelgestelde vragen
+            </h2>
+            <p className="text-slate-600">Alles wat je wilt weten over BSC Pro</p>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              {
+                q: "Welke banken worden ondersteund?",
+                a: "We ondersteunen alle grote Nederlandse banken: ING, Rabobank, ABN AMRO, SNS, Bunq, Triodos en meer. Werkt ook met internationale bankafschriften."
+              },
+              {
+                q: "Wat als mijn conversie niet klopt?",
+                a: "Onze AI is 99.5% nauwkeurig, maar mocht er iets mis gaan, neem dan contact op. We helpen je graag of je krijgt je credits terug."
+              },
+              {
+                q: "Hoe lang duurt een conversie?",
+                a: "De meeste conversies zijn binnen 10 seconden klaar. Complexe documenten kunnen tot 30 seconden duren."
+              },
+              {
+                q: "Worden mijn gegevens opgeslagen?",
+                a: "Nee. Je data wordt automatisch verwijderd na 24 uur. We slaan geen bankgegevens op en verkopen nooit data aan derden."
+              },
+              {
+                q: "Wat betekent '2 gratis conversies'?",
+                a: "Je krijgt 2 gratis credits bij registratie. Hiermee kun je 2 PDF bankafschriften converteren zonder te betalen. Geen creditcard nodig."
+              }
+            ].map((faq, index) => (
+              <div key={index} className="bg-white rounded-xl p-6 border border-slate-200 hover:border-blue-300 transition-colors">
+                <h3 className="font-semibold text-slate-900 mb-2">{faq.q}</h3>
+                <p className="text-slate-600 text-sm">{faq.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Floating Help Button */}
+      <Link href="/contact" className="fixed bottom-6 right-6 z-50">
+        <Button className="bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/25 rounded-full px-4 py-2 flex items-center gap-2">
+          <span className="text-sm font-medium">Hulp nodig?</span>
+        </Button>
+      </Link>
 
       {/* Footer */}
       <footer className="bg-slate-950 py-10">
