@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import ExcelJS from 'exceljs'
 import { categorizeTransactions, getCategorySummary, getBTWSummary, CATEGORIES, BTW_RATES } from '@/lib/categorization'
+import { fromBuffer } from 'pdf2pic'
+import { promises as fs } from 'fs'
+import { join } from 'path'
+import { tmpdir } from 'os'
 
-export const runtime = 'edge'
+// Use Node.js runtime for PDF processing (pdf2pic requires Node.js APIs)
+export const runtime = 'nodejs'
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY
 const GROQ_BASE_URL = 'https://api.groq.com/openai/v1'
@@ -64,6 +69,123 @@ function generateMT940(transactions: any[], bank: string, accountNumber: string 
   return mt940
 }
 
+// Convert PDF buffer to PNG images
+async function convertPdfToPng(pdfBuffer: Buffer): Promise<Buffer[]> {
+  console.log('[PDF Conversion] Starting PDF to PNG conversion...')
+  
+  const tempDir = tmpdir()
+  const tempPdfPath = join(tempDir, `input-${Date.now()}.pdf`)
+  
+  try {
+    // Write PDF to temp file
+    await fs.writeFile(tempPdfPath, pdfBuffer)
+    console.log('[PDF Conversion] PDF saved to temp file:', tempPdfPath)
+    
+    // Convert PDF to PNG
+    const convert = fromBuffer(pdfBuffer, {
+      density: 150,
+      format: 'png',
+      width: 1654,
+      height: 2339,
+      quality: 90,
+      preserveAspectRatio: true,
+    })
+    
+    const pages = await convert.bulk(-1) // Convert all pages
+    console.log(`[PDF Conversion] Converted ${pages.length} pages to PNG`)
+    
+    // Read PNG files as buffers
+    const pngBuffers: Buffer[] = []
+    for (const page of pages) {
+      if (page.path) {
+        const pngBuffer = await fs.readFile(page.path)
+        pngBuffers.push(pngBuffer)
+        // Clean up temp PNG file
+        await fs.unlink(page.path).catch(() => {})
+      }
+    }
+    
+    // Clean up temp PDF
+    await fs.unlink(tempPdfPath).catch(() => {})
+    
+    return pngBuffers
+  } catch (error) {
+    // Clean up on error
+    await fs.unlink(tempPdfPath).catch(() => {})
+    throw error
+  }
+}
+
+// Process single page with Groq Vision
+async function processPageWithGroq(pngBuffer: Buffer, pageNum: number): Promise<any> {
+  const base64Image = pngBuffer.toString('base64')
+  
+  console.log(`[Groq Vision] Processing page ${pageNum}...`)
+  console.log(`[Groq Vision] API URL: ${GROQ_BASE_URL}/chat/completions`)
+  console.log(`[Groq Vision] Image size: ${Math.round(base64Image.length / 1024)} KB`)
+  
+  const requestBody = {
+    model: 'llama-3.2-11b-vision-preview',
+    messages: [
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: 'Extract all transactions from this bank statement page. Return as JSON with fields: date (DD-MM-YYYY), description, amount (positive for income, negative for expenses). Format: {"bank": "bank name", "rekeningnummer": "IBAN", "transacties": [{"datum": "DD-MM-YYYY", "omschrijving": "description", "bedrag": -123.45}]}'
+          },
+          {
+            type: 'image_url',
+            image_url: { 
+              url: `data:image/png;base64,${base64Image}` 
+            }
+          }
+        ]
+      }
+    ],
+    temperature: 0.1,
+    max_tokens: 4096
+  }
+  
+  console.log('[Groq Vision] Request body:', JSON.stringify(requestBody, null, 2).substring(0, 500) + '...')
+  
+  const visionResponse = await fetch(`${GROQ_BASE_URL}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${GROQ_API_KEY}`,
+    },
+    body: JSON.stringify(requestBody)
+  })
+  
+  console.log(`[Groq Vision] Response status: ${visionResponse.status}`)
+  
+  if (!visionResponse.ok) {
+    const errorText = await visionResponse.text()
+    console.error(`[Groq Vision] Error response: ${errorText}`)
+    throw new Error(`Groq Vision API failed: ${visionResponse.status} - ${errorText}`)
+  }
+  
+  const aiData = await visionResponse.json()
+  console.log(`[Groq Vision] Response received for page ${pageNum}`)
+  
+  const aiContent = aiData.choices?.[0]?.message?.content || ''
+  console.log(`[Groq Vision] AI Response content:`, aiContent.substring(0, 600))
+  
+  // Parse JSON from response
+  let parsedData: any = { transacties: [], rekeningnummer: '' }
+  try {
+    const jsonMatch = aiContent.match(/\{[\s\S]*\}/)
+    if (jsonMatch) {
+      parsedData = JSON.parse(jsonMatch[0])
+    }
+  } catch (e) {
+    console.log(`[Groq Vision] JSON parse failed for page ${pageNum}:`, e)
+  }
+  
+  return parsedData
+}
+
 export async function POST(req: NextRequest) {
   console.log('[Vision Scanner] Request received')
 
@@ -75,68 +197,50 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Geen bestand' }, { status: 400 })
     }
 
-    console.log(`[Vision Scanner] Processing: ${file.name}`)
+    console.log(`[Vision Scanner] Processing: ${file.name}, type: ${file.type}`)
 
     const bytes = await file.arrayBuffer()
-    const base64 = Buffer.from(bytes).toString('base64')
-
-    // AI VISION ANALYSIS
-    console.log('[Vision Scanner] Sending to Groq Vision...')
+    const buffer = Buffer.from(bytes)
     
-    const visionResponse = await fetch(`${GROQ_BASE_URL}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'llama-3.2-11b-vision-preview',
-        messages: [
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: 'Extract all transactions from this bank statement. Return as JSON with fields: date (DD-MM-YYYY), description, amount (positive for income, negative for expenses), balance. Format: {"bank": "bank name", "rekeningnummer": "IBAN", "transacties": [{"datum": "...", "omschrijving": "...", "bedrag": 0.00}]}'
-              },
-              {
-                type: 'image_url',
-                image_url: { url: `data:${file.type};base64,${base64}` }
-              }
-            ]
-          }
-        ],
-        temperature: 0.1
-      })
-    })
-
-    if (!visionResponse.ok) {
-      throw new Error(`Vision API failed: ${visionResponse.status}`)
-    }
-
-    const aiData = await visionResponse.json()
-    const aiContent = aiData.choices?.[0]?.message?.content || ''
+    let allTransactions: any[] = []
+    let bank = 'Onbekend'
+    let accountNumber = ''
     
-    console.log('[Vision Scanner] AI Response:', aiContent.substring(0, 600))
-
-    // Parse JSON
-    let parsedData: any = { transacties: [], rekeningnummer: '' }
-    try {
-      const jsonMatch = aiContent.match(/\{[\s\S]*\}/)
-      if (jsonMatch) {
-        parsedData = JSON.parse(jsonMatch[0])
+    // Check if file is PDF or image
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
+    
+    if (isPdf) {
+      // Convert PDF to PNG images
+      console.log('[Vision Scanner] Converting PDF to PNG...')
+      const pngBuffers = await convertPdfToPng(buffer)
+      
+      // Process each page
+      for (let i = 0; i < pngBuffers.length; i++) {
+        const pageData = await processPageWithGroq(pngBuffers[i], i + 1)
+        
+        if (pageData.transacties && pageData.transacties.length > 0) {
+          allTransactions = [...allTransactions, ...pageData.transacties]
+        }
+        
+        // Use bank name and account from first page
+        if (i === 0) {
+          bank = pageData.bank || 'Onbekend'
+          accountNumber = pageData.rekeningnummer || ''
+        }
       }
-    } catch (e) {
-      console.log('[Vision Scanner] JSON parse failed')
+    } else {
+      // Process image directly
+      console.log('[Vision Scanner] Processing image directly...')
+      const pageData = await processPageWithGroq(buffer, 1)
+      
+      allTransactions = pageData.transacties || []
+      bank = pageData.bank || 'Onbekend'
+      accountNumber = pageData.rekeningnummer || ''
     }
 
-    const bank = parsedData.bank || 'Onbekend'
-    const accountNumber = parsedData.rekeningnummer || 'NL00BSCP0000000000'
-    let transactions = parsedData.transacties || []
+    console.log(`[Vision Scanner] Total transactions extracted: ${allTransactions.length}`)
 
-    console.log(`[Vision Scanner] Found ${transactions.length} transactions from ${bank}`)
-
-    if (transactions.length === 0) {
+    if (allTransactions.length === 0) {
       return NextResponse.json({
         error: 'Geen transacties gevonden',
         details: 'De AI kon geen transacties herkennen in dit document.',
@@ -145,7 +249,7 @@ export async function POST(req: NextRequest) {
     }
 
     // APPLY AUTOMATIC CATEGORIZATION
-    transactions = categorizeTransactions(transactions)
+    let transactions = categorizeTransactions(allTransactions)
     
     // Generate category summary
     const categorySummary = getCategorySummary(transactions)
@@ -177,7 +281,8 @@ export async function POST(req: NextRequest) {
     console.error('[Vision Scanner] Error:', error)
     return NextResponse.json({ 
       error: 'Verwerking mislukt', 
-      message: error.message 
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     }, { status: 500 })
   }
 }
