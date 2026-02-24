@@ -120,6 +120,7 @@ async function processPageWithGroq(pngBuffer: Buffer, pageNum: number): Promise<
   })
   
   console.log(`[Groq Vision] Response status: ${visionResponse.status}`)
+  console.log(`[Groq Vision] Response headers:`, JSON.stringify(Object.fromEntries(visionResponse.headers.entries())))
   
   if (!visionResponse.ok) {
     const errorText = await visionResponse.text()
@@ -127,7 +128,21 @@ async function processPageWithGroq(pngBuffer: Buffer, pageNum: number): Promise<
     throw new Error(`Groq Vision API failed: ${visionResponse.status} - ${errorText}`)
   }
   
-  const aiData = await visionResponse.json()
+  // Get raw text first for debugging
+  const rawText = await visionResponse.text()
+  console.log(`[Groq Vision] Raw response length: ${rawText.length}`)
+  console.log(`[Groq Vision] Raw response:`, rawText.substring(0, 1000))
+  
+  // Parse JSON
+  let aiData: any
+  try {
+    aiData = JSON.parse(rawText)
+  } catch (parseError) {
+    console.error(`[Groq Vision] JSON parse error:`, parseError)
+    console.error(`[Groq Vision] Full raw response:`, rawText)
+    throw new Error(`Failed to parse Groq response as JSON: ${parseError}`)
+  }
+  
   console.log(`[Groq Vision] Response received for page ${pageNum}`)
   
   const aiContent = aiData.choices?.[0]?.message?.content || ''
@@ -181,10 +196,20 @@ export async function POST(req: NextRequest) {
     if (isPdf) {
       // Convert PDF to PNG images
       console.log('[Vision Scanner] Converting PDF to PNG...')
-      const pngBuffers = await convertPdfToPng(buffer)
+      console.log(`[Vision Scanner] PDF buffer size: ${buffer.length} bytes`)
+      
+      let pngBuffers: Buffer[]
+      try {
+        pngBuffers = await convertPdfToPng(buffer)
+        console.log(`[Vision Scanner] PDF converted to ${pngBuffers.length} PNG images`)
+      } catch (pdfError) {
+        console.error('[Vision Scanner] PDF conversion failed:', pdfError)
+        throw new Error(`PDF conversion failed: ${pdfError}`)
+      }
       
       // Process each page
       for (let i = 0; i < pngBuffers.length; i++) {
+        console.log(`[Vision Scanner] Processing page ${i + 1}/${pngBuffers.length}, size: ${pngBuffers[i].length} bytes`)
         const pageData = await processPageWithGroq(pngBuffers[i], i + 1)
         
         if (pageData.transacties && pageData.transacties.length > 0) {
@@ -247,10 +272,15 @@ export async function POST(req: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('[Vision Scanner] Error:', error)
+    console.error('[Vision Scanner] ERROR CAUGHT:')
+    console.error('[Vision Scanner] Error message:', error.message)
+    console.error('[Vision Scanner] Error name:', error.name)
+    console.error('[Vision Scanner] Error stack:', error.stack)
+    
     return NextResponse.json({ 
       error: 'Verwerking mislukt', 
       message: error.message,
+      type: error.name,
       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     }, { status: 500 })
   }
