@@ -6,6 +6,63 @@ export const runtime = 'edge'
 const MOONSHOT_API_KEY = process.env.MOONSHOT_API_KEY
 const MOONSHOT_BASE_URL = 'https://api.moonshot.cn/v1'
 
+// MT940 Format Generator
+function generateMT940(transactions: any[], bank: string, accountNumber: string = 'NL00BSCP0000000000'): string {
+  const now = new Date()
+  const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '')
+  const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, '')
+  
+  // Calculate opening and closing balance
+  const totalAmount = transactions.reduce((sum, t) => sum + (parseFloat(t.bedrag) || 0), 0)
+  const openingBalance = 0
+  const closingBalance = openingBalance + totalAmount
+  
+  // Determine currency (default EUR)
+  const currency = 'EUR'
+  
+  // Build MT940 content
+  let mt940 = ''
+  
+  // Record 20 - Transaction Reference Number
+  mt940 += `:20:BSCPro-${dateStr}-${timeStr}\r\n`
+  
+  // Record 25 - Account Identification
+  mt940 += `:25:${accountNumber}\r\n`
+  
+  // Record 28C - Statement Number/Sequence Number
+  mt940 += `:28C:00001/001\r\n`
+  
+  // Record 60F - Opening Balance
+  const openBalanceStr = Math.abs(openingBalance).toFixed(2).replace('.', ',')
+  const openSign = openingBalance >= 0 ? 'C' : 'D'
+  mt940 += `:60F:${openSign}${dateStr}${currency}${openBalanceStr}\r\n`
+  
+  // Transaction records (61 and 86)
+  transactions.forEach((t, index) => {
+    const amount = parseFloat(t.bedrag) || 0
+    const txDate = t.datum ? t.datum.replace(/-/g, '').slice(0, 8) : dateStr
+    const entryDate = txDate
+    const amountStr = Math.abs(amount).toFixed(2).replace('.', ',')
+    const sign = amount >= 0 ? 'C' : 'D'
+    const fundsCode = '' // Optional
+    const txRef = `TRX${(index + 1).toString().padStart(5, '0')}`
+    
+    // Record 61 - Statement Line
+    mt940 += `:61:${txDate}${entryDate}${sign}${fundsCode}${amountStr}NTRF${txRef}\r\n`
+    
+    // Record 86 - Information to Account Owner
+    const description = (t.omschrijving || 'Transactie').substring(0, 65)
+    mt940 += `:86:${description}\r\n`
+  })
+  
+  // Record 62F - Closing Balance
+  const closeBalanceStr = Math.abs(closingBalance).toFixed(2).replace('.', ',')
+  const closeSign = closingBalance >= 0 ? 'C' : 'D'
+  mt940 += `:62F:${closeSign}${dateStr}${currency}${closeBalanceStr}\r\n`
+  
+  return mt940
+}
+
 export async function POST(req: NextRequest) {
   console.log('[Vision Scanner] Request received')
 
@@ -42,10 +99,12 @@ EXTRAHEER alle financiële transacties die je ziet:
 - Datum (DD-MM-YYYY)
 - Omschrijving (wat is het)
 - Bedrag (positief = inkomst, negatief = uitgave)
+- Optioneel: Rekeningnummer (IBAN)
 
 Geef het resultaat als JSON:
 {
   "bank": "ING of ander",
+  "rekeningnummer": "NLxx...",
   "transacties": [
     {"datum": "23-02-2026", "omschrijving": "ALBERT HEIJN", "bedrag": -45.20}
   ]
@@ -73,7 +132,7 @@ Geef het resultaat als JSON:
     console.log('[Vision Scanner] AI Response:', aiContent.substring(0, 600))
 
     // Parse JSON
-    let parsedData: any = { transacties: [] }
+    let parsedData: any = { transacties: [], rekeningnummer: '' }
     try {
       const jsonMatch = aiContent.match(/\{[\s\S]*\}/)
       if (jsonMatch) {
@@ -84,6 +143,7 @@ Geef het resultaat als JSON:
     }
 
     const bank = parsedData.bank || 'Onbekend'
+    const accountNumber = parsedData.rekeningnummer || 'NL00BSCP0000000000'
     const transactions = parsedData.transacties || []
 
     console.log(`[Vision Scanner] Found ${transactions.length} transactions from ${bank}`)
@@ -99,6 +159,7 @@ Geef het resultaat als JSON:
     return NextResponse.json({
       success: true,
       bank: bank,
+      rekeningnummer: accountNumber,
       count: transactions.length,
       transactions: transactions.map((t: any) => ({
         datum: t.datum || '',
@@ -192,6 +253,26 @@ export async function PUT(req: NextRequest) {
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'Content-Disposition': `attachment; filename="BSC-PRO-${bank}-Scan.xlsx"`
+      }
+    })
+
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}
+
+// MT940 EXPORT - NEW
+export async function PATCH(req: NextRequest) {
+  try {
+    const { transactions, bank = 'Onbekend', rekeningnummer } = await req.json()
+    
+    const mt940Content = generateMT940(transactions, bank, rekeningnummer)
+    
+    return new NextResponse(mt940Content, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Content-Disposition': `attachment; filename="BSC-PRO-${bank}-MT940.sta"`
       }
     })
 

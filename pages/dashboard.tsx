@@ -15,7 +15,10 @@ import {
   Brain,
   FileSpreadsheet,
   TrendingUp,
-  TrendingDown
+  TrendingDown,
+  Database,
+  FileCode,
+  Table
 } from 'lucide-react';
 
 interface Transaction {
@@ -33,6 +36,7 @@ export default function Dashboard() {
   const [scanStatus, setScanStatus] = useState<'idle' | 'uploading' | 'analyzing' | 'extracting' | 'done' | 'error'>('idle');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [bank, setBank] = useState<string>('');
+  const [rekeningnummer, setRekeningnummer] = useState<string>('');
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
@@ -98,6 +102,7 @@ export default function Dashboard() {
 
       setTransactions(formatted);
       setBank(data.bank || 'Onbekend');
+      setRekeningnummer(data.rekeningnummer || '');
       setScanStatus('done');
 
     } catch (err: any) {
@@ -125,6 +130,53 @@ export default function Dashboard() {
       URL.revokeObjectURL(url);
     } catch (err: any) {
       setError('Export mislukt: ' + err.message);
+    }
+  };
+
+  // NEW: MT940 Export
+  const exportToMT940 = async () => {
+    try {
+      const response = await fetch('/api/convert/', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transactions, bank, rekeningnummer })
+      });
+
+      if (!response.ok) throw new Error('MT940 Export mislukt');
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `BSC-PRO-${bank}-MT940.sta`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      setError('MT940 Export mislukt: ' + err.message);
+    }
+  };
+
+  // NEW: CSV Export
+  const exportToCSV = () => {
+    try {
+      const headers = ['Datum', 'Omschrijving', 'Categorie', 'Bedrag'];
+      const rows = transactions.map(t => [
+        t.datum,
+        `"${t.omschrijving}"`,
+        t.category,
+        t.bedrag.toString()
+      ]);
+      
+      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `BSC-PRO-${bank}-Export.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      setError('CSV Export mislukt: ' + err.message);
     }
   };
 
@@ -238,67 +290,109 @@ export default function Dashboard() {
         </div>
 
         {transactions.length > 0 && (
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="p-6 border-b border-slate-200 flex justify-between items-center">
-              <div>
-                <h2 className="text-xl font-bold text-slate-900">
-                  {transactions.length} Transacties Gevonden
-                </h2>
-                <p className="text-slate-500">Bank: {bank}</p>
+          <div className="space-y-6">
+            {/* Export Options Section - NEW */}
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg p-6 text-white">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Download className="w-5 h-5" />
+                Exporteer je data
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button
+                  onClick={exportToExcel}
+                  className="flex flex-col items-center gap-2 p-4 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+                >
+                  <FileSpreadsheet className="w-8 h-8" />
+                  <span className="text-sm font-medium">Excel</span>
+                </button>
+                <button
+                  onClick={exportToMT940}
+                  className="flex flex-col items-center gap-2 p-4 bg-white/10 hover:bg-white/20 rounded-lg transition-colors border-2 border-yellow-400"
+                >
+                  <Database className="w-8 h-8 text-yellow-300" />
+                  <span className="text-sm font-medium">MT940 ⭐</span>
+                </button>
+                <button
+                  onClick={exportToCSV}
+                  className="flex flex-col items-center gap-2 p-4 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+                >
+                  <Table className="w-8 h-8" />
+                  <span className="text-sm font-medium">CSV</span>
+                </button>
+                <div className="flex flex-col items-center gap-2 p-4 bg-white/5 rounded-lg opacity-50">
+                  <FileCode className="w-8 h-8" />
+                  <span className="text-sm font-medium">CAMT (binnenkort)</span>
+                </div>
               </div>
-              <button
-                onClick={exportToExcel}
-                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 flex items-center gap-2"
-              >
-                <FileSpreadsheet className="w-4 h-4" />
-                Export Excel
-              </button>
+              <p className="mt-4 text-sm text-blue-100">
+                💡 <strong>Tip voor boekhouders:</strong> Gebruik MT940 voor directe import in Exact, Twinfield, AFAS of SnelStart
+              </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 p-6 bg-slate-50">
-              <div className="bg-white p-4 rounded-lg border border-green-200">
-                <div className="flex items-center gap-2 text-green-600 mb-1">
-                  <TrendingUp className="w-4 h-4" />
-                  <span className="text-sm font-medium">Inkomsten</span>
+            {/* Transaction Summary */}
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div className="p-6 border-b border-slate-200">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900">
+                      {transactions.length} Transacties Gevonden
+                    </h2>
+                    <p className="text-slate-500">Bank: {bank}</p>
+                  </div>
+                  {rekeningnummer && (
+                    <div className="text-right">
+                      <p className="text-sm text-slate-500">Rekening</p>
+                      <p className="font-mono text-sm text-slate-700">{rekeningnummer}</p>
+                    </div>
+                  )}
                 </div>
-                <p className="text-2xl font-bold text-green-600">
-                  €{transactions.filter(t => t.bedrag > 0).reduce((sum, t) => sum + t.bedrag, 0).toFixed(2)}
-                </p>
               </div>
-              <div className="bg-white p-4 rounded-lg border border-red-200">
-                <div className="flex items-center gap-2 text-red-600 mb-1">
-                  <TrendingDown className="w-4 h-4" />
-                  <span className="text-sm font-medium">Uitgaven</span>
-                </div>
-                <p className="text-2xl font-bold text-red-600">
-                  €{transactions.filter(t => t.bedrag < 0).reduce((sum, t) => sum + Math.abs(t.bedrag), 0).toFixed(2)}
-                </p>
-              </div>
-            </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-slate-100">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Datum</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Omschrijving</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Categorie</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Bedrag</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {transactions.map((t) => (
-                    <tr key={t.id} className="hover:bg-slate-50">
-                      <td className="px-6 py-4 text-sm text-slate-900">{t.datum}</td>
-                      <td className="px-6 py-4 text-sm text-slate-900">{t.omschrijving}</td>
-                      <td className="px-6 py-4 text-sm text-slate-500">{t.category}</td>
-                      <td className={`px-6 py-4 text-sm font-medium text-right ${t.bedrag >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {t.bedrag >= 0 ? '+' : ''}€{t.bedrag.toFixed(2)}
-                      </td>
+              <div className="grid grid-cols-2 gap-4 p-6 bg-slate-50">
+                <div className="bg-white p-4 rounded-lg border border-green-200">
+                  <div className="flex items-center gap-2 text-green-600 mb-1">
+                    <TrendingUp className="w-4 h-4" />
+                    <span className="text-sm font-medium">Inkomsten</span>
+                  </div>
+                  <p className="text-2xl font-bold text-green-600">
+                    €{transactions.filter(t => t.bedrag > 0).reduce((sum, t) => sum + t.bedrag, 0).toFixed(2)}
+                  </p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-red-200">
+                  <div className="flex items-center gap-2 text-red-600 mb-1">
+                    <TrendingDown className="w-4 h-4" />
+                    <span className="text-sm font-medium">Uitgaven</span>
+                  </div>
+                  <p className="text-2xl font-bold text-red-600">
+                    €{transactions.filter(t => t.bedrag < 0).reduce((sum, t) => sum + Math.abs(t.bedrag), 0).toFixed(2)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-slate-100">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Datum</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Omschrijving</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Categorie</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Bedrag</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200">
+                    {transactions.map((t) => (
+                      <tr key={t.id} className="hover:bg-slate-50">
+                        <td className="px-6 py-4 text-sm text-slate-900">{t.datum}</td>
+                        <td className="px-6 py-4 text-sm text-slate-900">{t.omschrijving}</td>
+                        <td className="px-6 py-4 text-sm text-slate-500">{t.category}</td>
+                        <td className={`px-6 py-4 text-sm font-medium text-right ${t.bedrag >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {t.bedrag >= 0 ? '+' : ''}€{t.bedrag.toFixed(2)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}

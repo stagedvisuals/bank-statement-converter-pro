@@ -92,6 +92,10 @@ export default function Home() {
                 <Users className="w-4 h-4 text-blue-600" />
                 <span className="text-sm font-semibold text-blue-700">100+ boekhouders</span>
               </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-50 rounded-full border border-yellow-200">
+                <Database className="w-4 h-4 text-yellow-600" />
+                <span className="text-sm font-semibold text-yellow-700">MT940 Export</span>
+              </div>
               <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full border border-slate-200">
                 <span className="text-lg">🇳🇱</span>
                 <span className="text-sm font-semibold text-slate-700">#1 in NL</span>
@@ -103,7 +107,7 @@ export default function Home() {
             </h1>
             
             <p className="text-base md:text-lg text-slate-600 mb-6 text-center max-w-2xl mx-auto">
-              Zet PDF bankafschriften automatisch om naar Excel. 
+              Zet PDF bankafschriften automatisch om naar Excel, CSV én MT940. 
               99.5% nauwkeurig. Geen handmatige invoer meer.
             </p>
 
@@ -246,15 +250,16 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { icon: Clock, title: 'Direct resultaat', desc: 'Upload je PDF en binnen 10 seconden heb je een Excel bestand' },
               { icon: Shield, title: 'Veilig & AVG-proof', desc: 'Je data wordt na 24 uur automatisch verwijderd. Geen zorgen.' },
               { icon: CheckCircle, title: '99.5% nauwkeurig', desc: 'Onze AI herkent zelfs de meest complexe bankafschriften' },
+              { icon: Database, title: 'MT940 Export ⭐', desc: 'Als enige in NL: directe MT940 export voor Exact, Twinfield, AFAS en SnelStart' },
             ].map((feature) => (
-              <div key={feature.title} className="p-6 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-all hover:shadow-md">
-                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center mb-4">
-                  <feature.icon className="w-5 h-5 text-blue-500" />
+              <div key={feature.title} className={`p-6 rounded-xl border transition-all hover:shadow-md ${feature.title.includes('MT940') ? 'bg-yellow-50 border-yellow-200 hover:border-yellow-300' : 'bg-slate-50 border-slate-100 hover:border-blue-200'}`}>
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-4 ${feature.title.includes('MT940') ? 'bg-yellow-100' : 'bg-blue-100'}`}>
+                  <feature.icon className={`w-5 h-5 ${feature.title.includes('MT940') ? 'text-yellow-600' : 'text-blue-500'}`} />
                 </div>
                 <h3 className="text-base font-semibold text-slate-900 mb-2">{feature.title}</h3>
                 <p className="text-sm text-slate-600">{feature.desc}</p>
@@ -270,13 +275,16 @@ export default function Home() {
           <div className="text-center mb-8">
             <p className="text-sm text-slate-500 uppercase tracking-wide font-semibold">Werkt direct met</p>
           </div>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-            {['Exact Online', 'Moneybird', 'Twinfield', 'QuickBooks', 'Google Sheets'].map((integration) => (
-              <div key={integration} className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-lg border border-slate-200">
-                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10">
+            {['Exact Online', 'Moneybird', 'Twinfield', 'AFAS', 'SnelStart', 'QuickBooks', 'Google Sheets'].map((integration) => (
+              <div key={integration} className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${integration === 'AFAS' || integration === 'SnelStart' ? 'bg-yellow-50 border-yellow-200' : 'bg-slate-50 border-slate-200'}`}>
+                <div className={`w-2 h-2 rounded-full ${integration === 'AFAS' || integration === 'SnelStart' ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
                 <span className="text-sm font-medium text-slate-700">{integration}</span>
               </div>
             ))}
+          </div>
+          <div className="mt-6 text-center">
+            <p className="text-sm text-yellow-600 font-medium">🎯 Nieuw: MT940 export voor directe import in alle boekhoudpakketten</p>
           </div>
         </div>
       </section>
@@ -556,7 +564,14 @@ export default function Home() {
             </div>
 
             {/* Card 3: Pro */}
-            <div className="flex flex-col bg-white rounded-2xl border border-slate-200 p-6 hover:border-blue-300 hover:shadow-lg transition-all group">
+            <div className="flex flex-col bg-white rounded-2xl border-2 border-yellow-400 p-6 hover:border-yellow-500 hover:shadow-lg transition-all group relative overflow-hidden">
+              {/* MT940 Badge */}
+              <div className="absolute top-0 right-0">
+                <div className="bg-gradient-to-l from-yellow-500 to-yellow-400 text-white text-xs font-bold px-4 py-1.5 rounded-bl-lg shadow-md">
+                  MT940 INCL.
+                </div>
+              </div>
+
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-slate-900 mb-1">Professional</h3>
                 <p className="text-sm text-slate-500 mb-4">Voor administratiekantoren</p>
@@ -568,9 +583,9 @@ export default function Home() {
                 </div>
 
                 <ul className="space-y-2.5 mb-6">
-                  {['Onbeperkt afschriften', 'API toegang', 'Priority support', 'Dedicated account manager'].map((item) => (
-                    <li key={item} className="flex items-center gap-2 text-sm text-slate-700">
-                      <Check className="w-4 h-4 text-blue-500" />
+                  {['Onbeperkt afschriften', '✓ MT940 export (Exact, Twinfield, AFAS)', 'API toegang', 'Priority support', 'Dedicated account manager'].map((item) => (
+                    <li key={item} className={`flex items-center gap-2 text-sm ${item.includes('MT940') ? 'text-yellow-700 font-medium' : 'text-slate-700'}`}>
+                      <Check className={`w-4 h-4 ${item.includes('MT940') ? 'text-yellow-500' : 'text-blue-500'}`} />
                       {item}
                     </li>
                   ))}
@@ -578,7 +593,7 @@ export default function Home() {
               </div>
 
               <Link href="/register" className="mt-auto">
-                <Button className="w-full bg-slate-900 hover:bg-slate-800 text-white group-hover:bg-blue-500 group-hover:hover:bg-blue-600 transition-colors">
+                <Button className="w-full bg-slate-900 hover:bg-slate-800 text-white group-hover:bg-yellow-500 group-hover:hover:bg-yellow-600 transition-colors">
                   Abonneren
                 </Button>
               </Link>
@@ -632,6 +647,10 @@ export default function Home() {
               {
                 q: "Welke banken worden ondersteund?",
                 a: "We ondersteunen alle grote Nederlandse banken: ING, Rabobank, ABN AMRO, SNS, Bunq, Triodos en meer. Werkt ook met internationale bankafschriften."
+              },
+              {
+                q: "Wat is MT940 en waarom is dit handig?",
+                a: "MT940 is het internationale standaardformaat voor bankafschriften. Alle grote boekhoudpakketten (Exact, Twinfield, AFAS, SnelStart) accepteren MT940 bestanden voor directe import. Je hoeft geen handmatige invoer meer te doen!"
               },
               {
                 q: "Wat als mijn conversie niet klopt?",
