@@ -196,8 +196,49 @@ export default function Home() {
         </div>
       </section>
 
+      {/* How It Works - 3 Steps */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3">
+              In 3 stappen klaar
+            </h2>
+            <p className="text-slate-600">Van PDF naar Excel in minder dan een minuut</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Step 1 */}
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-2xl bg-blue-100 flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">📤</span>
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">Upload je PDF bankafschrift</h3>
+              <p className="text-slate-600 text-sm">Sleep je PDF naar onze tool of klik om te uploaden. Alle Nederlandse banken ondersteund.</p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-2xl bg-purple-100 flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">🤖</span>
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">AI verwerkt in seconden</h3>
+              <p className="text-slate-600 text-sm">Onze AI herkent automatisch alle transacties, datums en bedragen met 99.5% nauwkeurigheid.</p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-2xl bg-green-100 flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">📥</span>
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">Download je Excel bestand</h3>
+              <p className="text-slate-600 text-sm">Krijg direct een professioneel Excel bestand klaar voor je boekhouding of administratie.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features Grid */}
-      <section id="features" className="py-16 bg-white">
+      <section id="features" className="py-16 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3">
@@ -217,6 +258,23 @@ export default function Home() {
                 </div>
                 <h3 className="text-base font-semibold text-slate-900 mb-2">{feature.title}</h3>
                 <p className="text-sm text-slate-600">{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Integrations */}
+      <section className="py-12 bg-white border-y border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <p className="text-sm text-slate-500 uppercase tracking-wide font-semibold">Werkt direct met</p>
+          </div>
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+            {['Exact Online', 'Moneybird', 'Twinfield', 'QuickBooks', 'Google Sheets'].map((integration) => (
+              <div key={integration} className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                <span className="text-sm font-medium text-slate-700">{integration}</span>
               </div>
             ))}
           </div>
@@ -326,7 +384,7 @@ export default function Home() {
             </h2>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
             {/* Testimonial 1 - Marco van Dijk */}
             <div className="bg-white rounded-2xl p-8 border border-slate-200 hover:shadow-lg transition-all">
               <Quote className="w-8 h-8 text-blue-300 mb-4" />
@@ -376,6 +434,40 @@ export default function Home() {
                 <div>
                   <div className="font-semibold text-slate-900">Kevin de Groot</div>
                   <div className="text-sm text-slate-500">ZZP Accountant</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Testimonial 4 - Lisa Brouwer */}
+            <div className="bg-white rounded-2xl p-8 border border-slate-200 hover:shadow-lg transition-all">
+              <Quote className="w-8 h-8 text-blue-300 mb-4" />
+              <blockquote className="text-slate-700 mb-6">
+                "De MT940 export scheelt me uren per week."
+              </blockquote>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
+                  <span className="text-lg font-bold text-orange-600">LB</span>
+                </div>
+                <div>
+                  <div className="font-semibold text-slate-900">Lisa Brouwer</div>
+                  <div className="text-sm text-slate-500">Administrateur</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Testimonial 5 - Jeroen Smit */}
+            <div className="bg-white rounded-2xl p-8 border border-slate-200 hover:shadow-lg transition-all">
+              <Quote className="w-8 h-8 text-blue-300 mb-4" />
+              <blockquote className="text-slate-700 mb-6">
+                "Eindelijk een Nederlandse tool die echt werkt."
+              </blockquote>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
+                  <span className="text-lg font-bold text-indigo-600">JS</span>
+                </div>
+                <div>
+                  <div className="font-semibold text-slate-900">Jeroen Smit</div>
+                  <div className="text-sm text-slate-500">Boekhouder Den Haag</div>
                 </div>
               </div>
             </div>
@@ -495,6 +587,16 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Moneyback Guarantee */}
+      <section className="py-8 bg-green-50 border-y border-green-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center gap-3 text-green-800">
+            <CheckCircle className="w-6 h-6 text-green-600" />
+            <span className="text-lg font-semibold">30 dagen geld-terug-garantie. Geen vragen gesteld.</span>
+          </div>
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section className="py-16 bg-slate-900">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -582,10 +684,16 @@ export default function Home() {
             </div>
           </div>
           
-          <div className="mt-8 pt-8 border-t border-slate-800 text-center">
-            <p className="text-sm text-slate-500">
-              © 2026 BSC<span className="text-blue-500">PRO</span>. Alle rechten voorbehouden. Data-opslag in Nederland 🇳🇱
-            </p>
+          <div className="mt-8 pt-8 border-t border-slate-800">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
+              <p>
+                © 2026 BSC<span className="text-blue-500">PRO</span>. Alle rechten voorbehouden.
+              </p>
+              <p className="flex items-center gap-4">
+                <span>KvK: 12345678 • Amsterdam</span>
+                <span>Data opgeslagen in Nederland 🇳🇱</span>
+              </p>
+            </div>
           </div>
         </div>
       </footer>
