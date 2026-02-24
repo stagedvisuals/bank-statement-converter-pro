@@ -220,36 +220,64 @@ export default function Dashboard() {
     }
   };
 
-  if (!user) return <div className="min-h-screen bg-slate-50 flex items-center justify-center">Laden...</div>;
+  if (!user) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#080d14', color: '#00d4ff' }}>
+      Laden...
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen">
       <Head>
         <title>Dashboard - BSC Pro</title>
       </Head>
 
-      <nav style={{ background: '#0A1628', padding: '0 24px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0, 212, 255, 0.1)' }}>
+      <nav style={{ 
+        background: 'rgba(8, 13, 20, 0.9)', 
+        backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid rgba(0, 212, 255, 0.1)',
+        padding: '0 24px', 
+        height: '72px', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50
+      }}>
         {/* Logo links */}
         <Link href="/">
-          <img src="/logo-transparent.svg" alt="BSC Pro" height="36" style={{ display: 'block', height: '36px', width: 'auto' }} />
+          <img src="/logo-transparent.svg" alt="BSC Pro" style={{ display: 'block', height: '40px', width: 'auto' }} />
         </Link>
         
         {/* Rechts: user info + logout */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span style={{ color: '#94A3B8', fontSize: '14px' }}>{user?.email}</span>
+          <span style={{ color: '#94a3b8', fontSize: '14px' }}>{user?.email}</span>
           <button 
             onClick={handleLogout} 
             style={{ 
               display: 'flex', 
               alignItems: 'center', 
               gap: '6px', 
-              color: '#94A3B8', 
+              color: '#94a3b8', 
               background: 'transparent',
-              border: 'none',
+              border: '1px solid rgba(0, 212, 255, 0.3)',
+              borderRadius: '6px',
+              padding: '8px 16px',
               cursor: 'pointer',
-              fontSize: '14px'
+              fontSize: '14px',
+              transition: 'all 0.2s'
             }}
-            className="hover:text-white"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#00d4ff';
+              e.currentTarget.style.borderColor = '#00d4ff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#94a3b8';
+              e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.3)';
+            }}
           >
             <LogOut className="w-4 h-4" />
             Uitloggen
@@ -257,13 +285,22 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      <main className="max-w-6xl mx-auto p-6">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">AI Document Scanner</h1>
-          <p className="text-slate-600">Upload je bankafschrift of factuur. De AI leest automatisch alle transacties.</p>
+      <main style={{ paddingTop: '100px', maxWidth: '1200px', margin: '0 auto', padding: '100px 24px 24px' }}>
+        <div style={{ marginBottom: '32px' }}>
+          <h1 style={{ fontSize: '32px', fontWeight: 700, color: '#ffffff', marginBottom: '8px', fontFamily: 'var(--font-syne), Syne, sans-serif' }}>
+            AI Document Scanner
+          </h1>
+          <p style={{ color: '#94a3b8' }}>Upload je bankafschrift of factuur. De AI leest automatisch alle transacties.</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
+        <div style={{ 
+          background: 'rgba(10, 18, 32, 0.8)', 
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(0, 212, 255, 0.15)',
+          borderRadius: '16px', 
+          padding: '32px', 
+          marginBottom: '32px' 
+        }}>
           {!file ? (
             <div className="border-2 border-dashed border-slate-300 rounded-lg p-12 text-center hover:border-blue-400 transition-colors">
               <input

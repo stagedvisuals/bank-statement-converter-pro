@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import Navbar from '@/components/Navbar'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -70,73 +71,133 @@ export default function LoginPage() {
         <link rel="canonical" href="https://www.bscpro.nl/login/" />
         <meta name="robots" content="noindex, follow" />
       </Head>
-      <div className="min-h-screen flex flex-col bg-fintech-bg">
-        <nav className="w-full py-4 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto flex justify-between items-center">
-            <Link href="/" className="text-2xl font-bold gradient-text">BSC Pro</Link>
-            <Link href="/register" className="text-slate hover:text-navy transition-colors font-medium">
-              Nog geen account?
-            </Link>
-          </div>
-        </nav>
+      
+      <div className="min-h-screen">
+        <Navbar />
 
-        <div className="flex-1 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-8 card-shadow border border-fintech-border max-w-md w-full">
-            <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold text-navy mb-2">Welkom terug</h1>
-              <p className="text-slate">Log in om je documenten te converteren</p>
+        <div style={{ paddingTop: '120px', paddingBottom: '60px', minHeight: 'calc(100vh - 200px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ 
+            background: 'rgba(10, 18, 32, 0.8)', 
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(0, 212, 255, 0.15)',
+            borderRadius: '16px',
+            padding: '40px',
+            maxWidth: '420px',
+            width: '100%',
+            margin: '0 16px'
+          }}>
+            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+              <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#ffffff', marginBottom: '8px', fontFamily: 'var(--font-syne), Syne, sans-serif' }}>
+                Welkom terug
+              </h1>
+              <p style={{ color: '#94a3b8', fontSize: '14px' }}>
+                Log in om je documenten te converteren
+              </p>
             </div>
 
             {error && (
-              <div className="mb-4 p-3 bg-danger/10 border border-danger/20 rounded-lg text-danger text-sm">
+              <div style={{ 
+                marginBottom: '20px', 
+                padding: '12px 16px', 
+                background: 'rgba(239, 68, 68, 0.1)', 
+                border: '1px solid rgba(239, 68, 68, 0.3)', 
+                borderRadius: '8px',
+                color: '#ef4444',
+                fontSize: '14px'
+              }}>
                 {error}
               </div>
             )}
 
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
-                <label className="block text-sm font-medium text-navy mb-2">Email</label>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#ffffff', marginBottom: '8px' }}>
+                  Email
+                </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-fintech-bg border border-fintech-border rounded-xl focus:outline-none focus:border-success"
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    background: 'rgba(10, 18, 32, 0.6)',
+                    border: '1px solid rgba(0, 212, 255, 0.15)',
+                    borderRadius: '8px',
+                    color: '#ffffff',
+                    fontSize: '14px',
+                    outline: 'none',
+                    transition: 'border-color 0.2s'
+                  }}
                   placeholder="jouw@email.nl"
+                  onFocus={(e) => e.target.style.borderColor = '#00d4ff'}
+                  onBlur={(e) => e.target.style.borderColor = 'rgba(0, 212, 255, 0.15)'}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-navy mb-2">Wachtwoord</label>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#ffffff', marginBottom: '8px' }}>
+                  Wachtwoord
+                </label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-fintech-bg border border-fintech-border rounded-xl focus:outline-none focus:border-success"
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    background: 'rgba(10, 18, 32, 0.6)',
+                    border: '1px solid rgba(0, 212, 255, 0.15)',
+                    borderRadius: '8px',
+                    color: '#ffffff',
+                    fontSize: '14px',
+                    outline: 'none',
+                    transition: 'border-color 0.2s'
+                  }}
                   placeholder="••••••••"
+                  onFocus={(e) => e.target.style.borderColor = '#00d4ff'}
+                  onBlur={(e) => e.target.style.borderColor = 'rgba(0, 212, 255, 0.15)'}
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-4 bg-success text-white font-bold rounded-xl hover:bg-success-dark transition-all disabled:opacity-50"
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  background: loading ? '#334155' : '#00d4ff',
+                  color: loading ? '#94a3b8' : '#080d14',
+                  fontWeight: 600,
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  fontSize: '16px',
+                  transition: 'all 0.2s',
+                  marginTop: '8px'
+                }}
               >
                 {loading ? 'Inloggen...' : 'Inloggen'}
               </button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-slate">
-                Test account: <span className="text-navy font-medium">arthybagdas@gmail.com</span>
+            <div style={{ marginTop: '24px', textAlign: 'center' }}>
+              <p style={{ fontSize: '13px', color: '#64748b' }}>
+                Nog geen account?{' '}
+                <Link href="/register" style={{ color: '#00d4ff', textDecoration: 'none' }}>
+                  Registreer hier
+                </Link>
               </p>
             </div>
           </div>
         </div>
 
-        <footer className="py-6 text-center text-slate text-sm">
-          <p>© 2026 BSC Pro. Alle rechten voorbehouden.</p>
+        <footer style={{ padding: '24px', textAlign: 'center', borderTop: '1px solid rgba(0, 212, 255, 0.1)' }}>
+          <p style={{ fontSize: '14px', color: '#64748b' }}>
+            © 2026 BSC Pro. Alle rechten voorbehouden.
+          </p>
         </footer>
       </div>
     </>

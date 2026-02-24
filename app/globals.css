@@ -3,23 +3,135 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 15, 23, 42;
-  --background-end-rgb: 30, 41, 59;
+  --bg-primary: #080d14;
+  --bg-card: rgba(10, 18, 32, 0.8);
+  --accent-cyan: #00d4ff;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --border-subtle: rgba(0, 212, 255, 0.15);
 }
 
+/* Design System - BSC Pro v2 */
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  min-height: 100vh;
+}
+
+/* Grid pattern overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(0, 212, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Glow orb at top */
+body::after {
+  content: '';
+  position: fixed;
+  top: -300px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 600px;
+  background: radial-gradient(ellipse, rgba(0, 102, 204, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Display font for headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-syne), 'Syne', sans-serif;
+  font-weight: 700;
+}
+
+/* Card styling */
+.card-bsc {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+}
+
+/* Cyan accent elements */
+.accent-cyan {
+  color: var(--accent-cyan);
+}
+
+.bg-accent-cyan {
+  background-color: var(--accent-cyan);
+}
+
+.border-accent-cyan {
+  border-color: var(--accent-cyan);
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: var(--accent-cyan);
+  color: #080d14;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  color: var(--accent-cyan);
+  padding: 8px 20px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-outline:hover {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: var(--accent-cyan);
+}
+
+/* Input styling */
+.input-bsc {
+  background: rgba(10, 18, 32, 0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: var(--text-primary);
+  transition: border-color 0.2s ease;
+}
+
+.input-bsc:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.1);
+}
+
+.input-bsc::placeholder {
+  color: var(--text-secondary);
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* Ensure content is above grid/glow */
+main, nav, footer, section {
+  position: relative;
+  z-index: 1;
 }

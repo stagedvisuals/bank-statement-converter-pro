@@ -26,7 +26,7 @@ import {
   TrendingUp as TrendingUpIcon,
   Smartphone
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import Navbar from '@/components/Navbar';
 
 export default function Home() {
   const [statements, setStatements] = useState(20);
@@ -40,51 +40,21 @@ export default function Home() {
   const moneySaved = Math.round(hoursSaved * hourlyRate);
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav style={{ background: '#0A1628', padding: '0 16px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0, 212, 255, 0.1)' }} className="fixed top-0 left-0 right-0 z-50">
-        {/* Logo links - 44px voor mobiele leesbaarheid */}
-        <Link href="/">
-          <img src="/logo-transparent.svg" alt="BSC Pro" style={{ display: 'block', height: '44px', width: 'auto' }} />
-        </Link>
-        
-        {/* Menu midden - alleen desktop */}
-        <div className="hidden md:flex items-center gap-8">
-          <a href="#calculator" style={{ color: '#94A3B8', fontSize: '14px', textDecoration: 'none', transition: 'color 0.2s' }} className="hover:text-white">Bereken je winst</a>
-          <a href="#pricing" style={{ color: '#94A3B8', fontSize: '14px', textDecoration: 'none', transition: 'color 0.2s' }} className="hover:text-white">Prijzen</a>
-          <Link href="/login" style={{ color: '#94A3B8', fontSize: '14px', textDecoration: 'none', transition: 'color 0.2s' }} className="hover:text-white">Inloggen</Link>
-        </div>
-        
-        {/* Knop rechts - donkerblauw voor professionele uitstraling */}
-        <Link href="/register">
-          <button style={{ 
-            background: '#0066CC', 
-            color: '#FFFFFF', 
-            fontWeight: 700, 
-            borderRadius: '8px', 
-            padding: '10px 16px',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '13px',
-            transition: 'all 0.2s',
-            whiteSpace: 'nowrap'
-          }} className="hover:brightness-110">
-            2 gratis proberen
-          </button>
-        </Link>
-      </nav>
+    <div className="min-h-screen">
+      {/* Navigation - New Design System */}
+      <Navbar />
 
-      {/* Hero - Compact & Trust-Focused */}
-      <section className="pt-20 pb-12 md:pt-24 md:pb-16 bg-gradient-to-b from-white to-slate-50">
+      {/* Hero - New Dark Design */}
+      <section style={{ paddingTop: '120px', paddingBottom: '80px' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            {/* Trust Bar - mobiel vriendelijk op 1 rij */}
-            <div style={{ display: 'flex', flexWrap: 'nowrap', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '24px', overflowX: 'auto' }}>
+          <div className="max-w-4xl mx-auto text-center">
+            {/* Trust Bar */}
+            <div style={{ display: 'flex', flexWrap: 'nowrap', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '32px', overflowX: 'auto' }}>
               <div style={{ 
-                background: 'rgba(0, 212, 255, 0.08)', 
-                border: '1px solid rgba(0, 212, 255, 0.25)', 
+                background: 'rgba(0, 212, 255, 0.1)', 
+                border: '1px solid rgba(0, 212, 255, 0.2)', 
                 borderRadius: '999px', 
-                padding: '4px 10px',
+                padding: '6px 12px',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '4px',
@@ -92,98 +62,98 @@ export default function Home() {
               }}>
                 <div className="flex">
                   {[1,2,3,4,5].map((i) => (
-                    <Star key={i} className="w-3 h-3" style={{ color: '#FACC15', fill: '#FACC15' }} />
+                    <Star key={i} className="w-3 h-3" style={{ color: '#00d4ff', fill: '#00d4ff' }} />
                   ))}
                 </div>
-                <span style={{ fontSize: '11px', fontWeight: 600, color: '#0A1628', whiteSpace: 'nowrap' }}>4.9/5</span>
+                <span style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff', whiteSpace: 'nowrap' }}>4.9/5</span>
               </div>
               <div style={{ 
-                background: 'rgba(0, 212, 255, 0.08)', 
-                border: '1px solid rgba(0, 212, 255, 0.25)', 
+                background: 'rgba(0, 212, 255, 0.1)', 
+                border: '1px solid rgba(0, 212, 255, 0.2)', 
                 borderRadius: '999px', 
-                padding: '4px 10px',
+                padding: '6px 12px',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '4px',
                 flexShrink: 0
               }}>
-                <Users className="w-3 h-3" style={{ color: '#0088CC' }} />
-                <span style={{ fontSize: '11px', fontWeight: 600, color: '#0A1628', whiteSpace: 'nowrap' }}>100+ boekhouders</span>
+                <Users className="w-3 h-3" style={{ color: '#00d4ff' }} />
+                <span style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff', whiteSpace: 'nowrap' }}>100+ boekhouders</span>
               </div>
               <div style={{ 
-                background: 'rgba(0, 212, 255, 0.08)', 
-                border: '1px solid rgba(0, 212, 255, 0.25)', 
+                background: 'rgba(0, 212, 255, 0.1)', 
+                border: '1px solid rgba(0, 212, 255, 0.2)', 
                 borderRadius: '999px', 
-                padding: '4px 10px',
+                padding: '6px 12px',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '4px',
                 flexShrink: 0
               }}>
-                <Database className="w-3 h-3" style={{ color: '#0088CC' }} />
-                <span style={{ fontSize: '11px', fontWeight: 600, color: '#0A1628', whiteSpace: 'nowrap' }}>MT940</span>
+                <Database className="w-3 h-3" style={{ color: '#00d4ff' }} />
+                <span style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff', whiteSpace: 'nowrap' }}>MT940</span>
               </div>
               <div style={{ 
-                background: 'rgba(0, 212, 255, 0.08)', 
-                border: '1px solid rgba(0, 212, 255, 0.25)', 
+                background: 'rgba(0, 212, 255, 0.1)', 
+                border: '1px solid rgba(0, 212, 255, 0.2)', 
                 borderRadius: '999px', 
-                padding: '4px 10px',
+                padding: '6px 12px',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '4px',
                 flexShrink: 0
               }}>
                 <span style={{ fontSize: '12px' }}>🇳🇱</span>
-                <span style={{ fontSize: '11px', fontWeight: 600, color: '#0A1628', whiteSpace: 'nowrap' }}>#1 in NL</span>
+                <span style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff', whiteSpace: 'nowrap' }}>#1 in NL</span>
               </div>
             </div>
 
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4 leading-tight text-center">
-              Converteer bankafschriften <span className="text-blue-500">in seconden</span>
+            <h1 style={{ fontSize: '48px', fontWeight: 800, color: '#ffffff', marginBottom: '24px', lineHeight: 1.1, fontFamily: 'var(--font-syne), Syne, sans-serif' }}>
+              Converteer bankafschriften <span style={{ color: '#00d4ff' }}>in seconden</span>
             </h1>
             
-            <p className="text-base md:text-lg text-slate-600 mb-6 text-center max-w-2xl mx-auto">
+            <p style={{ fontSize: '18px', color: '#94a3b8', marginBottom: '32px', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
               Zet PDF bankafschriften automatisch om naar Excel, CSV én MT940. 
               99.5% nauwkeurig. Geen handmatige invoer meer.
             </p>
 
-            {/* CTA Row - Futuristische styling */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
+            {/* CTA Row */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
               <Link href="/register">
                 <button style={{
-                  background: '#0A1628',
-                  color: '#00D4FF',
-                  border: '2px solid #00D4FF',
-                  borderRadius: '8px',
+                  background: '#00d4ff',
+                  color: '#080d14',
+                  border: 'none',
+                  borderRadius: '6px',
                   padding: '16px 32px',
-                  fontSize: '18px',
-                  fontWeight: 700,
+                  fontSize: '16px',
+                  fontWeight: 600,
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
-                  boxShadow: '0 0 20px rgba(0, 212, 255, 0.2)'
-                }} className="w-full sm:w-auto hover:brightness-110">
+                  boxShadow: '0 0 30px rgba(0, 212, 255, 0.3)'
+                }} className="hover:brightness-110">
                   <Upload className="w-5 h-5" />
                   Probeer het gratis
                 </button>
               </Link>
-              <span className="text-sm text-slate-500">Je eerste 2 conversies zijn van ons</span>
+              <span style={{ fontSize: '14px', color: '#64748b' }}>Je eerste 2 conversies zijn van ons</span>
             </div>
             
             {/* Trust Points */}
-            <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500">
-              <div className="flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5" />
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '16px', fontSize: '12px', color: '#64748b' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Lock className="w-4 h-4" style={{ color: '#00d4ff' }} />
                 <span>AVG-proof</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <CheckCircle className="w-4 h-4" style={{ color: '#00d4ff' }} />
                 <span>99.5% nauwkeurig</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Clock className="w-4 h-4" style={{ color: '#00d4ff' }} />
                 <span>24/7 beschikbaar</span>
               </div>
             </div>
