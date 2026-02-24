@@ -46,17 +46,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center">
-                <FileText className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-xl font-bold text-white tracking-tight">
-                  BSC<span style={{ color: '#3b82f6' }}>PRO</span>
-                </span>
-                <span className="text-sm text-slate-400 font-medium hidden sm:inline">
-                  Bank Statement Converter Pro
-                </span>
-              </div>
+              <img src="/logo.svg" alt="BSC Pro" className="h-10 w-auto" />
             </Link>
 
             <div className="hidden md:flex items-center gap-8">

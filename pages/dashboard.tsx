@@ -230,8 +230,7 @@ export default function Dashboard() {
 
       <nav className="bg-slate-900 text-white py-4 px-6 flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <FileText className="w-6 h-6 text-blue-400" />
-          <span className="font-bold text-xl">BSC<span className="text-blue-400">PRO</span></span>
+          <img src="/logo.svg" alt="BSC Pro" className="h-10 w-auto" />
         </div>
         <div className="flex items-center gap-4">
           <span className="text-slate-300 text-sm">{user?.email}</span>

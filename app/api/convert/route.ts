@@ -364,22 +364,23 @@ export async function PUT(req: NextRequest) {
     const exportDate = now.toLocaleDateString('nl-NL')
     const exportTime = now.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })
     
-    // Row 1: Company name
+    // Row 1: Company name with Logo text
     wsTrans.mergeCells('A1:H1')
-    wsTrans.getCell('A1').value = 'BSC Pro'
-    wsTrans.getCell('A1').font = { bold: true, size: 20, color: { argb: HEADER_COLOR } }
+    wsTrans.getCell('A1').value = 'BSC Pro - Bank Statement Converter'
+    wsTrans.getCell('A1').font = { bold: true, size: 18, color: { argb: HEADER_COLOR } }
     wsTrans.getCell('A1').alignment = { horizontal: 'center' }
+    wsTrans.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE8F4FF' } }
     
     // Row 2: Tagline
     wsTrans.mergeCells('A2:H2')
-    wsTrans.getCell('A2').value = 'Bank Statement Converter Pro | www.bscpro.nl'
-    wsTrans.getCell('A2').font = { size: 11, color: { argb: 'FF666666' } }
+    wsTrans.getCell('A2').value = 'www.bscpro.nl | AI-Powered Bank Statement Conversion'
+    wsTrans.getCell('A2').font = { size: 10, color: { argb: 'FF0088CC' } }
     wsTrans.getCell('A2').alignment = { horizontal: 'center' }
     
     // Row 3: Export date
     wsTrans.mergeCells('A3:H3')
-    wsTrans.getCell('A3').value = `Geëxporteerd op: ${exportDate} ${exportTime}`
-    wsTrans.getCell('A3').font = { size: 10, italic: true, color: { argb: 'FF888888' } }
+    wsTrans.getCell('A3').value = `Geëxporteerd op: ${exportDate} ${exportTime} | ${bank} ${month} ${year}`
+    wsTrans.getCell('A3').font = { size: 10, italic: true, color: { argb: 'FF666666' } }
     wsTrans.getCell('A3').alignment = { horizontal: 'center' }
     
     // Row 4: Empty separator
