@@ -4,8 +4,8 @@ import { categorizeTransactions, getCategorySummary, getBTWSummary, CATEGORIES, 
 
 export const runtime = 'edge'
 
-const MOONSHOT_API_KEY = process.env.MOONSHOT_API_KEY
-const MOONSHOT_BASE_URL = 'https://api.moonshot.cn/v1'
+const GROQ_API_KEY = process.env.GROQ_API_KEY
+const GROQ_BASE_URL = 'https://api.groq.com/openai/v1'
 
 // MT940 Format Generator
 function generateMT940(transactions: any[], bank: string, accountNumber: string = 'NL00BSCP0000000000'): string {
@@ -81,42 +81,29 @@ export async function POST(req: NextRequest) {
     const base64 = Buffer.from(bytes).toString('base64')
 
     // AI VISION ANALYSIS
-    console.log('[Vision Scanner] Sending to AI Vision...')
+    console.log('[Vision Scanner] Sending to Groq Vision...')
     
-    const visionResponse = await fetch(`${MOONSHOT_BASE_URL}/chat/completions`, {
+    const visionResponse = await fetch(`${GROQ_BASE_URL}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${MOONSHOT_API_KEY}`,
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'moonshot-v1-8k-vision-preview',
+        model: 'llama-3.2-11b-vision-preview',
         messages: [
           {
-            role: 'system',
-            content: `Je bekijkt een document (bankafschrift of factuur). 
-
-EXTRAHEER alle financiële transacties die je ziet:
-- Datum (DD-MM-YYYY)
-- Omschrijving (wat is het)
-- Bedrag (positief = inkomst, negatief = uitgave)
-- Optioneel: Rekeningnummer (IBAN)
-
-Geef het resultaat als JSON:
-{
-  "bank": "ING of ander",
-  "rekeningnummer": "NLxx...",
-  "transacties": [
-    {"datum": "23-02-2026", "omschrijving": "ALBERT HEIJN", "bedrag": -45.20}
-  ]
-}`
-          },
-          {
             role: 'user',
-            content: [{
-              type: 'image_url',
-              image_url: { url: `data:${file.type};base64,${base64}` }
-            }]
+            content: [
+              {
+                type: 'text',
+                text: 'Extract all transactions from this bank statement. Return as JSON with fields: date (DD-MM-YYYY), description, amount (positive for income, negative for expenses), balance. Format: {"bank": "bank name", "rekeningnummer": "IBAN", "transacties": [{"datum": "...", "omschrijving": "...", "bedrag": 0.00}]}'
+              },
+              {
+                type: 'image_url',
+                image_url: { url: `data:${file.type};base64,${base64}` }
+              }
+            ]
           }
         ],
         temperature: 0.1
