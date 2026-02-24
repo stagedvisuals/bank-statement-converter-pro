@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import ExcelJS from 'exceljs'
 import { categorizeTransactions, getCategorySummary, getBTWSummary, CATEGORIES, BTW_RATES } from '@/lib/categorization'
-import { fromBuffer } from 'pdf2pic'
-import { promises as fs } from 'fs'
-import { join } from 'path'
-import { tmpdir } from 'os'
+import { pdf } from 'pdf-to-img'
 
-// Use Node.js runtime for PDF processing (pdf2pic requires Node.js APIs)
 export const runtime = 'nodejs'
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY
@@ -69,51 +65,16 @@ function generateMT940(transactions: any[], bank: string, accountNumber: string 
   return mt940
 }
 
-// Convert PDF buffer to PNG images
+// Supported image types
+const SUPPORTED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg']
+
 async function convertPdfToPng(pdfBuffer: Buffer): Promise<Buffer[]> {
-  console.log('[PDF Conversion] Starting PDF to PNG conversion...')
-  
-  const tempDir = tmpdir()
-  const tempPdfPath = join(tempDir, `input-${Date.now()}.pdf`)
-  
-  try {
-    // Write PDF to temp file
-    await fs.writeFile(tempPdfPath, pdfBuffer)
-    console.log('[PDF Conversion] PDF saved to temp file:', tempPdfPath)
-    
-    // Convert PDF to PNG
-    const convert = fromBuffer(pdfBuffer, {
-      density: 150,
-      format: 'png',
-      width: 1654,
-      height: 2339,
-      quality: 90,
-      preserveAspectRatio: true,
-    })
-    
-    const pages = await convert.bulk(-1) // Convert all pages
-    console.log(`[PDF Conversion] Converted ${pages.length} pages to PNG`)
-    
-    // Read PNG files as buffers
-    const pngBuffers: Buffer[] = []
-    for (const page of pages) {
-      if (page.path) {
-        const pngBuffer = await fs.readFile(page.path)
-        pngBuffers.push(pngBuffer)
-        // Clean up temp PNG file
-        await fs.unlink(page.path).catch(() => {})
-      }
-    }
-    
-    // Clean up temp PDF
-    await fs.unlink(tempPdfPath).catch(() => {})
-    
-    return pngBuffers
-  } catch (error) {
-    // Clean up on error
-    await fs.unlink(tempPdfPath).catch(() => {})
-    throw error
+  const buffers: Buffer[] = []
+  const document = await pdf(pdfBuffer, { scale: 2 })
+  for await (const image of document) {
+    buffers.push(image)
   }
+  return buffers
 }
 
 // Process single page with Groq Vision
