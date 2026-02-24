@@ -27,6 +27,7 @@ import {
   Smartphone
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import { Button } from '@/components/ui/button';
 
 export default function Home() {
   const [statements, setStatements] = useState(20);
@@ -422,10 +423,20 @@ export default function Home() {
                 <p className="text-blue-100 mb-2">Je bespaart per maand:</p>
                 <div className="text-5xl font-bold mb-1">{hoursSaved.toFixed(1)} uur</div>
                 <div className="text-2xl font-semibold text-blue-200 mb-4">= €{moneySaved}</div>
-                <Link href="/register">
-                  <Button className="w-full bg-white text-blue-600 hover:bg-blue-50 font-semibold py-3">
+                <Link href="/register" style={{ display: 'block' }}>
+                  <button style={{
+                    width: '100%',
+                    background: '#00d4ff',
+                    color: '#080d14',
+                    fontWeight: 600,
+                    padding: '12px 24px',
+                    borderRadius: '6px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '16px'
+                  }}>
                     Start met besparen
-                  </Button>
+                  </button>
                 </Link>
               </div>
             </div>
