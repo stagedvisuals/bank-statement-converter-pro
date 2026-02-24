@@ -131,6 +131,14 @@ async function processPageWithGroq(pngBuffer: Buffer, pageNum: number): Promise<
   console.log(`[Groq Vision] Response received for page ${pageNum}`)
   
   const aiContent = aiData.choices?.[0]?.message?.content || ''
+  
+  // Check for empty response
+  if (!aiContent || aiContent.trim() === '') {
+    console.log(`[Groq Vision] Leeg antwoord van Groq voor pagina ${pageNum}`)
+    console.log(`[Groq Vision] Volledige response:`, JSON.stringify(aiData))
+    return { transacties: [], rekeningnummer: '' }
+  }
+  
   console.log(`[Groq Vision] AI Response content:`, aiContent.substring(0, 600))
   
   // Parse JSON from response
