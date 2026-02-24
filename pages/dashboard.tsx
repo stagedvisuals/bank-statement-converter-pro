@@ -228,13 +228,29 @@ export default function Dashboard() {
         <title>Dashboard - BSC Pro</title>
       </Head>
 
-      <nav className="bg-slate-900 text-white py-4 px-6 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <img src="/logo.svg" alt="BSC Pro" className="h-10 w-auto" />
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-slate-300 text-sm">{user?.email}</span>
-          <button onClick={handleLogout} className="flex items-center gap-2 text-slate-300 hover:text-white">
+      <nav style={{ background: '#0A1628', padding: '0 24px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0, 212, 255, 0.1)' }}>
+        {/* Logo links */}
+        <Link href="/">
+          <img src="/logo-transparent.svg" alt="BSC Pro" height="36" style={{ display: 'block', height: '36px', width: 'auto' }} />
+        </Link>
+        
+        {/* Rechts: user info + logout */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <span style={{ color: '#94A3B8', fontSize: '14px' }}>{user?.email}</span>
+          <button 
+            onClick={handleLogout} 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px', 
+              color: '#94A3B8', 
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+            className="hover:text-white"
+          >
             <LogOut className="w-4 h-4" />
             Uitloggen
           </button>

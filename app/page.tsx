@@ -42,26 +42,35 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900 border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center space-x-3">
-              <img src="/logo.svg" alt="BSC Pro" className="h-10 w-auto" />
-            </Link>
-
-            <div className="hidden md:flex items-center gap-8">
-              <a href="#calculator" className="text-sm text-slate-300 hover:text-white transition-colors">Bereken je winst</a>
-              <a href="#pricing" className="text-sm text-slate-300 hover:text-white transition-colors">Prijzen</a>
-              <Link href="/login" className="text-sm text-slate-300 hover:text-white transition-colors">Inloggen</Link>
-            </div>
-
-            <Link href="/register">
-              <Button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold text-sm px-4">
-                2 gratis proberen
-              </Button>
-            </Link>
-          </div>
+      <nav style={{ background: '#0A1628', padding: '0 24px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0, 212, 255, 0.1)' }} className="fixed top-0 left-0 right-0 z-50">
+        {/* Logo links */}
+        <Link href="/">
+          <img src="/logo-transparent.svg" alt="BSC Pro" height="36" style={{ display: 'block', height: '36px', width: 'auto' }} />
+        </Link>
+        
+        {/* Menu midden */}
+        <div className="hidden md:flex items-center gap-8">
+          <a href="#calculator" style={{ color: '#94A3B8', fontSize: '14px', textDecoration: 'none', transition: 'color 0.2s' }} className="hover:text-white">Bereken je winst</a>
+          <a href="#pricing" style={{ color: '#94A3B8', fontSize: '14px', textDecoration: 'none', transition: 'color 0.2s' }} className="hover:text-white">Prijzen</a>
+          <Link href="/login" style={{ color: '#94A3B8', fontSize: '14px', textDecoration: 'none', transition: 'color 0.2s' }} className="hover:text-white">Inloggen</Link>
         </div>
+        
+        {/* Knop rechts */}
+        <Link href="/register">
+          <button style={{ 
+            background: '#00D4FF', 
+            color: '#0A1628', 
+            fontWeight: 700, 
+            borderRadius: '8px', 
+            padding: '10px 20px',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '14px',
+            transition: 'all 0.2s'
+          }} className="hover:brightness-110">
+            2 gratis proberen
+          </button>
+        </Link>
       </nav>
 
       {/* Hero - Compact & Trust-Focused */}
@@ -69,26 +78,58 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
             {/* Trust Bar */}
-            <div className="flex flex-wrap items-center justify-center gap-4 mb-6">
-              <div className="flex items-center gap-1 px-3 py-1.5 bg-green-50 rounded-full border border-green-200">
+            <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+              <div style={{ 
+                background: 'rgba(0, 212, 255, 0.08)', 
+                border: '1px solid rgba(0, 212, 255, 0.25)', 
+                borderRadius: '999px', 
+                padding: '6px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
                 <div className="flex">
                   {[1,2,3,4,5].map((i) => (
-                    <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                    <Star key={i} className="w-4 h-4" style={{ color: '#FACC15', fill: '#FACC15' }} />
                   ))}
                 </div>
-                <span className="text-sm font-semibold text-green-700">4.9/5</span>
+                <span style={{ fontSize: '14px', fontWeight: 600, color: '#0A1628' }}>4.9/5</span>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-full border border-blue-200">
-                <Users className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-semibold text-blue-700">100+ boekhouders</span>
+              <div style={{ 
+                background: 'rgba(0, 212, 255, 0.08)', 
+                border: '1px solid rgba(0, 212, 255, 0.25)', 
+                borderRadius: '999px', 
+                padding: '6px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                <Users className="w-4 h-4" style={{ color: '#0088CC' }} />
+                <span style={{ fontSize: '14px', fontWeight: 600, color: '#0A1628' }}>100+ boekhouders</span>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-50 rounded-full border border-yellow-200">
-                <Database className="w-4 h-4 text-yellow-600" />
-                <span className="text-sm font-semibold text-yellow-700">MT940 Export</span>
+              <div style={{ 
+                background: 'rgba(0, 212, 255, 0.08)', 
+                border: '1px solid rgba(0, 212, 255, 0.25)', 
+                borderRadius: '999px', 
+                padding: '6px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                <Database className="w-4 h-4" style={{ color: '#0088CC' }} />
+                <span style={{ fontSize: '14px', fontWeight: 600, color: '#0A1628' }}>MT940 Export</span>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full border border-slate-200">
-                <span className="text-lg">🇳🇱</span>
-                <span className="text-sm font-semibold text-slate-700">#1 in NL</span>
+              <div style={{ 
+                background: 'rgba(0, 212, 255, 0.08)', 
+                border: '1px solid rgba(0, 212, 255, 0.25)', 
+                borderRadius: '999px', 
+                padding: '6px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                <span style={{ fontSize: '16px' }}>🇳🇱</span>
+                <span style={{ fontSize: '14px', fontWeight: 600, color: '#0A1628' }}>#1 in NL</span>
               </div>
             </div>
 
