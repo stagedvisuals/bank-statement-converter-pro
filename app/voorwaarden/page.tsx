@@ -13,7 +13,7 @@ export default function TermsPage() {
         <div className="text-center mb-12">
           <FileText className="w-16 h-16 text-teal-400 mx-auto mb-4" />
           <h1 className="text-4xl font-bold text-white mb-4">Algemene Voorwaarden</h1>
-          <p className="text-slate-400">Laatst bijgewerkt: 22 februari 2026</p>
+          <p className="text-[#6b7fa3]">Laatst bijgewerkt: 22 februari 2026</p>
         </div>
 
         <div className="prose prose-invert prose-slate max-w-none">
@@ -141,7 +141,7 @@ export default function TermsPage() {
           </section>
 
           <section className="mt-12 pt-8 border-t border-slate-800">
-            <p className="text-slate-400 text-sm">
+            <p className="text-[#6b7fa3] text-sm">
               Voor vragen over deze voorwaarden kunt u contact opnemen via{' '}
               <a href="mailto:legal@bscpro.nl" className="text-teal-400 hover:underline">
                 legal@bscpro.nl

@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       text-align: center;
     }
     .logo {
-      color: #00d4ff;
+      color: #00b8d9;
       font-size: 28px;
       font-weight: bold;
       margin: 0;
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     }
     .details {
       background-color: #f9fafb;
-      border-left: 4px solid #00d4ff;
+      border-left: 4px solid #00b8d9;
       padding: 20px;
       margin-bottom: 24px;
     }
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     }
     .button {
       display: inline-block;
-      background-color: #00d4ff;
+      background-color: #00b8d9;
       color: #0a1628;
       padding: 14px 28px;
       text-decoration: none;
@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
       
       <p class="message">
         Heb je vragen of feedback? We horen graag van je via 
-        <a href="mailto:support@bscpro.nl" style="color: #00d4ff;">support@bscpro.nl</a>.
+        <a href="mailto:support@bscpro.nl" style="color: #00b8d9;">support@bscpro.nl</a>.
       </p>
     </div>
     

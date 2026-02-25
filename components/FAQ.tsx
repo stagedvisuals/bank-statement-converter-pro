@@ -12,24 +12,24 @@ function FAQItem({ question, answer }: FAQItemProps) {
   const [isOpen, setIsOpen] = useState(false)
   
   return (
-    <div className="border-b border-fintech-border last:border-0">
+    <div className="border-b last:border-0" style={{ borderColor: 'rgba(0, 184, 217, 0.12)' }}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full py-5 flex items-center justify-between text-left hover:bg-fintech-bg/50 transition-colors rounded-lg px-2 cursor-pointer"
+        className="w-full py-5 flex items-center justify-between text-left transition-colors rounded-lg px-2 cursor-pointer hover:bg-[rgba(0,184,217,0.05)]"
       >
-        <span className="font-semibold text-navy pr-4">{question}</span>
+        <span className="font-semibold pr-4" style={{ color: '#e8edf5' }}>{question}</span>
         <span className="flex-shrink-0">
           {isOpen ? (
-            <ChevronUp className="w-5 h-5 text-slate" />
+            <ChevronUp className="w-5 h-5" style={{ color: '#6b7fa3' }} />
           ) : (
-            <ChevronDown className="w-5 h-5 text-slate" />
+            <ChevronDown className="w-5 h-5" style={{ color: '#6b7fa3' }} />
           )}
         </span>
       </button>
       {isOpen && (
         <div className="pb-5 px-2 animate-fade-in">
-          <p className="text-slate leading-relaxed">{answer}</p>
+          <p className="leading-relaxed" style={{ color: '#6b7fa3' }}>{answer}</p>
         </div>
       )}
     </div>
@@ -60,21 +60,21 @@ export default function FAQ() {
     },
     {
       question: "Wat is het verschil tussen de abonnementen?",
-      answer: "Basic (€2/doc) is pay-as-you-go voor incidenteel gebruik. Business (€15/maand) biedt 50 conversies per maand met batch processing en priority support. Enterprise (€30/maand) geeft onbeperkte conversies, API toegang, JSON export en een dedicated account manager."
+      answer: "Basic (€2/doc) is pay-as-you-go voor incidenteel gebruik. Business (€15/maand) biedt 50 conversies per maand met batch processing en priority support. Enterprise (€30/maand) geeft onbeperkte conversies, whitelabel rapporten, JSON export en een dedicated account manager."
     }
   ]
 
   return (
-    <section id="faq" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+    <section id="faq" className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#080d14' }}>
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-navy mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4" style={{ color: '#e8edf5' }}>
             Veelgestelde Vragen
           </h2>
-          <p className="text-slate text-lg">Alles wat je moet weten over BSC Pro</p>
+          <p className="text-lg" style={{ color: '#6b7fa3' }}>Alles wat je moet weten over BSC Pro</p>
         </div>
 
-        <div className="bg-fintech-bg rounded-2xl p-6 md:p-8">
+        <div className="rounded-2xl p-6 md:p-8" style={{ background: 'rgba(10, 18, 32, 0.8)', border: '1px solid rgba(0, 184, 217, 0.12)' }}>
           {faqItems.map((item, index) => (
             <FAQItem key={index} question={item.question} answer={item.answer} />
           ))}

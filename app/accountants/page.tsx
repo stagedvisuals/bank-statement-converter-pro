@@ -23,9 +23,9 @@ export const metadata = {
 
 export default function AccountantsPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#080d14]">
       {/* Navigation */}
-      <nav style={{ background: '#0A1628', padding: '0 16px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0, 212, 255, 0.1)' }}>
+      <nav style={{ background: '#0A1628', padding: '0 16px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0, 184, 217, 0.1)' }}>
         <Link href="/">
           <img src="/logo-transparent.svg" alt="BSC Pro" style={{ display: 'block', height: '44px', width: 'auto' }} />
         </Link>
@@ -60,19 +60,19 @@ export default function AccountantsPage() {
               display: 'inline-flex', 
               alignItems: 'center', 
               gap: '8px', 
-              background: 'rgba(0, 212, 255, 0.1)', 
-              border: '1px solid rgba(0, 212, 255, 0.3)', 
+              background: 'rgba(0, 184, 217, 0.1)', 
+              border: '1px solid rgba(0, 184, 217, 0.3)', 
               borderRadius: '999px', 
               padding: '6px 16px',
               marginBottom: '24px'
             }}>
-              <Building2 style={{ width: '16px', height: '16px', color: '#00D4FF' }} />
-              <span style={{ fontSize: '13px', color: '#00D4FF', fontWeight: 500 }}>Exclusief voor accountants</span>
+              <Building2 style={{ width: '16px', height: '16px', color: '#00b8d9' }} />
+              <span style={{ fontSize: '13px', color: '#00b8d9', fontWeight: 500 }}>Exclusief voor accountants</span>
             </div>
 
             <h1 style={{ fontSize: '40px', fontWeight: 800, color: '#FFFFFF', marginBottom: '20px', lineHeight: 1.2 }}>
               Bank Statement Converter<br />
-              <span style={{ color: '#00D4FF' }}>onder je eigen merk</span>
+              <span style={{ color: '#00b8d9' }}>onder je eigen merk</span>
             </h1>
             
             <p style={{ fontSize: '18px', color: '#94A3B8', marginBottom: '32px', maxWidth: '600px', margin: '0 auto 32px' }}>
@@ -83,7 +83,7 @@ export default function AccountantsPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/contact">
                 <button style={{
-                  background: '#00D4FF',
+                  background: '#00b8d9',
                   color: '#0A1628',
                   fontWeight: 700,
                   borderRadius: '8px',
@@ -110,19 +110,19 @@ export default function AccountantsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
-              <div style={{ fontSize: '32px', fontWeight: 700, color: '#00D4FF' }}>100+</div>
+              <div style={{ fontSize: '32px', fontWeight: 700, color: '#00b8d9' }}>100+</div>
               <div style={{ fontSize: '14px', color: '#94A3B8' }}>Actieve accountants</div>
             </div>
             <div>
-              <div style={{ fontSize: '32px', fontWeight: 700, color: '#00D4FF' }}>50K+</div>
+              <div style={{ fontSize: '32px', fontWeight: 700, color: '#00b8d9' }}>50K+</div>
               <div style={{ fontSize: '14px', color: '#94A3B8' }}>Conversies per maand</div>
             </div>
             <div>
-              <div style={{ fontSize: '32px', fontWeight: 700, color: '#00D4FF' }}>99.5%</div>
+              <div style={{ fontSize: '32px', fontWeight: 700, color: '#00b8d9' }}>99.5%</div>
               <div style={{ fontSize: '14px', color: '#94A3B8' }}>Nauwkeurigheid</div>
             </div>
             <div>
-              <div style={{ fontSize: '32px', fontWeight: 700, color: '#00D4FF' }}>&lt;3s</div>
+              <div style={{ fontSize: '32px', fontWeight: 700, color: '#00b8d9' }}>&lt;3s</div>
               <div style={{ fontSize: '14px', color: '#94A3B8' }}>Per conversie</div>
             </div>
           </div>
@@ -130,7 +130,7 @@ export default function AccountantsPage() {
       </section>
 
       {/* Benefits */}
-      <section id="voordelen" className="py-20 bg-white">
+      <section id="voordelen" className="py-20 bg-[#080d14]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 style={{ fontSize: '32px', fontWeight: 700, color: '#0A1628', marginBottom: '12px' }}>
@@ -141,24 +141,24 @@ export default function AccountantsPage() {
 
           <div className="grid md:grid-cols-3 gap-8">
             <div style={{ padding: '32px', border: '1px solid #E2E8F0', borderRadius: '12px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(0, 212, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                <Shield style={{ width: '24px', height: '24px', color: '#00D4FF' }} />
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(0, 184, 217, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                <Shield style={{ width: '24px', height: '24px', color: '#00b8d9' }} />
               </div>
               <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0A1628', marginBottom: '8px' }}>Jouw branding</h3>
               <p style={{ color: '#64748B', fontSize: '14px' }}>Logo, kleuren, domeinnaam. De tool ziet eruit als onderdeel van jouw kantoor.</p>
             </div>
 
             <div style={{ padding: '32px', border: '1px solid #E2E8F0', borderRadius: '12px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(0, 212, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                <Clock style={{ width: '24px', height: '24px', color: '#00D4FF' }} />
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(0, 184, 217, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                <Clock style={{ width: '24px', height: '24px', color: '#00b8d9' }} />
               </div>
               <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0A1628', marginBottom: '8px' }}>Bespaar tijd</h3>
               <p style={{ color: '#64748B', fontSize: '14px' }}>Klanten converteren zelf hun bankafschriften. Jij ontvangt gestructureerde bestanden.</p>
             </div>
 
             <div style={{ padding: '32px', border: '1px solid #E2E8F0', borderRadius: '12px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(0, 212, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                <Euro style={{ width: '24px', height: '24px', color: '#00D4FF' }} />
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(0, 184, 217, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                <Euro style={{ width: '24px', height: '24px', color: '#00b8d9' }} />
               </div>
               <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0A1628', marginBottom: '8px' }}>Extra inkomsten</h3>
               <p style={{ color: '#64748B', fontSize: '14px' }}>Bied de tool als service aan klanten. Jij bepaalt de prijs.</p>
@@ -179,7 +179,7 @@ export default function AccountantsPage() {
 
           <div className="grid md:grid-cols-4 gap-8">
             <div className="text-center">
-              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#00D4FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#00b8d9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
                 <span style={{ color: '#0A1628', fontWeight: 700, fontSize: '20px' }}>1</span>
               </div>
               <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#FFFFFF', marginBottom: '8px' }}>Klant uploadt PDF</h3>
@@ -187,7 +187,7 @@ export default function AccountantsPage() {
             </div>
 
             <div className="text-center">
-              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#00D4FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#00b8d9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
                 <span style={{ color: '#0A1628', fontWeight: 700, fontSize: '20px' }}>2</span>
               </div>
               <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#FFFFFF', marginBottom: '8px' }}>AI converteert</h3>
@@ -195,7 +195,7 @@ export default function AccountantsPage() {
             </div>
 
             <div className="text-center">
-              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#00D4FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#00b8d9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
                 <span style={{ color: '#0A1628', fontWeight: 700, fontSize: '20px' }}>3</span>
               </div>
               <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#FFFFFF', marginBottom: '8px' }}>Bestand wordt gedeeld</h3>
@@ -203,7 +203,7 @@ export default function AccountantsPage() {
             </div>
 
             <div className="text-center">
-              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#00D4FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#00b8d9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
                 <span style={{ color: '#0A1628', fontWeight: 700, fontSize: '20px' }}>4</span>
               </div>
               <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#FFFFFF', marginBottom: '8px' }}>Direct boeken</h3>
@@ -214,7 +214,7 @@ export default function AccountantsPage() {
       </section>
 
       {/* Features */}
-      <section className="py-20 bg-slate-50">
+      <section className="py-20 bg-[#0a1220]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
@@ -233,7 +233,7 @@ export default function AccountantsPage() {
                   'Onbeperkt aantal gebruikers'
                 ].map((feature, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <CheckCircle style={{ width: '20px', height: '20px', color: '#00D4FF', flexShrink: 0 }} />
+                    <CheckCircle style={{ width: '20px', height: '20px', color: '#00b8d9', flexShrink: 0 }} />
                     <span style={{ color: '#334155', fontSize: '15px' }}>{feature}</span>
                   </div>
                 ))}
@@ -241,7 +241,7 @@ export default function AccountantsPage() {
             </div>
             <div style={{ background: '#0A1628', borderRadius: '16px', padding: '40px' }}>
               <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                <div style={{ fontSize: '48px', fontWeight: 800, color: '#00D4FF' }}>€149</div>
+                <div style={{ fontSize: '48px', fontWeight: 800, color: '#00b8d9' }}>€149</div>
                 <div style={{ color: '#94A3B8', fontSize: '14px' }}>per maand</div>
               </div>
               <div>
@@ -253,7 +253,7 @@ export default function AccountantsPage() {
                   'Geen opstartkosten'
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                    <Check style={{ width: '16px', height: '16px', color: '#00D4FF' }} />
+                    <Check style={{ width: '16px', height: '16px', color: '#00b8d9' }} />
                     <span style={{ color: '#FFFFFF', fontSize: '14px' }}>{item}</span>
                   </div>
                 ))}
@@ -261,7 +261,7 @@ export default function AccountantsPage() {
               <Link href="/contact" style={{ display: 'block', marginTop: '24px' }}>
                 <button style={{
                   width: '100%',
-                  background: '#00D4FF',
+                  background: '#00b8d9',
                   color: '#0A1628',
                   fontWeight: 700,
                   borderRadius: '8px',
@@ -280,7 +280,7 @@ export default function AccountantsPage() {
       </section>
 
       {/* Testimonial */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-[#080d14]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginBottom: '24px' }}>
             {[1,2,3,4,5].map((i) => (
@@ -310,7 +310,7 @@ export default function AccountantsPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/contact">
               <button style={{
-                background: '#00D4FF',
+                background: '#00b8d9',
                 color: '#0A1628',
                 fontWeight: 700,
                 borderRadius: '8px',

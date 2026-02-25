@@ -104,7 +104,7 @@ export default function ChatWidget() {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-96 h-[500px] bg-white rounded-2xl shadow-2xl card-shadow border border-fintech-border flex flex-col overflow-hidden">
+        <div className="fixed bottom-24 right-6 z-50 w-96 h-[500px] bg-[#080d14] rounded-2xl shadow-2xl card-shadow border border-fintech-border flex flex-col overflow-hidden">
           {/* Header */}
           <div className="bg-navy p-4 flex items-center gap-3">
             <div className="w-10 h-10 bg-success/20 rounded-full flex items-center justify-center">
@@ -141,7 +141,7 @@ export default function ChatWidget() {
                 <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${
                   message.role === 'user'
                     ? 'bg-accent text-white rounded-br-md'
-                    : 'bg-white border border-fintech-border rounded-bl-md'
+                    : 'bg-[#080d14] border border-fintech-border rounded-bl-md'
                 }`}>
                   {message.content}
                 </div>
@@ -152,7 +152,7 @@ export default function ChatWidget() {
                 <div className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center">
                   <Bot className="w-4 h-4 text-success" />
                 </div>
-                <div className="bg-white border border-fintech-border p-3 rounded-2xl rounded-bl-md">
+                <div className="bg-[#080d14] border border-fintech-border p-3 rounded-2xl rounded-bl-md">
                   <div className="flex gap-1">
                     <span className="w-2 h-2 bg-slate rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                     <span className="w-2 h-2 bg-slate rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -165,7 +165,7 @@ export default function ChatWidget() {
           </div>
 
           {/* Input */}
-          <div className="p-4 bg-white border-t border-fintech-border">
+          <div className="p-4 bg-[#080d14] border-t border-fintech-border">
             <div className="flex gap-2">
               <input
                 type="text"

@@ -71,13 +71,13 @@ export default function FileConverter() {
         <label htmlFor="file-input" className="cursor-pointer block">
           <FileText className="w-12 h-12 mx-auto mb-4 text-gray-400" />
           <p className="text-gray-300">Klik om PDF te uploaden</p>
-          <p className="text-gray-500 text-sm mt-2">Max 10MB</p>
+          <p className="text-[#6b7fa3] text-sm mt-2">Max 10MB</p>
         </label>
       </div>
 
       {/* File selected indicator */}
       {file && (
-        <div className="p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
+        <div className="p-4 bg-[#0a1220]0/20 border border-blue-500/30 rounded-lg">
           <div className="flex items-center gap-3">
             <CheckCircle className="w-5 h-5 text-blue-400" />
             <div>
@@ -91,7 +91,7 @@ export default function FileConverter() {
 
       {/* Upload success message */}
       {uploadSuccess && (
-        <div className="p-3 bg-green-500/20 border border-green-500/30 rounded-lg text-green-300 text-center">
+        <div className="p-3 bg-[#0a1220]0/20 border border-green-500/30 rounded-lg text-green-300 text-center">
           ✓ Bestand succesvol geüpload!
         </div>
       )}
@@ -105,7 +105,7 @@ export default function FileConverter() {
       <button
         onClick={handleConvert}
         disabled={!file || loading}
-        className="w-full py-4 bg-gradient-to-r from-[var(--neon-blue)] to-[var(--neon-purple)] text-black font-bold rounded-xl hover:shadow-lg transition-all disabled:opacity-50"
+        className="w-full py-4 bg-gradient-to-r from-[var(--neon-blue)] to-[var(--neon-purple)] text-[#e8edf5] font-bold rounded-xl hover:shadow-lg transition-all disabled:opacity-50"
       >
         {loading ? (
           <span className="flex items-center justify-center">

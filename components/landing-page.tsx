@@ -47,13 +47,13 @@ export default function LandingPage() {
               <Link href="#features" className="hover:text-[var(--neon-blue)] transition-colors">Features</Link>
               <Link href="#pricing" className="hover:text-[var(--neon-blue)] transition-colors">Prijzen</Link>
               {isSignedIn ? (
-                <Link href="/dashboard" className="px-6 py-2 rounded-full bg-gradient-to-r from-[var(--neon-blue)] to-[var(--neon-purple)] text-black font-bold">
+                <Link href="/dashboard" className="px-6 py-2 rounded-full bg-gradient-to-r from-[var(--neon-blue)] to-[var(--neon-purple)] text-[#e8edf5] font-bold">
                   Dashboard
                 </Link>
               ) : (
                 <>
                   <Link href="/login" className="text-gray-400 hover:text-white transition-colors">Login</Link>
-                  <Link href="/register" className="px-6 py-2 rounded-full bg-gradient-to-r from-[var(--neon-blue)] to-[var(--neon-purple)] text-black font-bold hover:shadow-lg hover:shadow-[var(--neon-blue)]/50 transition-all">
+                  <Link href="/register" className="px-6 py-2 rounded-full bg-gradient-to-r from-[var(--neon-blue)] to-[var(--neon-purple)] text-[#e8edf5] font-bold hover:shadow-lg hover:shadow-[var(--neon-blue)]/50 transition-all">
                     Start Gratis
                   </Link>
                 </>
@@ -85,12 +85,12 @@ export default function LandingPage() {
             <span className="text-[var(--neon-blue)]">Snel, veilig, en accuraat.</span>
           </p>
 
-          <p className="text-gray-500 mb-12">
+          <p className="text-[#6b7fa3] mb-12">
             Door <span className="text-white font-semibold">Artur Bagdasarjan</span>
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Link href={isSignedIn ? '/dashboard' : '/register'} className="inline-block px-8 py-4 text-lg bg-gradient-to-r from-[var(--neon-blue)] to-[var(--neon-purple)] text-black font-bold rounded-full hover:shadow-xl hover:shadow-[var(--neon-blue)]/50 transition-all transform hover:scale-105">
+            <Link href={isSignedIn ? '/dashboard' : '/register'} className="inline-block px-8 py-4 text-lg bg-gradient-to-r from-[var(--neon-blue)] to-[var(--neon-purple)] text-[#e8edf5] font-bold rounded-full hover:shadow-xl hover:shadow-[var(--neon-blue)]/50 transition-all transform hover:scale-105">
               {isSignedIn ? 'Naar Dashboard →' : 'Start Gratis Trial →'}
             </Link>
           </div>
@@ -116,7 +116,7 @@ export default function LandingPage() {
             <div className="glass rounded-3xl p-8">
               <h3 className="text-2xl font-bold text-white mb-2">Starter Pack</h3>
               <div className="text-5xl font-bold text-white mb-2">€5</div>
-              <p className="text-gray-500 mb-6">eenmalig</p>
+              <p className="text-[#6b7fa3] mb-6">eenmalig</p>
               <ul className="space-y-4 mb-8 text-left">
                 <li className="text-gray-300">✓ 5 conversies</li>
                 <li className="text-gray-300">✓ Alle bankformaten</li>
@@ -129,18 +129,18 @@ export default function LandingPage() {
 
             <div className="glass rounded-3xl p-8 border-2 border-[var(--neon-blue)]">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span className="px-4 py-1 rounded-full bg-gradient-to-r from-[var(--neon-blue)] to-[var(--neon-purple)] text-black text-sm font-bold">
+                <span className="px-4 py-1 rounded-full bg-gradient-to-r from-[var(--neon-blue)] to-[var(--neon-purple)] text-[#e8edf5] text-sm font-bold">
                   POPULAIR
                 </span>
               </div>
               <h3 className="text-2xl font-bold text-white mb-2">Unlimited</h3>
-              <div className="text-5xl font-bold text-white mb-2">€29<span className="text-lg text-gray-500">/maand</span></div>
+              <div className="text-5xl font-bold text-white mb-2">€29<span className="text-lg text-[#6b7fa3]">/maand</span></div>
               <ul className="space-y-4 mb-8 text-left">
                 <li className="text-gray-300">✓ Onbeperkte conversies</li>
                 <li className="text-gray-300">✓ Prioriteit verwerking</li>
                 <li className="text-gray-300">✓ API toegang</li>
               </ul>
-              <button onClick={() => handleCheckout('unlimited')} disabled={loading} className="w-full py-4 rounded-full bg-gradient-to-r from-[var(--neon-blue)] to-[var(--neon-purple)] text-black font-bold hover:shadow-xl hover:shadow-[var(--neon-blue)]/50 transition-all disabled:opacity-50">
+              <button onClick={() => handleCheckout('unlimited')} disabled={loading} className="w-full py-4 rounded-full bg-gradient-to-r from-[var(--neon-blue)] to-[var(--neon-purple)] text-[#e8edf5] font-bold hover:shadow-xl hover:shadow-[var(--neon-blue)]/50 transition-all disabled:opacity-50">
                 {loading ? 'Laden...' : 'Start Unlimited →'}
               </button>
             </div>
@@ -150,7 +150,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="py-12 border-t border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-[#6b7fa3]">
           <p>© 2025 Bank Statement Converter Pro - Door Artur Bagdasarjan</p>
         </div>
       </footer>

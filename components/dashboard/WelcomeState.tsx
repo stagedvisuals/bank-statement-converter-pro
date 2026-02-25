@@ -46,7 +46,7 @@ export function WelcomeState({ onUploadClick }: WelcomeStateProps) {
       </h2>
 
       {/* Description */}
-      <p className="text-lg text-slate-400 mb-8 max-w-md">
+      <p className="text-lg text-[#6b7fa3] mb-8 max-w-md">
         Transform your bank statements into organized Excel/CSV data in seconds. 
         Fast, secure, and powered by AI.
       </p>
@@ -94,7 +94,7 @@ export function WelcomeState({ onUploadClick }: WelcomeStateProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
-        className="mt-6 text-sm text-slate-500"
+        className="mt-6 text-sm text-[#6b7fa3]"
       >
         Supports all major Dutch banks • GDPR Compliant • 99.5% Accuracy
       </motion.p>

@@ -1,22 +1,30 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// Routes die altijd toegankelijk moeten zijn (zelfs zonder onboarding)
+// Routes die altijd publiek toegankelijk zijn
 const PUBLIC_ROUTES = [
+  '/',                    // Homepage - MOET publiek zijn!
   '/login',
   '/register',
   '/onboarding',
   '/privacy',
   '/voorwaarden',
   '/contact',
+  '/prijzen',
+  '/beveiliging',
+  '/verwerkersovereenkomst',
   '/api',
   '/_next',
   '/favicon.ico',
   '/logo',
+  '/features',
+  '/calculator',
+  '/pricing',
+  '/faq',
 ]
 
-// Routes die geen check nodig hebben
-const STATIC_ROUTES = ['/_next', '/favicon.ico', '/logo', '/api']
+// Routes die geen check nodig hebben (static files)
+const STATIC_ROUTES = ['/_next', '/favicon.ico', '/logo', '/api', '/static']
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -26,7 +34,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Skip publieke routes
+  // Publieke routes: altijd toegankelijk zonder login
   if (PUBLIC_ROUTES.some(route => pathname === route || pathname.startsWith(route + '/'))) {
     return NextResponse.next()
   }
@@ -41,7 +49,6 @@ export async function middleware(request: NextRequest) {
 
   // Ingelogd - check onboarding status via API
   try {
-    // We doen dit via een API call omdat we geen directe Supabase client hebben in middleware
     const checkResponse = await fetch(`${request.nextUrl.origin}/api/auth/check-onboarding`, {
       headers: {
         'Cookie': request.headers.get('cookie') || '',
@@ -63,7 +70,7 @@ export async function middleware(request: NextRequest) {
     }
   } catch (error) {
     console.error('Middleware onboarding check error:', error)
-    // Bij error toch doorlaten, beter dan blokkade
+    // Bij error toch doorlaten
   }
 
   return NextResponse.next()

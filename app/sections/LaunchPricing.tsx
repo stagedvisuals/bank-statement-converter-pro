@@ -44,7 +44,7 @@ const plans = [
     ],
     cta: 'Kies dit plan',
     color: 'from-purple-500 to-pink-600',
-    bgGlow: 'bg-purple-500/20',
+    bgGlow: 'bg-[#0a1220]0/20',
     priceColor: 'text-purple-400',
   },
 ];
@@ -62,7 +62,7 @@ export function LaunchPricing() {
       {/* Dynamic Background Effects */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[100px] animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#0a1220]0/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[120px]" />
       </div>
 
@@ -90,7 +90,7 @@ export function LaunchPricing() {
             <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
               Launch <span className="bg-gradient-to-r from-teal-400 via-cyan-400 to-teal-400 bg-clip-text text-transparent">Deal</span>
             </h2>
-            <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto">
+            <p className="text-[#6b7fa3] text-lg md:text-xl max-w-2xl mx-auto">
               Profiteer nu van onze introductieprijzen. Slechts beschikbaar voor de eerste 100 pioniers.
             </p>
           </motion.div>
@@ -127,7 +127,7 @@ export function LaunchPricing() {
               >
                 <div className="relative">
                   {/* Glow behind badge */}
-                  <div className={`absolute inset-0 ${plan.popular ? 'bg-amber-500' : 'bg-purple-500'} blur-xl opacity-50`} />
+                  <div className={`absolute inset-0 ${plan.popular ? 'bg-amber-500' : 'bg-[#0a1220]0'} blur-xl opacity-50`} />
                   <Badge 
                     className={`relative px-4 py-1.5 text-xs font-bold border-0 shadow-lg ${
                       plan.popular 
@@ -167,28 +167,28 @@ export function LaunchPricing() {
                   >
                     {plan.name}
                   </motion.h3>
-                  <p className="text-slate-400 text-sm md:text-base">{plan.subtitle}</p>
+                  <p className="text-[#6b7fa3] text-sm md:text-base">{plan.subtitle}</p>
                 </div>
 
                 {/* Price Section */}
                 <div className="text-center mb-8 p-6 rounded-2xl bg-slate-800/50 border border-slate-700/50">
                   {/* Original Price with strikethrough */}
                   <div className="flex items-center justify-center gap-2 mb-2">
-                    <span className="text-xl text-slate-500 line-through decoration-red-500/50 decoration-2">
+                    <span className="text-xl text-[#6b7fa3] line-through decoration-red-500/50 decoration-2">
                       €{plan.originalPrice}
                     </span>
-                    <span className="text-sm text-slate-500 bg-slate-700/50 px-2 py-0.5 rounded-full">
+                    <span className="text-sm text-[#6b7fa3] bg-slate-700/50 px-2 py-0.5 rounded-full">
                       normaal
                     </span>
                   </div>
                   
                   {/* Current Price */}
                   <div className="flex items-baseline justify-center gap-1">
-                    <span className="text-slate-400 text-2xl font-medium">€</span>
+                    <span className="text-[#6b7fa3] text-2xl font-medium">€</span>
                     <span className={`text-6xl md:text-7xl font-bold ${plan.priceColor} bg-gradient-to-r ${plan.color} bg-clip-text text-transparent`}>
                       {plan.price}
                     </span>
-                    <span className="text-slate-400 text-lg">{plan.period}</span>
+                    <span className="text-[#6b7fa3] text-lg">{plan.period}</span>
                   </div>
                   
                   {/* Savings */}
