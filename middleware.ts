@@ -1,63 +1,76 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// Public routes that don't require authentication
-const publicRoutes = [
-  '/',
+// Routes die altijd toegankelijk moeten zijn (zelfs zonder onboarding)
+const PUBLIC_ROUTES = [
   '/login',
   '/register',
+  '/onboarding',
   '/privacy',
-  '/terms',
-  '/gdpr',
+  '/voorwaarden',
   '/contact',
-  '/api-docs',
-  '/api/webhook',
-  '/api/health',
-  '/api/monitor',
-  '/api/contact',
-  '/api/auth/login',
-  '/api/auth/register',
-  '/api/auth/session',
-  '/api/convert',
-  '/api/convert/',
+  '/api',
+  '/_next',
+  '/favicon.ico',
+  '/logo',
 ]
 
-// Check if route is public
-function isPublicRoute(pathname: string): boolean {
-  return publicRoutes.some(route => pathname === route || pathname.startsWith(route + '/'))
-}
+// Routes die geen check nodig hebben
+const STATIC_ROUTES = ['/_next', '/favicon.ico', '/logo', '/api']
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const method = request.method
-  
-  console.log('[Middleware]', method, pathname)
-  
-  // Handle CORS preflight requests
-  if (method === 'OPTIONS') {
-    const response = new NextResponse(null, { status: 200 })
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH')
-    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-    return response
+
+  // Skip static files en API routes
+  if (STATIC_ROUTES.some(route => pathname.startsWith(route))) {
+    return NextResponse.next()
   }
-  
-  // CORS headers for bscpro.nl
-  const response = NextResponse.next()
-  response.headers.set('Access-Control-Allow-Origin', '*')
-  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-  
-  // Allow public routes
-  if (isPublicRoute(pathname)) {
-    console.log('[Middleware] Allowing route:', pathname)
-    return response
+
+  // Skip publieke routes
+  if (PUBLIC_ROUTES.some(route => pathname === route || pathname.startsWith(route + '/'))) {
+    return NextResponse.next()
   }
+
+  // Check of user is ingelogd (session cookie)
+  const sessionCookie = request.cookies.get('sb-access-token') || request.cookies.get('sb-refresh-token')
   
-  console.log('[Middleware] Protected route:', pathname)
-  return response
+  if (!sessionCookie) {
+    // Niet ingelogd, redirect naar login
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  // Ingelogd - check onboarding status via API
+  try {
+    // We doen dit via een API call omdat we geen directe Supabase client hebben in middleware
+    const checkResponse = await fetch(`${request.nextUrl.origin}/api/auth/check-onboarding`, {
+      headers: {
+        'Cookie': request.headers.get('cookie') || '',
+      },
+    })
+
+    if (checkResponse.ok) {
+      const { onboardingVoltooid } = await checkResponse.json()
+      
+      if (!onboardingVoltooid && pathname !== '/onboarding') {
+        // Onboarding niet voltooid, redirect naar onboarding
+        return NextResponse.redirect(new URL('/onboarding', request.url))
+      }
+      
+      if (onboardingVoltooid && pathname === '/onboarding') {
+        // Onboarding al voltooid, redirect naar dashboard
+        return NextResponse.redirect(new URL('/dashboard', request.url))
+      }
+    }
+  } catch (error) {
+    console.error('Middleware onboarding check error:', error)
+    // Bij error toch doorlaten, beter dan blokkade
+  }
+
+  return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/((?!.*\..*|_next).*)', '/', '/(api|trpc)(.*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }

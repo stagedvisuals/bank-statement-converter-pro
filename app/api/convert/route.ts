@@ -5,6 +5,8 @@ import pdfParse from 'pdf-parse'
 import sharp from 'sharp'
 import { promises as fs } from 'fs'
 import { join } from 'path'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 
 export const runtime = 'nodejs'
 
@@ -321,15 +323,31 @@ export async function PUT(req: NextRequest) {
   try {
     const { transactions, bank: inputBank = 'Onbekend' } = await req.json()
     
+    // Haal user profiel op voor bedrijfsnaam
+    const supabase = createRouteHandlerClient({ cookies })
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    let bedrijfsnaam = ''
+    if (session) {
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('bedrijfsnaam')
+        .eq('user_id', session.user.id)
+        .single()
+      bedrijfsnaam = profile?.bedrijfsnaam || ''
+    }
+    
     const categorizedTransactions = categorizeTransactions(transactions)
     
     // Detect bank and period for filename
     const { bank: detectedBank, month, year } = detectBankAndPeriod(categorizedTransactions)
     const bank = detectedBank !== 'Onbekend' ? detectedBank : inputBank
-    const fileName = `BSCPro_${bank}_${month}_${year}.xlsx`
+    const fileName = bedrijfsnaam 
+      ? `${bedrijfsnaam}_Bankafschrift_${month}_${year}.xlsx`
+      : `BSCPro_${bank}_${month}_${year}.xlsx`
     
     const workbook = new ExcelJS.Workbook()
-    workbook.creator = 'BSC Pro'
+    workbook.creator = bedrijfsnaam || 'BSC Pro'
     workbook.lastModifiedBy = 'BSC Pro'
     workbook.created = new Date()
     workbook.modified = new Date()
@@ -402,16 +420,31 @@ export async function PUT(req: NextRequest) {
     const exportDate = now.toLocaleDateString('nl-NL')
     const exportTime = now.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })
     
-    // Row 2: Tagline (below logo)
-    wsTrans.mergeCells('A2:H2')
-    wsTrans.getCell('A2').value = 'www.bscpro.nl | AI-Powered Bank Statement Conversion'
-    wsTrans.getCell('A2').font = { size: 10, color: { argb: 'FF0088CC' } }
-    wsTrans.getCell('A2').alignment = { horizontal: 'center' }
-    
-    // Row 3: Export info
-    wsTrans.mergeCells('A3:H3')
-    wsTrans.getCell('A3').value = `Geëxporteerd op: ${exportDate} ${exportTime} | ${bank} ${month} ${year}`
-    wsTrans.getCell('A3').font = { size: 10, italic: true, color: { argb: 'FF666666' } }
+    // Row 2: Bedrijfsnaam header (als aanwezig)
+    if (bedrijfsnaam) {
+      wsTrans.mergeCells('A2:H2')
+      wsTrans.getCell('A2').value = `${bedrijfsnaam} - Bankafschrift Export`
+      wsTrans.getCell('A2').font = { size: 14, bold: true, color: { argb: 'FF1E3A5F' } }
+      wsTrans.getCell('A2').alignment = { horizontal: 'center' }
+      
+      // Row 3: Export info
+      wsTrans.mergeCells('A3:H3')
+      wsTrans.getCell('A3').value = `Gegenereerd door BSCPro.nl | ${exportDate}`
+      wsTrans.getCell('A3').font = { size: 10, italic: true, color: { argb: 'FF666666' } }
+      wsTrans.getCell('A3').alignment = { horizontal: 'center' }
+    } else {
+      // Row 2: Tagline (below logo)
+      wsTrans.mergeCells('A2:H2')
+      wsTrans.getCell('A2').value = 'www.bscpro.nl | AI-Powered Bank Statement Conversion'
+      wsTrans.getCell('A2').font = { size: 10, color: { argb: 'FF0088CC' } }
+      wsTrans.getCell('A2').alignment = { horizontal: 'center' }
+      
+      // Row 3: Export info
+      wsTrans.mergeCells('A3:H3')
+      wsTrans.getCell('A3').value = `Geëxporteerd op: ${exportDate} ${exportTime} | ${bank} ${month} ${year}`
+      wsTrans.getCell('A3').font = { size: 10, italic: true, color: { argb: 'FF666666' } }
+      wsTrans.getCell('A3').alignment = { horizontal: 'center' }
+    }
     wsTrans.getCell('A3').alignment = { horizontal: 'center' }
     
     // Row 4: Empty separator
