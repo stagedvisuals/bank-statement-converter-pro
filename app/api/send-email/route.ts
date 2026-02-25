@@ -1,16 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 // Email service configuratie (bijv. SendGrid, AWS SES, etc.)
 const EMAIL_API_KEY = process.env.SENDGRID_API_KEY || process.env.EMAIL_API_KEY
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const { to, subject, fileName, conversionCount } = await req.json()
+    const { to, subject, fileName, conversionCount } = await request.json()
     
     // Haal user profiel op voor personalisatie
-    const supabase = createRouteHandlerClient({ cookies })
+    const cookieStore = cookies()
+    
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set(name: string, value: string, options: CookieOptions) {
+            cookieStore.set({ name, value, ...options })
+          },
+          remove(name: string, options: CookieOptions) {
+            cookieStore.delete({ name, ...options })
+          },
+        },
+      }
+    )
+    
     const { data: { session } } = await supabase.auth.getSession()
     
     let bedrijfsnaam = ''
