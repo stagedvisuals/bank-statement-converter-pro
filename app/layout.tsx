@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Syne, DM_Sans } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
+import { ThemeProvider } from "next-themes";
 import "./globals.css";
 
 const syne = Syne({
@@ -28,11 +29,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="nl" className={`${syne.variable} ${dmSans.variable}`}>
+    <html lang="nl" className={`${syne.variable} ${dmSans.variable}`} suppressHydrationWarning>
       <body style={{ fontFamily: "var(--font-dm-sans), sans-serif" }}>
-        {children}
-        <SpeedInsights />
-        <Analytics />
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+          <SpeedInsights />
+          <Analytics />
+        </ThemeProvider>
       </body>
     </html>
   );

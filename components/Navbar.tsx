@@ -2,7 +2,47 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useTheme } from 'next-themes';
+import { Sun, Moon } from 'lucide-react';
 import { Logo } from './Logo';
+
+// Theme Toggle Component
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration mismatch
+  useState(() => setMounted(true), []);
+  
+  if (!mounted) return <div style={{ width: '36px', height: '36px' }} />;
+
+  const isDark = theme === 'dark';
+
+  return (
+    <button
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '36px',
+        height: '36px',
+        borderRadius: '8px',
+        border: '1px solid rgba(0, 184, 217, 0.3)',
+        background: isDark ? 'rgba(0, 184, 217, 0.1)' : 'rgba(0, 184, 217, 0.05)',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease'
+      }}
+      title={isDark ? 'Schakel naar licht thema' : 'Schakel naar donker thema'}
+    >
+      {isDark ? (
+        <Sun style={{ width: '18px', height: '18px', color: '#00b8d9' }} />
+      ) : (
+        <Moon style={{ width: '18px', height: '18px', color: '#00b8d9' }} />
+      )}
+    </button>
+  );
+}
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -65,11 +105,12 @@ export default function Navbar() {
           ))}
         </div>
         
-        {/* Rechts: altijd inloggen + hamburger op mobiel */}
+        {/* Rechts: Theme Toggle + Inloggen + Hamburger */}
         <div 
           className="flex items-center gap-2"
           style={{ marginLeft: 'auto' }}
         >
+          <ThemeToggle />
           <Link href="/login">
             <button 
               style={{ 

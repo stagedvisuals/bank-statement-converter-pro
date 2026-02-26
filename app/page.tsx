@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useTheme } from 'next-themes';
 import { 
   Shield, 
   FileText, 
@@ -25,6 +26,7 @@ import Navbar from '@/components/Navbar';
 export default function Home() {
   const [statements, setStatements] = useState(20);
   const [hourlyRate, setHourlyRate] = useState(75);
+  const { theme } = useTheme();
   
   const manualHours = Math.ceil(statements * 1.5);
   const bscProMinutes = Math.ceil(statements * 0.5);
@@ -32,11 +34,11 @@ export default function Home() {
   const moneySaved = Math.round(hoursSaved * hourlyRate);
 
   return (
-    <div className="min-h-screen" style={{ background: '#080d14' }}>
+    <div className="min-h-screen bg-slate-50 dark:bg-[#080d14] transition-colors duration-300">
       <Navbar />
 
       {/* Hero */}
-      <section style={{ paddingTop: '120px', paddingBottom: '80px', background: '#080d14' }}>
+      <section className="bg-slate-50 dark:bg-[#080d14] pt-[120px] pb-20 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             {/* Trust Bar */}
