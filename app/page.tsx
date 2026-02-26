@@ -268,14 +268,14 @@ export default function Home() {
               {/* Kortingsbadge */}
               <div className="mb-2">
                 <span className="inline-block px-3 py-1 text-[11px] font-bold text-white rounded-full" style={{ background: 'linear-gradient(135deg, #ff4444, #ff6b35)' }}>
-                  40% korting - Beperkte tijd
+                  36% korting - Beperkte tijd
                 </span>
               </div>
               
               <h3 className="text-lg font-semibold text-foreground mb-2">Starter</h3>
               <div className="mb-3 flex items-baseline gap-2">
-                <span className="text-base text-muted-foreground line-through">€15</span>
-                <span className="text-3xl font-bold text-foreground">€9</span>
+                <span className="text-base text-muted-foreground line-through">€23,50</span>
+                <span className="text-3xl font-bold text-foreground">€15</span>
                 <span className="text-muted-foreground text-sm">/maand</span>
               </div>
               <p className="text-sm text-muted-foreground mb-5">Voor startende ondernemers</p>
@@ -299,14 +299,14 @@ export default function Home() {
               {/* Kortingsbadge */}
               <div className="mb-2">
                 <span className="inline-block px-3 py-1 text-[11px] font-bold text-white rounded-full" style={{ background: 'linear-gradient(135deg, #ff4444, #ff6b35)' }}>
-                  37% korting - Beperkte tijd
+                  25% korting - Beperkte tijd
                 </span>
               </div>
-              
+
               <h3 className="text-lg font-semibold text-foreground mb-2">Professional</h3>
               <div className="mb-3 flex items-baseline gap-2">
-                <span className="text-base text-muted-foreground line-through">€30</span>
-                <span className="text-3xl font-bold text-foreground">€19</span>
+                <span className="text-base text-muted-foreground line-through">€40</span>
+                <span className="text-3xl font-bold text-foreground">€30</span>
                 <span className="text-muted-foreground text-sm">/maand</span>
               </div>
               <p className="text-sm text-muted-foreground mb-5">Voor drukke boekhouders</p>
