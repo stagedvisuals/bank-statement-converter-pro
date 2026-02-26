@@ -70,11 +70,6 @@ const config: Config = {
           dark: '#D97706',
           light: '#FCD34D',
         },
-        accent: {
-          DEFAULT: '#0891B2',
-          light: '#22D3EE',
-          dark: '#0E7490',
-        },
         fintech: {
           bg: '#F8FAFC',
           'bg-alt': '#F1F5F9',
