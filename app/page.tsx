@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { useTheme } from 'next-themes';
 import { 
   Shield, 
   FileText, 
@@ -26,7 +25,6 @@ import Navbar from '@/components/Navbar';
 export default function Home() {
   const [statements, setStatements] = useState(20);
   const [hourlyRate, setHourlyRate] = useState(75);
-  const { theme } = useTheme();
   
   const manualHours = Math.ceil(statements * 1.5);
   const bscProMinutes = Math.ceil(statements * 0.5);
@@ -34,50 +32,39 @@ export default function Home() {
   const moneySaved = Math.round(hoursSaved * hourlyRate);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#080d14] transition-colors duration-300">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
       {/* Hero */}
-      <section className="bg-slate-50 dark:bg-[#080d14] pt-[120px] pb-20 transition-colors duration-300">
+      <section className="pt-28 pb-20 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             {/* Trust Bar */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '32px', padding: '0 16px' }}>
-              <div style={{ background: 'rgba(0, 184, 217, 0.1)', border: '1px solid rgba(0, 184, 217, 0.2)', borderRadius: '999px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-8 px-4">
+              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-full px-3 py-1.5 flex items-center gap-1 shrink-0">
                 <div className="flex">
                   {[1,2,3,4,5].map((i) => (
-                    <Star key={i} className="w-3 h-3" style={{ color: '#00b8d9', fill: '#00b8d9' }} />
+                    <Star key={i} className="w-3 h-3 text-[#00b8d9] fill-[#00b8d9]" />
                   ))}
                 </div>
-                <span style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff', whiteSpace: 'nowrap' }}>4.9/5</span>
+                <span className="text-xs font-semibold text-foreground whitespace-nowrap">4.9/5</span>
               </div>
-              <div style={{ background: 'rgba(0, 184, 217, 0.1)', border: '1px solid rgba(0, 184, 217, 0.2)', borderRadius: '999px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
-                <Users className="w-3 h-3" style={{ color: '#00b8d9' }} />
-                <span style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff', whiteSpace: 'nowrap' }}>100+ boekhouders</span>
+              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-full px-3 py-1.5 flex items-center gap-1 shrink-0">
+                <Users className="w-3 h-3 text-[#00b8d9]" />
+                <span className="text-xs font-semibold text-foreground whitespace-nowrap">100+ boekhouders</span>
               </div>
-              <div style={{ background: 'rgba(0, 184, 217, 0.1)', border: '1px solid rgba(0, 184, 217, 0.2)', borderRadius: '999px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
-                <Database className="w-3 h-3" style={{ color: '#00b8d9' }} />
-                <span style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff', whiteSpace: 'nowrap' }}>MT940</span>
+              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-full px-3 py-1.5 flex items-center gap-1 shrink-0">
+                <Database className="w-3 h-3 text-[#00b8d9]" />
+                <span className="text-xs font-semibold text-foreground whitespace-nowrap">MT940</span>
               </div>
-              <div style={{ background: 'rgba(0, 184, 217, 0.1)', border: '1px solid rgba(0, 184, 217, 0.2)', borderRadius: '999px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
-                <span style={{ fontSize: '12px' }}>🇳🇱</span>
-                <span style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff', whiteSpace: 'nowrap' }}>#1 in NL</span>
+              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-full px-3 py-1.5 flex items-center gap-1 shrink-0">
+                <span className="text-xs">🇳🇱</span>
+                <span className="text-xs font-semibold text-foreground whitespace-nowrap">#1 in NL</span>
               </div>
             </div>
 
-            <h1 style={{
-              fontWeight: 800,
-              color: '#ffffff',
-              marginBottom: '24px',
-              lineHeight: 1.1,
-              fontFamily: 'var(--font-syne), Syne, sans-serif',
-              wordBreak: 'normal',
-              hyphens: 'none',
-              whiteSpace: 'normal',
-              maxWidth: '100%',
-              fontSize: 'clamp(28px, 7.5vw, 64px)'
-            }} className="md:text-[clamp(40px,6vw,60px)] lg:text-[clamp(48px,5vw,72px)]">
-              Converteer bankafschriften <span style={{ color: '#00b8d9' }}>in seconden</span>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-foreground mb-6 leading-tight" style={{ fontFamily: 'var(--font-syne), Syne, sans-serif' }}>
+              Converteer bankafschriften <span className="text-[#00b8d9]">in seconden</span>
             </h1>
             
             <p style={{ fontSize: '18px', color: '#6b7fa3', marginBottom: '32px', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
