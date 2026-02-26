@@ -62,8 +62,7 @@ export default function Navbar() {
         background: 'rgba(8, 13, 20, 0.95)', 
         backdropFilter: 'blur(12px)',
         borderBottom: '1px solid rgba(0, 184, 217, 0.1)',
-        padding: '0 24px', 
-        height: '72px', 
+        padding: '16px 24px', 
         position: 'fixed',
         top: 0,
         left: 0,
@@ -72,11 +71,17 @@ export default function Navbar() {
       }}
     >
       <div className="max-w-7xl mx-auto h-full relative flex items-center">
-        {/* Logo - links */}
-        <Link href="/" style={{ background: 'transparent', border: 'none', padding: 0, textDecoration: 'none' }}>
-          <div className="text-slate-900 dark:text-white">
-            <Logo />
-          </div>
+        {/* Logo - links met vaste hoogte */}
+        <Link href="/" style={{ 
+          background: 'transparent', 
+          border: 'none', 
+          padding: 0, 
+          textDecoration: 'none',
+          height: '32px',
+          display: 'flex',
+          alignItems: 'center'
+        }}>
+          <Logo />
         </Link>
         
         {/* Desktop links - perfect gecentreerd */}
@@ -164,7 +169,7 @@ export default function Navbar() {
           className="md:hidden"
           style={{
             position: 'absolute',
-            top: '72px',
+            top: '64px',
             left: 0,
             right: 0,
             background: '#080d14',

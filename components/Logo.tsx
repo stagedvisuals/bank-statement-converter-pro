@@ -6,72 +6,56 @@ export const Logo = () => {
   const isDark = theme === 'dark';
 
   return (
-    <svg width="160" height="44" viewBox="0 0 160 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Ronde Seal/Cirkel */}
-      <g transform="translate(2, 2)">
-        {/* Buitenste cirkel ring */}
-        <circle cx="20" cy="20" r="19" stroke="#00b8d9" strokeWidth="2" fill="none" />
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      {/* Ronde Seal Icoon - 32px */}
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Buitenste cirkel */}
+        <circle cx="16" cy="16" r="15" stroke="#00b8d9" strokeWidth="2" fill="none" />
         
-        {/* Binnenste cirkel achtergrond (licht in dark mode, wit in light mode) */}
+        {/* Binnenste cirkel met fill */}
         <circle 
-          cx="20" 
-          cy="20" 
-          r="16" 
-          fill={isDark ? "rgba(0, 184, 217, 0.1)" : "rgba(0, 184, 217, 0.05)"}
-          stroke="#00b8d9"
-          strokeWidth="1"
+          cx="16" 
+          cy="16" 
+          r="12" 
+          fill={isDark ? "rgba(0, 184, 217, 0.15)" : "rgba(0, 184, 217, 0.08)"}
         />
         
-        {/* Document icoon binnen de cirkel */}
-        <path 
-          d="M12 14V26H28V18L22 12H14C13 12 12 13 12 14Z" 
-          fill="none" 
-          stroke="#00b8d9" 
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
+        {/* Document icoon - vereenvoudigd */}
+        <rect x="10" y="9" width="12" height="14" rx="1.5" stroke="#00b8d9" strokeWidth="1.5" fill="none" />
+        <line x1="13" y1="13" x2="19" y2="13" stroke="#00b8d9" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="13" y1="16" x2="19" y2="16" stroke="#00b8d9" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="13" y1="19" x2="17" y2="19" stroke="#00b8d9" strokeWidth="1.5" strokeLinecap="round" />
         
-        {/* Document lijnen */}
-        <line x1="15" y1="17" x2="21" y2="17" stroke="#00b8d9" strokeWidth="1" strokeLinecap="round" />
-        <line x1="15" y1="20" x2="25" y2="20" stroke="#00b8d9" strokeWidth="1" strokeLinecap="round" />
-        <line x1="15" y1="23" x2="23" y2="23" stroke="#00b8d9" strokeWidth="1" strokeLinecap="round" />
-        
-        {/* Chip/Scan icoon in hoek */}
-        <rect x="20" y="14" width="8" height="8" rx="1" fill="#00b8d9" fillOpacity="0.2" stroke="#00b8d9" strokeWidth="1" />
-        <line x1="22" y1="16" x2="26" y2="16" stroke="#00b8d9" strokeWidth="0.75" />
-        <line x1="22" y1="18" x2="26" y2="18" stroke="#00b8d9" strokeWidth="0.75" />
-        
-        {/* Scan lijn */}
-        <line x1="8" y1="20" x2="32" y2="20" stroke="#00b8d9" strokeWidth="1" strokeOpacity="0.5" strokeDasharray="2 2" />
-      </g>
+        {/* Chip/QR code icoon */}
+        <rect x="17" y="10" width="5" height="5" rx="1" fill="#00b8d9" fillOpacity="0.3" />
+        <rect x="18.5" y="11.5" width="2" height="2" fill="#00b8d9" />
+      </svg>
       
-      {/* Tekst BSC PRO */}
-      <text 
-        x="50" 
-        y="29" 
-        className="font-black"
-        style={{ 
-          fontSize: '22px', 
-          fontFamily: 'Inter, sans-serif',
-          fontWeight: 900,
-          fill: isDark ? '#ffffff' : '#0f172a'
-        }}
-      >
-        BSC
-      </text>
-      <text 
-        x="98" 
-        y="29" 
-        className="font-black"
-        style={{ 
-          fontSize: '22px', 
-          fontFamily: 'Inter, sans-serif',
-          fontWeight: 900,
-          fill: '#00b8d9'
-        }}
-      >
-        PRO
-      </text>
-    </svg>
+      {/* Tekst BSCPRO - 24px hoogte */}
+      <div style={{ display: 'flex', alignItems: 'baseline' }}>
+        <span 
+          style={{ 
+            fontSize: '24px', 
+            fontFamily: 'Inter, Poppins, sans-serif',
+            fontWeight: 800,
+            color: isDark ? '#ffffff' : '#0f172a',
+            letterSpacing: '-0.5px'
+          }}
+        >
+          BSC
+        </span>
+        <span 
+          style={{ 
+            fontSize: '24px', 
+            fontFamily: 'Inter, Poppins, sans-serif',
+            fontWeight: 800,
+            color: '#00b8d9',
+            letterSpacing: '-0.5px'
+          }}
+        >
+          PRO
+        </span>
+      </div>
+    </div>
   );
 };
