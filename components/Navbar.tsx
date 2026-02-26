@@ -44,6 +44,7 @@ export default function Navbar() {
   ];
 
   const koppelingenLinks = [
+    { href: '/moneybird/priverekening-pdf-importeren', label: 'PDF → Moneybird' },
     { href: '/snelstart/rabobank-pdf-importeren', label: 'Rabobank → SnelStart' },
     { href: '/exact-online/ing-prive-importeren', label: 'ING → Exact Online' },
   ];

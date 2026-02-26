@@ -441,6 +441,7 @@ export default function Home() {
             <div>
               <h4 className="font-semibold text-foreground mb-3">Koppelingen</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><Link href="/moneybird/priverekening-pdf-importeren" className="hover:text-[#00b8d9]">PDF → Moneybird</Link></li>
                 <li><Link href="/snelstart/rabobank-pdf-importeren" className="hover:text-[#00b8d9]">Rabobank → SnelStart</Link></li>
                 <li><Link href="/exact-online/ing-prive-importeren" className="hover:text-[#00b8d9]">ING → Exact Online</Link></li>
               </ul>
