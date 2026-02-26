@@ -7,8 +7,12 @@ export const dynamic = 'force-dynamic'
 export async function GET() {
   try {
     // Check if env vars are available
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 })
+    }
 
     // Initialize Supabase client inside the function to avoid build-time issues
     const supabase = createClient(supabaseUrl, supabaseKey, {

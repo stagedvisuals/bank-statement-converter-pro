@@ -9,8 +9,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   // Get environment variables inside handler to ensure they're available
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+  
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return res.status(500).json({ error: 'Supabase not configured' })
+  }
 
   const { email, password, name } = req.body
   console.log('[Register] Attempt for:', email)
