@@ -41,25 +41,17 @@ export default function Home() {
           <div className="max-w-4xl mx-auto text-center">
             {/* Trust Bar */}
             <div className="flex flex-wrap items-center justify-center gap-2 mb-8 px-4">
-              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-full px-3 py-1.5 flex items-center gap-1 shrink-0">
-                <div className="flex">
-                  {[1,2,3,4,5].map((i) => (
-                    <Star key={i} className="w-3 h-3 text-[#00b8d9] fill-[#00b8d9]" />
-                  ))}
-                </div>
-                <span className="text-xs font-semibold text-foreground whitespace-nowrap">4.9/5</span>
+              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-full px-3 py-1.5 flex items-center gap-1.5 shrink-0">
+                <span className="text-sm">🔒</span>
+                <span className="text-xs font-semibold text-foreground whitespace-nowrap">Veilig & AVG-proof</span>
               </div>
-              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-full px-3 py-1.5 flex items-center gap-1 shrink-0">
-                <Users className="w-3 h-3 text-[#00b8d9]" />
-                <span className="text-xs font-semibold text-foreground whitespace-nowrap">100+ boekhouders</span>
+              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-full px-3 py-1.5 flex items-center gap-1.5 shrink-0">
+                <span className="text-sm">🏦</span>
+                <span className="text-xs font-semibold text-foreground whitespace-nowrap">Ondersteunt alle NL banken</span>
               </div>
-              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-full px-3 py-1.5 flex items-center gap-1 shrink-0">
-                <Database className="w-3 h-3 text-[#00b8d9]" />
-                <span className="text-xs font-semibold text-foreground whitespace-nowrap">MT940</span>
-              </div>
-              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-full px-3 py-1.5 flex items-center gap-1 shrink-0">
-                <span className="text-xs">🇳🇱</span>
-                <span className="text-xs font-semibold text-foreground whitespace-nowrap">#1 in NL</span>
+              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-full px-3 py-1.5 flex items-center gap-1.5 shrink-0">
+                <span className="text-sm">📄</span>
+                <span className="text-xs font-semibold text-foreground whitespace-nowrap">MT940 & CAMT.053</span>
               </div>
             </div>
 
@@ -449,17 +441,15 @@ export default function Home() {
             <div>
               <h4 className="font-semibold text-foreground mb-3">Support</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/help" className="hover:text-[#00b8d9]">Help center</Link></li>
-                <li><Link href="/contact" className="hover:text-[#00b8d9]">Contact</Link></li>
-                <li><Link href="/status" className="hover:text-[#00b8d9]">Status</Link></li>
+                <li><Link href="/api-docs" className="hover:text-[#00b8d9]">API Documentatie</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold text-foreground mb-3">Juridisch</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/privacy" className="hover:text-[#00b8d9]">Privacy policy</Link></li>
-                <li><Link href="/terms" className="hover:text-[#00b8d9]">Algemene voorwaarden</Link></li>
-                <li><Link href="/cookies" className="hover:text-[#00b8d9]">Cookie policy</Link></li>
+                <li><Link href="/privacy" className="hover:text-[#00b8d9]">Privacybeleid</Link></li>
+                <li><Link href="/voorwaarden" className="hover:text-[#00b8d9]">Algemene voorwaarden</Link></li>
+                <li><Link href="/gdpr" className="hover:text-[#00b8d9]">GDPR / AVG</Link></li>
               </ul>
             </div>
           </div>
