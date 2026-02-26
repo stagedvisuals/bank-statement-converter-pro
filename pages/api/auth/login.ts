@@ -10,8 +10,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   // Get environment variables inside handler to ensure they're available
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   console.log('[API Login] Supabase URL exists:', !!supabaseUrl)
   console.log('[API Login] Supabase Service Key exists:', !!supabaseServiceKey)
