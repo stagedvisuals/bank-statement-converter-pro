@@ -12,7 +12,6 @@ export default function LoginPage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    // Check if already logged in
     const sessionStr = localStorage.getItem('bscpro_session')
     if (sessionStr) {
       const session = JSON.parse(sessionStr)
@@ -27,35 +26,24 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
-    console.log('[Login] Attempting login for:', email)
-
     try {
-      console.log('[Login] Sending request to /api/auth/login')
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       })
 
-      console.log('[Login] Response status:', response.status)
       const data = await response.json()
-      console.log('[Login] Response data:', data)
 
       if (!response.ok) {
         throw new Error(data.error || 'Login failed')
       }
 
-      console.log('[Login] Storing session and user data')
-      // Store session
       localStorage.setItem('bscpro_session', JSON.stringify(data.session))
       localStorage.setItem('bscpro_user', JSON.stringify(data.user))
-
-      console.log('[Login] Redirecting to dashboard')
-      // Redirect to dashboard
       router.push('/dashboard')
 
     } catch (err: any) {
-      console.error('[Login] Error:', err)
       setError(err.message || 'Ongeldige email of wachtwoord')
     } finally {
       setLoading(false)
@@ -67,34 +55,32 @@ export default function LoginPage() {
       <Head>
         <title>Login | BSC Pro - Bank Statement Converter</title>
         <meta name="description" content="Log in op BSC Pro om je bankafschriften te converteren naar Excel/CSV. Veilig en snel." />
-        <meta name="keywords" content="BSC Pro login, bank statement converter inloggen" />
-        <link rel="canonical" href="https://www.bscpro.nl/login/" />
         <meta name="robots" content="noindex, follow" />
       </Head>
       
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background">
         <Navbar />
 
-        <div className="pt-[120px] pb-[60px] min-h-[calc(100vh-200px)] flex items-center justify-center bg-slate-50 dark:bg-[#080d14] transition-colors duration-300">
-          <div className="bg-white dark:bg-[rgba(10,18,32,0.8)] backdrop-blur-xl border border-slate-200 dark:border-cyan-500/15 rounded-2xl p-10 max-w-[420px] w-full mx-4 shadow-lg dark:shadow-none transition-colors duration-300">
+        <div className="pt-28 pb-16 min-h-[calc(100vh-200px)] flex items-center justify-center px-4">
+          <div className="w-full max-w-md bg-card border border-border rounded-2xl p-10 shadow-lg">
             <div className="text-center mb-8">
-              <h1 className="text-[28px] font-bold text-slate-900 dark:text-white mb-2" style={{ fontFamily: 'var(--font-syne), Syne, sans-serif' }}>
+              <h1 className="text-2xl font-bold text-foreground mb-2">
                 Welkom terug
               </h1>
-              <p className="text-slate-500 dark:text-slate-400 text-sm">
+              <p className="text-muted-foreground text-sm">
                 Log in om je documenten te converteren
               </p>
             </div>
 
             {error && (
-              <div className="mb-5 px-4 py-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-lg text-red-600 dark:text-red-400 text-sm">
+              <div className="mb-5 px-4 py-3 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive text-sm">
                 {error}
               </div>
             )}
 
             <form onSubmit={handleLogin} className="flex flex-col gap-5">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-white mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Email
                 </label>
                 <input
@@ -102,13 +88,13 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-slate-100 dark:bg-[rgba(10,18,32,0.6)] border border-slate-300 dark:border-cyan-500/15 rounded-lg text-slate-900 dark:text-white text-sm outline-none transition-all focus:border-cyan-400"
+                  className="w-full px-4 py-3 bg-background border border-input rounded-lg text-foreground text-sm outline-none transition-all focus:border-[#00b8d9] focus:ring-1 focus:ring-[#00b8d9]"
                   placeholder="jouw@email.nl"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-white mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Wachtwoord
                 </label>
                 <input
@@ -116,7 +102,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-slate-100 dark:bg-[rgba(10,18,32,0.6)] border border-slate-300 dark:border-cyan-500/15 rounded-lg text-slate-900 dark:text-white text-sm outline-none transition-all focus:border-cyan-400"
+                  className="w-full px-4 py-3 bg-background border border-input rounded-lg text-foreground text-sm outline-none transition-all focus:border-[#00b8d9] focus:ring-1 focus:ring-[#00b8d9]"
                   placeholder="••••••••"
                 />
               </div>
@@ -124,10 +110,10 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-3.5 font-semibold rounded-lg border-none text-base mt-2 transition-all ${
+                className={`w-full py-3.5 font-semibold rounded-lg text-base mt-2 transition-all ${
                   loading 
-                    ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed' 
-                    : 'bg-cyan-400 text-slate-900 hover:shadow-[0_0_20px_rgba(0,184,217,0.4)] cursor-pointer'
+                    ? 'bg-muted text-muted-foreground cursor-not-allowed' 
+                    : 'bg-[#00b8d9] text-[#080d14] hover:shadow-[0_0_20px_rgba(0,184,217,0.4)]'
                 }`}
               >
                 {loading ? 'Inloggen...' : 'Inloggen'}
@@ -135,9 +121,9 @@ export default function LoginPage() {
             </form>
 
             <div className="mt-6 text-center">
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+              <p className="text-sm text-muted-foreground">
                 Nog geen account?{' '}
-                <Link href="/register" className="text-cyan-500 hover:text-cyan-400 no-underline">
+                <Link href="/register" className="text-[#00b8d9] hover:underline">
                   Registreer hier
                 </Link>
               </p>
@@ -145,8 +131,8 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <footer className="py-6 text-center border-t border-slate-200 dark:border-cyan-500/10 bg-slate-50 dark:bg-[#080d14] transition-colors duration-300">
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+        <footer className="py-6 text-center border-t border-border bg-background">
+          <p className="text-sm text-muted-foreground">
             © 2026 BSC Pro. Alle rechten voorbehouden.
           </p>
         </footer>

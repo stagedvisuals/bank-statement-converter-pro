@@ -6,41 +6,28 @@ import { useTheme } from 'next-themes';
 import { Sun, Moon } from 'lucide-react';
 import { Logo } from './Logo';
 
-// Theme Toggle Component
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  // Prevent hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
   
-  if (!mounted) return <div style={{ width: '36px', height: '36px' }} />;
+  if (!mounted) return <div className="w-9 h-9" />;
 
   const isDark = theme === 'dark';
 
   return (
     <button
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '36px',
-        height: '36px',
-        borderRadius: '8px',
-        border: '1px solid rgba(0, 184, 217, 0.3)',
-        background: isDark ? 'rgba(0, 184, 217, 0.1)' : 'rgba(0, 184, 217, 0.05)',
-        cursor: 'pointer',
-        transition: 'all 0.2s ease'
-      }}
+      className="flex items-center justify-center w-9 h-9 rounded-lg border border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20 transition-all"
       title={isDark ? 'Schakel naar licht thema' : 'Schakel naar donker thema'}
     >
       {isDark ? (
-        <Sun style={{ width: '18px', height: '18px', color: '#00b8d9' }} />
+        <Sun className="w-4 h-4 text-[#00b8d9]" />
       ) : (
-        <Moon style={{ width: '18px', height: '18px', color: '#00b8d9' }} />
+        <Moon className="w-4 h-4 text-[#00b8d9]" />
       )}
     </button>
   );
@@ -57,141 +44,55 @@ export default function Navbar() {
   ];
 
   return (
-    <nav 
-      style={{ 
-        background: 'rgba(8, 13, 20, 0.95)', 
-        backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(0, 184, 217, 0.1)',
-        padding: '16px 24px', 
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 50
-      }}
-    >
-      <div className="max-w-7xl mx-auto h-full relative flex items-center">
-        {/* Logo - links met vaste hoogte */}
-        <Link href="/" style={{ 
-          background: 'transparent', 
-          border: 'none', 
-          padding: 0, 
-          textDecoration: 'none',
-          height: '32px',
-          display: 'flex',
-          alignItems: 'center'
-        }}>
-          <Logo />
-        </Link>
-        
-        {/* Desktop links - perfect gecentreerd */}
-        <div 
-          className="hidden md:flex items-center gap-8"
-          style={{
-            position: 'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)'
-          }}
-        >
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              style={{ 
-                color: '#6b7fa3', 
-                fontSize: '14px', 
-                textDecoration: 'none',
-                fontWeight: 500,
-                transition: 'color 0.2s',
-                whiteSpace: 'nowrap'
-              }}
-              className="hover:text-white"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
-        
-        {/* Rechts: Theme Toggle + Inloggen + Hamburger */}
-        <div 
-          className="flex items-center gap-2"
-          style={{ marginLeft: 'auto' }}
-        >
-          <ThemeToggle />
-          <Link href="/login">
-            <button 
-              style={{ 
-                background: 'transparent',
-                border: '1px solid rgba(0, 184, 217, 0.3)',
-                color: '#00b8d9',
-                fontWeight: 500,
-                borderRadius: '6px',
-                padding: '8px 20px',
-                fontSize: '14px',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                whiteSpace: 'nowrap'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(0, 184, 217, 0.1)';
-                e.currentTarget.style.borderColor = '#00b8d9';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.borderColor = 'rgba(0, 184, 217, 0.3)';
-              }}
-            >
-              Inloggen
-            </button>
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border">
+      <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="no-underline">
+            <Logo />
           </Link>
           
-          {/* Hamburger menu button - alleen mobiel */}
-          <button 
-            className="md:hidden"
-            onClick={() => setMenuOpen(!menuOpen)}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#00b8d9',
-              fontSize: '24px',
-              padding: '8px',
-              cursor: 'pointer'
-            }}
-          >
-            {menuOpen ? '✕' : '☰'}
-          </button>
+          {/* Desktop links */}
+          <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors whitespace-nowrap"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+          
+          {/* Right side */}
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Link href="/login">
+              <button className="px-5 py-2 text-sm font-medium text-[#00b8d9] border border-cyan-500/30 rounded-md hover:bg-cyan-500/10 transition-all">
+                Inloggen
+              </button>
+            </Link>
+            
+            <button 
+              className="md:hidden p-2 text-[#00b8d9]"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? '✕' : '☰'}
+            </button>
+          </div>
         </div>
       </div>
       
-      {/* Mobiel dropdown menu */}
+      {/* Mobile menu */}
       {menuOpen && (
-        <div 
-          className="md:hidden"
-          style={{
-            position: 'absolute',
-            top: '64px',
-            left: 0,
-            right: 0,
-            background: '#080d14',
-            borderBottom: '1px solid rgba(0, 184, 217, 0.2)',
-            padding: '16px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px'
-          }}
-        >
+        <div className="md:hidden absolute top-full left-0 right-0 bg-background border-b border-border p-4 flex flex-col gap-4">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setMenuOpen(false)}
-              style={{ 
-                color: '#6b7fa3', 
-                fontSize: '16px', 
-                textDecoration: 'none',
-                fontWeight: 500,
-                padding: '8px 0'
-              }}
+              className="text-muted-foreground hover:text-foreground font-medium py-2"
             >
               {link.label}
             </Link>

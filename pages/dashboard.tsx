@@ -6,37 +6,25 @@ import { useTheme } from 'next-themes';
 import { FileText, Upload, Download, Zap, AlertTriangle, LogOut, Loader2, Brain, FileSpreadsheet, Database, FileCode, Table, History, Settings, LayoutDashboard, Calculator, Lightbulb, CheckCircle2, Calendar, Sun, Moon } from 'lucide-react';
 import { Logo } from '../components/Logo';
 
-// Theme Toggle Component
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
-  if (!mounted) return <div style={{ width: '40px', height: '40px' }} />;
+  if (!mounted) return <div className="w-10 h-10" />;
 
   const isDark = theme === 'dark';
 
   return (
     <button
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '40px',
-        height: '40px',
-        borderRadius: '8px',
-        border: '1px solid rgba(0, 184, 217, 0.3)',
-        background: isDark ? 'rgba(0, 184, 217, 0.1)' : 'rgba(0, 184, 217, 0.05)',
-        cursor: 'pointer',
-        transition: 'all 0.2s ease'
-      }}
+      className="flex items-center justify-center w-10 h-10 rounded-lg border border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20 transition-all"
       title={isDark ? 'Schakel naar licht thema' : 'Schakel naar donker thema'}
     >
       {isDark ? (
-        <Sun style={{ width: '20px', height: '20px', color: '#00b8d9' }} />
+        <Sun className="w-5 h-5 text-[#00b8d9]" />
       ) : (
-        <Moon style={{ width: '20px', height: '20px', color: '#00b8d9' }} />
+        <Moon className="w-5 h-5 text-[#00b8d9]" />
       )}
     </button>
   );
@@ -44,8 +32,6 @@ function ThemeToggle() {
 
 export default function Dashboard() {
   const router = useRouter();
-  const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [file, setFile] = useState<File | null>(null);
   const [scanStatus, setScanStatus] = useState<'idle' | 'uploading' | 'analyzing' | 'extracting' | 'done' | 'error'>('idle');
@@ -58,14 +44,11 @@ export default function Dashboard() {
   const [exportLoading, setExportLoading] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     const session = localStorage.getItem('bscpro_session');
     const userData = localStorage.getItem('bscpro_user');
     if (!session) { router.push('/login'); return; }
     if (userData) setUser(JSON.parse(userData));
   }, [router]);
-
-  const isDark = mounted ? theme === 'dark' : true;
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) { setFile(e.target.files[0]); setError(''); }
@@ -113,106 +96,87 @@ export default function Dashboard() {
 
   const handleLogout = () => { localStorage.removeItem('bscpro_session'); localStorage.removeItem('bscpro_user'); router.push('/login'); };
   const getStatusText = () => { const m: any = { uploading: 'Document wordt geüpload...', analyzing: 'AI analyseert document-layout...', extracting: 'Data wordt gevalideerd...', done: 'Klaar!', error: 'Fout opgetreden' }; return m[scanStatus] || ''; };
+  
   const btw21 = transactions.filter(t => t.btw?.rate === 21).reduce((sum, t) => sum + (t.bedrag * 0.21), 0);
   const btw9 = transactions.filter(t => t.btw?.rate === 9).reduce((sum, t) => sum + (t.bedrag * 0.09), 0);
   const btw0 = transactions.filter(t => t.btw?.rate === 0).reduce((sum, t) => sum + t.bedrag, 0);
   const totalBtw = btw21 + btw9;
 
-  // Theme-based styles
-  const bgColor = isDark ? '#080d14' : '#f8fafc';
-  const cardBg = isDark ? 'rgba(10, 18, 32, 0.8)' : '#ffffff';
-  const cardBorder = isDark ? 'rgba(0, 184, 217, 0.15)' : '#e2e8f0';
-  const textColor = isDark ? '#e8edf5' : '#0f172a';
-  const textMuted = isDark ? '#6b7fa3' : '#64748b';
-  const navBg = isDark ? 'rgba(8, 13, 20, 0.95)' : 'rgba(255, 255, 255, 0.95)';
-
   if (!user) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: bgColor, color: '#00b8d9' }}>
-      <Loader2 style={{ width: '32px', height: '32px', animation: 'spin 1s linear infinite' }} />
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <Loader2 className="w-8 h-8 text-[#00b8d9] animate-spin" />
     </div>
   );
 
   return (
-    <div style={{ minHeight: '100vh', background: bgColor, transition: 'background-color 0.3s ease' }}>
+    <div className="min-h-screen bg-background">
       <Head><title>Dashboard - BSC Pro</title></Head>
       
-      {/* Navigation with Dynamic Logo and Theme Toggle */}
-      <nav style={{ 
-        background: navBg, 
-        backdropFilter: 'blur(12px)', 
-        borderBottom: `1px solid ${cardBorder}`, 
-        padding: '0 24px', 
-        height: '72px', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between', 
-        position: 'fixed', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        zIndex: 50 
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-          <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div className="text-slate-900 dark:text-white">
-              <Logo />
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-8">
+              <Link href="/" className="no-underline">
+                <Logo />
+              </Link>
+              <div className="hidden md:flex items-center gap-2">
+                <Link href="/dashboard" className="flex items-center gap-2 px-4 py-2 text-[#00b8d9] bg-cyan-500/15 rounded-md text-sm font-medium">
+                  <LayoutDashboard className="w-4 h-4" />Dashboard
+                </Link>
+                <Link href="/tools/btw-calculator" className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground text-sm">
+                  <Calculator className="w-4 h-4" />Tools
+                </Link>
+                <Link href="/history" className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground text-sm">
+                  <History className="w-4 h-4" />Geschiedenis
+                </Link>
+                <Link href="/onboarding" className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground text-sm">
+                  <Settings className="w-4 h-4" />Instellingen
+                </Link>
+              </div>
             </div>
-          </Link>
-          <div style={{ display: 'flex', gap: '4px' }}>
-            <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', color: '#00b8d9', background: 'rgba(0, 184, 217, 0.15)', borderRadius: '6px', fontSize: '14px', fontWeight: 500, textDecoration: 'none' }}>
-              <LayoutDashboard style={{ width: '16px', height: '16px' }} />Dashboard
-            </Link>
-            <Link href="/tools/btw-calculator" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', color: textMuted, fontSize: '14px', textDecoration: 'none' }}>
-              <Calculator style={{ width: '16px', height: '16px' }} />Tools
-            </Link>
-            <Link href="/history" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', color: textMuted, fontSize: '14px', textDecoration: 'none' }}>
-              <History style={{ width: '16px', height: '16px' }} />Geschiedenis
-            </Link>
-            <Link href="/onboarding" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', color: textMuted, fontSize: '14px', textDecoration: 'none' }}>
-              <Settings style={{ width: '16px', height: '16px' }} />Instellingen
-            </Link>
+            <div className="flex items-center gap-4">
+              <span className="text-muted-foreground text-sm hidden sm:block">{user?.email}</span>
+              <ThemeToggle />
+              <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-muted-foreground border border-cyan-500/30 rounded-md hover:text-[#00b8d9] transition-colors text-sm">
+                <LogOut className="w-4 h-4" />Uitloggen
+              </button>
+            </div>
           </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span style={{ color: textMuted, fontSize: '14px' }}>{user?.email}</span>
-          <ThemeToggle />
-          <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: textMuted, background: 'transparent', border: '1px solid rgba(0, 184, 217, 0.3)', borderRadius: '6px', padding: '8px 16px', cursor: 'pointer', fontSize: '14px' }}>
-            <LogOut style={{ width: '16px', height: '16px' }} />Uitloggen
-          </button>
         </div>
       </nav>
 
-      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '100px 24px 48px' }}>
-        <div style={{ marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: 700, color: textColor, marginBottom: '8px' }}>AI Document Scanner</h1>
-          <p style={{ color: textMuted }}>Upload je bankafschrift of factuur. De AI leest automatisch alle transacties.</p>
+      <main className="max-w-7xl mx-auto px-6 pt-28 pb-12">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-2">AI Document Scanner</h1>
+          <p className="text-muted-foreground">Upload je bankafschrift of factuur. De AI leest automatisch alle transacties.</p>
         </div>
 
-        {/* Upload Section */}
-        <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: '12px', padding: '32px', marginBottom: '32px', color: textColor }}>
+        {/* Upload Card */}
+        <div className="bg-card border border-border rounded-xl p-8 mb-8">
           {!file ? (
-            <div style={{ border: `2px dashed ${cardBorder}`, borderRadius: '12px', padding: '48px', textAlign: 'center', cursor: 'pointer' }}>
-              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileSelect} style={{ display: 'none' }} id="file-upload" />
-              <label htmlFor="file-upload" style={{ cursor: 'pointer' }}>
-                <Upload style={{ width: '48px', height: '48px', margin: '0 auto 16px', color: '#00b8d9' }} />
-                <p style={{ fontSize: '18px', fontWeight: 500, color: textColor, marginBottom: '8px' }}>Klik om document te uploaden</p>
-                <p style={{ fontSize: '14px', color: textMuted }}>PDF, JPG, of PNG (max 10MB)</p>
+            <div className="border-2 border-dashed border-border rounded-xl p-12 text-center cursor-pointer hover:border-[#00b8d9]/50 transition-colors">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileSelect} className="hidden" id="file-upload" />
+              <label htmlFor="file-upload" className="cursor-pointer">
+                <Upload className="w-12 h-12 mx-auto mb-4 text-[#00b8d9]" />
+                <p className="text-lg font-medium text-foreground mb-2">Klik om document te uploaden</p>
+                <p className="text-sm text-muted-foreground">PDF, JPG, of PNG (max 10MB)</p>
               </label>
             </div>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: isDark ? 'rgba(10, 18, 32, 0.9)' : '#f1f5f9', border: `1px solid ${cardBorder}`, padding: '16px', borderRadius: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <FileText style={{ width: '32px', height: '32px', color: '#00b8d9' }} />
+            <div className="flex items-center justify-between bg-background border border-border rounded-xl p-4">
+              <div className="flex items-center gap-3">
+                <FileText className="w-8 h-8 text-[#00b8d9]" />
                 <div>
-                  <p style={{ fontWeight: 500, color: textColor }}>{file.name}</p>
-                  <p style={{ fontSize: '14px', color: textMuted }}>{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                  <p className="font-medium text-foreground">{file.name}</p>
+                  <p className="text-sm text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                 </div>
               </div>
               {scanStatus === 'idle' && (
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button onClick={() => setFile(null)} style={{ padding: '8px 16px', color: textMuted, background: 'transparent', border: `1px solid ${cardBorder}`, borderRadius: '6px', cursor: 'pointer' }}>Annuleren</button>
-                  <button onClick={handleUpload} style={{ padding: '8px 24px', background: '#00b8d9', color: '#080d14', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Zap style={{ width: '16px', height: '16px' }} />Start AI Scan
+                <div className="flex gap-2">
+                  <button onClick={() => setFile(null)} className="px-4 py-2 text-muted-foreground border border-border rounded-md hover:text-foreground">Annuleren</button>
+                  <button onClick={handleUpload} className="px-6 py-2 bg-[#00b8d9] text-[#080d14] rounded-md font-semibold flex items-center gap-2 hover:shadow-[0_0_20px_rgba(0,184,217,0.4)]">
+                    <Zap className="w-4 h-4" />Start AI Scan
                   </button>
                 </div>
               )}
@@ -220,76 +184,75 @@ export default function Dashboard() {
           )}
 
           {(scanStatus === 'uploading' || scanStatus === 'analyzing' || scanStatus === 'extracting') && (
-            <div style={{ marginTop: '24px', textAlign: 'center' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', padding: '12px 24px', background: 'rgba(0, 184, 217, 0.1)', border: '1px solid rgba(0, 184, 217, 0.2)', borderRadius: '999px' }}>
-                <Loader2 style={{ width: '20px', height: '20px', color: '#00b8d9', animation: 'spin 1s linear infinite' }} />
-                <Brain style={{ width: '20px', height: '20px', color: '#00b8d9' }} />
-                <span style={{ color: '#00b8d9', fontWeight: 500 }}>{getStatusText()}</span>
+            <div className="mt-6 text-center">
+              <div className="inline-flex items-center gap-3 px-6 py-3 bg-cyan-500/10 border border-cyan-500/20 rounded-full">
+                <Loader2 className="w-5 h-5 text-[#00b8d9] animate-spin" />
+                <Brain className="w-5 h-5 text-[#00b8d9]" />
+                <span className="text-[#00b8d9] font-medium">{getStatusText()}</span>
               </div>
             </div>
           )}
 
           {error && (
-            <div style={{ marginTop: '16px', padding: '16px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <AlertTriangle style={{ width: '20px', height: '20px', color: '#ef4444' }} />
-              <p style={{ color: '#ef4444' }}>{error}</p>
+            <div className="mt-4 p-4 bg-destructive/10 border border-destructive/30 rounded-lg flex items-center gap-3">
+              <AlertTriangle className="w-5 h-5 text-destructive" />
+              <p className="text-destructive">{error}</p>
             </div>
           )}
         </div>
 
         {transactions.length > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className="grid gap-6">
             {/* Export Section */}
-            <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: '12px', padding: '24px', color: textColor }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, color: textColor, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Download style={{ width: '20px', height: '20px', color: '#00b8d9' }} />Exporteer je data
+            <div className="bg-card border border-border rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Download className="w-5 h-5 text-[#00b8d9]" />Exporteer je data
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '16px' }}>
-                {[{k:'excel',l:'Excel',i:FileSpreadsheet},{k:'mt940',l:'MT940',i:Database},{k:'csv',l:'CSV',i:Table},{k:'camt',l:'CAMT.053',i:FileCode}].map(({k,l,i:Icon}) => (
-                  <button key={k} onClick={() => setSelectedExport(k as any)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '16px', background: selectedExport === k ? 'rgba(0, 184, 217, 0.15)' : isDark ? 'rgba(0, 184, 217, 0.08)' : '#f1f5f9', border: selectedExport === k ? '2px solid #00b8d9' : `1px solid ${cardBorder}`, borderRadius: '8px', cursor: 'pointer', color: textColor }}>
-                    <Icon style={{ width: '32px', height: '32px', color: '#00b8d9' }} />
-                    <span style={{ fontSize: '14px', fontWeight: 500 }}>{l}</span>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                {[['excel','Excel',FileSpreadsheet], ['mt940','MT940',Database], ['csv','CSV',Table], ['camt','CAMT.053',FileCode]].map(([k,l,Icon]: any) => (
+                  <button key={k} onClick={() => setSelectedExport(k)} className={`flex flex-col items-center gap-2 p-4 rounded-lg cursor-pointer transition-all ${selectedExport === k ? 'bg-cyan-500/15 border-2 border-[#00b8d9]' : 'bg-background border border-border hover:border-[#00b8d9]/50'}`}>
+                    <Icon className="w-8 h-8 text-[#00b8d9]" />
+                    <span className="text-sm font-medium text-foreground">{l}</span>
                   </button>
                 ))}
               </div>
               {selectedExport === 'camt' && (
-                <div style={{ marginBottom: '16px', padding: '12px 16px', background: 'rgba(0, 184, 217, 0.1)', border: '1px solid rgba(0, 184, 217, 0.2)', borderRadius: '8px' }}>
-                  <p style={{ fontSize: '13px', color: '#00b8d9', marginBottom: '4px' }}>✓ Nieuwe standaard - vervangt MT940</p>
-                  <p style={{ fontSize: '13px', color: textMuted }}>Werkt met alle NL boekhoudpakketten</p>
+                <div className="mb-4 p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
+                  <p className="text-sm text-[#00b8d9]">✓ Nieuwe standaard - vervangt MT940</p>
+                  <p className="text-sm text-muted-foreground">Werkt met alle NL boekhoudpakketten</p>
                 </div>
               )}
-              <button onClick={handleExport} disabled={exportLoading} style={{ width: '100%', padding: '12px 24px', background: exportLoading ? 'rgba(0, 184, 217, 0.5)' : '#00b8d9', color: '#080d14', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: exportLoading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                {exportLoading ? <><Loader2 style={{ width: '18px', height: '18px', animation: 'spin 1s linear infinite' }} />Bezig...</> : <><Download style={{ width: '18px', height: '18px' }} />Download {selectedExport.toUpperCase()}</>}
+              <button onClick={handleExport} disabled={exportLoading} className={`w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2 ${exportLoading ? 'bg-muted text-muted-foreground cursor-not-allowed' : 'bg-[#00b8d9] text-[#080d14] hover:shadow-[0_0_20px_rgba(0,184,217,0.4)]'}`}>
+                {exportLoading ? <><Loader2 className="w-5 h-5 animate-spin" />Bezig...</> : <><Download className="w-5 h-5" />Download {selectedExport.toUpperCase()}</>}
               </button>
             </div>
 
             {/* BTW Summary */}
-            <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: '12px', padding: '24px', color: textColor }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Calculator style={{ width: '20px', height: '20px', color: '#00b8d9' }} />📊 BTW Aangifte Klaar
+            <div className="bg-card border border-border rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Calculator className="w-5 h-5 text-[#00b8d9]" />📊 BTW Aangifte Klaar
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
-                <div style={{ background: isDark ? 'rgba(10, 18, 32, 0.9)' : '#f8fafc', border: `1px solid ${cardBorder}`, borderRadius: '8px', padding: '16px' }}>
-                  <p style={{ fontSize: '13px', color: textMuted, marginBottom: '4px' }}>Rubriek 1a (21%)</p>
-                  <p style={{ fontSize: '20px', fontWeight: 600, color: textColor }}>€{btw21.toFixed(2)}</p>
+              <div className="grid grid-cols-3 gap-4 mb-5">
+                <div className="bg-background border border-border rounded-lg p-4">
+                  <p className="text-sm text-muted-foreground mb-1">Rubriek 1a (21%)</p>
+                  <p className="text-xl font-semibold text-foreground">€{btw21.toFixed(2)}</p>
                 </div>
-                <div style={{ background: isDark ? 'rgba(10, 18, 32, 0.9)' : '#f8fafc', border: `1px solid ${cardBorder}`, borderRadius: '8px', padding: '16px' }}>
-                  <p style={{ fontSize: '13px', color: textMuted, marginBottom: '4px' }}>Rubriek 1b (9%)</p>
-                  <p style={{ fontSize: '20px', fontWeight: 600, color: textColor }}>€{btw9.toFixed(2)}</p>
+                <div className="bg-background border border-border rounded-lg p-4">
+                  <p className="text-sm text-muted-foreground mb-1">Rubriek 1b (9%)</p>
+                  <p className="text-xl font-semibold text-foreground">€{btw9.toFixed(2)}</p>
                 </div>
-                <div style={{ background: isDark ? 'rgba(10, 18, 32, 0.9)' : '#f8fafc', border: `1px solid ${cardBorder}`, borderRadius: '8px', padding: '16px' }}>
-                  <p style={{ fontSize: '13px', color: textMuted, marginBottom: '4px' }}>Rubriek 1d (0%)</p>
-                  <p style={{ fontSize: '20px', fontWeight: 600, color: textColor }}>€{btw0.toFixed(2)}</p>
+                <div className="bg-background border border-border rounded-lg p-4">
+                  <p className="text-sm text-muted-foreground mb-1">Rubriek 1d (0%)</p>
+                  <p className="text-xl font-semibold text-foreground">€{btw0.toFixed(2)}</p>
                 </div>
               </div>
-              <div style={{ background: 'rgba(0, 184, 217, 0.1)', border: '1px solid rgba(0, 184, 217, 0.2)', borderRadius: '8px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-4 flex items-center justify-between">
                 <div>
-                  <p style={{ fontSize: '14px', color: textMuted, marginBottom: '4px' }}>Te betalen BTW</p>
-                  <p style={{ fontSize: '28px', fontWeight: 700, color: '#00b8d9' }}>€{totalBtw.toFixed(2)}</p>
+                  <p className="text-sm text-muted-foreground mb-1">Te betalen BTW</p>
+                  <p className="text-3xl font-bold text-[#00b8d9]">€{totalBtw.toFixed(2)}</p>
                 </div>
-                <button style={{ padding: '10px 20px', background: '#00b8d9', color: '#080d14', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}>Kopieer</button>
+                <button className="px-5 py-2.5 bg-[#00b8d9] text-[#080d14] rounded-md font-semibold">Kopieer</button>
               </div>
-              <p style={{ marginTop: '12px', fontSize: '13px', color: textMuted }}>Vul deze bedragen in bij je BTW-aangifte op belastingdienst.nl</p>
             </div>
           </div>
         )}
