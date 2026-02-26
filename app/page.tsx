@@ -66,46 +66,32 @@ export default function Home() {
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-foreground mb-6 leading-tight" style={{ fontFamily: 'var(--font-syne), Syne, sans-serif' }}>
               Converteer bankafschriften <span className="text-[#00b8d9]">in seconden</span>
             </h1>
-            
-            <p style={{ fontSize: '18px', color: '#6b7fa3', marginBottom: '32px', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
-              Zet PDF bankafschriften automatisch om naar Excel, CSV én MT940. 
-              99.5% nauwkeurig. Geen handmatige invoer meer.
+
+            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Upload je PDF, laat onze AI de transacties uitlezen, en download direct een Excel/CSV of MT940 bestand. Geen copy-paste meer.
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+            <div className="flex flex-col items-center gap-4 mb-8">
               <Link href="/register">
-                <button style={{
-                  background: '#00b8d9',
-                  color: '#080d14',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '16px 32px',
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  cursor: 'pointer',
-                  boxShadow: '0 0 30px rgba(0, 184, 217, 0.3)'
-                }}>
+                <button className="bg-[#00b8d9] text-[#080d14] rounded-md px-8 py-4 text-base font-semibold flex items-center gap-2 cursor-pointer hover:shadow-[0_0_30px_rgba(0,184,217,0.3)]">
                   <Upload className="w-5 h-5" />
                   Probeer het gratis
                 </button>
               </Link>
-              <span style={{ fontSize: '14px', color: '#6b7fa3' }}>Je eerste 2 conversies zijn van ons</span>
+              <span className="text-sm text-muted-foreground">Je eerste 2 conversies zijn van ons</span>
             </div>
             
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '16px', fontSize: '12px', color: '#6b7fa3' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Lock className="w-4 h-4" style={{ color: '#00b8d9' }} />
+            <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <Lock className="w-4 h-4 text-[#00b8d9]" />
                 <span>AVG-proof</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <CheckCircle className="w-4 h-4" style={{ color: '#00b8d9' }} />
+              <div className="flex items-center gap-1.5">
+                <CheckCircle className="w-4 h-4 text-[#00b8d9]" />
                 <span>99.5% nauwkeurig</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Clock className="w-4 h-4" style={{ color: '#00b8d9' }} />
+              <div className="flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-[#00b8d9]" />
                 <span>24/7 beschikbaar</span>
               </div>
             </div>
@@ -114,23 +100,23 @@ export default function Home() {
       </section>
 
       {/* Logos Bar */}
-      <section style={{ padding: '24px 0', background: '#0a1220', borderTop: '1px solid rgba(0, 184, 217, 0.1)', borderBottom: '1px solid rgba(0, 184, 217, 0.1)' }}>
+      <section className="py-6 bg-secondary border-y border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-xs mb-4" style={{ color: '#6b7fa3' }}>Vertrouwd door boekhouders uit heel Nederland</p>
+          <p className="text-center text-xs text-muted-foreground mb-4">Vertrouwd door boekhouders uit heel Nederland</p>
           <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10 opacity-60">
             {['ING', 'Rabobank', 'ABN AMRO', 'SNS', 'Bunq', 'Triodos'].map((bank) => (
-              <span key={bank} className="text-lg font-bold" style={{ color: '#6b7fa3' }}>{bank}</span>
+              <span key={bank} className="text-lg font-bold text-muted-foreground">{bank}</span>
             ))}
           </div>
         </div>
       </section>
 
       {/* How It Works */}
-      <section style={{ background: '#080d14', padding: '80px 0' }}>
+      <section className="py-20 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#ffffff', marginBottom: '12px' }}>Hoe werkt het?</h2>
-            <p style={{ color: '#6b7fa3', fontSize: '16px' }}>Van PDF naar Excel in minder dan een minuut</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Hoe werkt het?</h2>
+            <p className="text-muted-foreground text-base">Van PDF naar Excel in minder dan een minuut</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -140,15 +126,11 @@ export default function Home() {
               { icon: FileSpreadsheet, title: 'Download Excel/CSV/MT940', desc: 'Met automatische categorisering, BTW-overzicht en MT940 export.' }
             ].map((step, index) => (
               <div key={index} className="text-center">
-                <div style={{ 
-                  width: '64px', height: '64px', borderRadius: '16px', 
-                  background: 'rgba(0, 184, 217, 0.1)', border: '2px solid #00b8d9',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' 
-                }}>
-                  <step.icon style={{ width: '28px', height: '28px', color: '#00b8d9' }} />
+                <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border-2 border-[#00b8d9] flex items-center justify-center mx-auto mb-4">
+                  <step.icon className="w-7 h-7 text-[#00b8d9]" />
                 </div>
-                <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>{step.title}</h3>
-                <p style={{ color: '#8a9bb5', fontSize: '14px', lineHeight: 1.5 }}>{step.desc}</p>
+                <h3 className="text-lg font-semibold text-foreground mb-2">{step.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{step.desc}</p>
               </div>
             ))}
           </div>
@@ -156,11 +138,11 @@ export default function Home() {
       </section>
 
       {/* Features Grid */}
-      <section id="features" style={{ padding: '80px 0', background: '#080d14' }}>
+      <section id="features" className="py-20 bg-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#ffffff' }}>
-              Waarom kiezen voor BSC<span style={{ color: '#00b8d9' }}>PRO</span>?
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+              Waarom kiezen voor BSC<span className="text-[#00b8d9]">PRO</span>?
             </h2>
           </div>
 
@@ -172,20 +154,12 @@ export default function Home() {
               { icon: Database, title: 'MT940 Export', desc: 'Als enige in NL: directe MT940 export voor alle boekhoudpakketten', highlight: true },
               { icon: TrendingUp, title: 'Automatisch gecategoriseerd', desc: 'Transacties worden direct gesorteerd. BTW-aangifte in minuten.', highlight: true },
             ].map((feature) => (
-              <div key={feature.title} style={{
-                padding: '24px', borderRadius: '12px',
-                background: 'rgba(10, 18, 32, 0.8)',
-                border: feature.highlight ? '1px solid rgba(0, 184, 217, 0.3)' : '1px solid rgba(0, 184, 217, 0.12)',
-              }}>
-                <div style={{
-                  width: '40px', height: '40px', borderRadius: '8px',
-                  background: feature.highlight ? 'rgba(0, 184, 217, 0.15)' : 'rgba(0, 184, 217, 0.1)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px'
-                }}>
-                  <feature.icon style={{ width: '20px', height: '20px', color: '#00b8d9' }} />
+              <div key={feature.title} className={`p-5 rounded-xl border ${feature.highlight ? 'bg-cyan-500/10 border-[#00b8d9]/50' : 'bg-card border-border'}`}>
+                <div className="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-3">
+                  <feature.icon className="w-5 h-5 text-[#00b8d9]" />
                 </div>
-                <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>{feature.title}</h3>
-                <p style={{ fontSize: '14px', color: '#6b7fa3' }}>{feature.desc}</p>
+                <h3 className="text-base font-semibold text-foreground mb-2">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -193,95 +167,138 @@ export default function Home() {
       </section>
 
       {/* ROI Calculator */}
-      <section id="calculator" style={{ padding: '80px 0', background: '#080d14' }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#ffffff' }}>Bereken je maandelijkse besparing</h2>
-            <p style={{ color: '#6b7fa3' }}>Zie direct hoeveel tijd en geld je wint</p>
-          </div>
-
-          <div className="grid lg:grid-cols-5 gap-6 items-center">
-            <div className="lg:col-span-3" style={{
-              background: 'rgba(10, 18, 32, 0.8)', border: '1px solid rgba(0, 184, 217, 0.15)', borderRadius: '16px', padding: '32px'
-            }}>
-              <div className="mb-8">
-                <div className="flex justify-between items-center mb-3">
-                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#e8edf5' }}>Aantal bankafschriften per maand</label>
-                  <span style={{ fontSize: '24px', fontWeight: 700, color: '#00b8d9' }}>{statements}</span>
-                </div>
-                <input type="range" min="5" max="200" value={statements} onChange={(e) => setStatements(parseInt(e.target.value))}
-                  style={{ width: '100%', accentColor: '#00b8d9' }} />
-                <div className="flex justify-between text-xs mt-2" style={{ color: '#6b7fa3' }}>
-                  <span>5</span><span>100</span><span>200</span>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#e8edf5' }}>Uurloon boekhouder</label>
-                  <span style={{ fontSize: '24px', fontWeight: 700, color: '#00b8d9' }}>€{hourlyRate}</span>
-                </div>
-                <input type="range" min="40" max="150" step="5" value={hourlyRate} onChange={(e) => setHourlyRate(parseInt(e.target.value))}
-                  style={{ width: '100%', accentColor: '#00b8d9' }} />
-                <div className="flex justify-between text-xs mt-2" style={{ color: '#6b7fa3' }}>
-                  <span>€40</span><span>€95</span><span>€150</span>
-                </div>
-              </div>
+      <section id="calculator" className="py-20 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-card border border-border rounded-2xl p-8 md:p-12">
+            <div className="text-center mb-10">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Bereken je tijdsbesparing</h2>
+              <p className="text-muted-foreground">Hoeveel kost het je nu écht om bankafschriften handmatig over te typen?</p>
             </div>
 
-            <div className="lg:col-span-2" style={{ color: '#ffffff' }}>
-              <div className="space-y-4 mb-8">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: 'rgba(10, 18, 32, 0.6)', borderRadius: '12px', border: '1px solid rgba(0, 184, 217, 0.1)' }}>
-                  <span style={{ color: '#6b7fa3' }}>Handmatig invoeren</span>
-                  <span style={{ fontSize: '24px', fontWeight: 700 }}>{manualHours} uur</span>
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-3">Aantal afschriften per maand</label>
+                  <input 
+                    type="range" min="5" max="200" value={statements} onChange={(e) => setStatements(Number(e.target.value))}
+                    className="w-full accent-[#00b8d9]" 
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                    <span>5</span>
+                    <span className="text-[#00b8d9] font-semibold text-lg">{statements}</span>
+                    <span>200</span>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: 'rgba(0, 184, 217, 0.1)', borderRadius: '12px', border: '1px solid rgba(0, 184, 217, 0.3)' }}>
-                  <span style={{ color: '#00b8d9' }}>Met BSC Pro</span>
-                  <span style={{ fontSize: '24px', fontWeight: 700 }}>{bscProMinutes} min</span>
+
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-3">Uurtarief (€)</label>
+                  <input 
+                    type="range" min="40" max="150" value={hourlyRate} onChange={(e) => setHourlyRate(Number(e.target.value))}
+                    className="w-full accent-[#00b8d9]" 
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                    <span>€40</span>
+                    <span className="text-[#00b8d9] font-semibold text-lg">€{hourlyRate}</span>
+                    <span>€150</span>
+                  </div>
                 </div>
               </div>
 
-              <div style={{ textAlign: 'center', padding: '24px', background: 'rgba(10, 18, 32, 0.8)', borderRadius: '16px', border: '1px solid rgba(0, 184, 217, 0.15)' }}>
-                <p style={{ color: '#6b7fa3', marginBottom: '8px' }}>Je bespaart per maand:</p>
-                <div style={{ fontSize: '48px', fontWeight: 700 }}>{hoursSaved.toFixed(1)} uur</div>
-                <div style={{ fontSize: '24px', fontWeight: 600, color: '#00b8d9', marginBottom: '16px' }}>= €{moneySaved}</div>
-                <Link href="/register">
-                  <button style={{ width: '100%', background: '#00b8d9', color: '#080d14', fontWeight: 600, padding: '12px 24px', borderRadius: '6px', border: 'none' }}>
-                    Start met besparen
-                  </button>
-                </Link>
+              <div className="bg-secondary rounded-xl p-6 border border-border">
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="p-4 rounded-lg bg-card border border-border">
+                    <p className="text-sm text-muted-foreground mb-1">Handmatig</p>
+                    <p className="text-2xl font-bold text-foreground">{manualHours}u</p>
+                    <p className="text-xs text-muted-foreground">per maand</p>
+                  </div>
+                  <div className="p-4 rounded-lg bg-cyan-500/10 border border-[#00b8d9]/30">
+                    <p className="text-sm text-muted-foreground mb-1">Met BSC Pro</p>
+                    <p className="text-2xl font-bold text-[#00b8d9]">{bscProMinutes}min</p>
+                    <p className="text-xs text-muted-foreground">per maand</p>
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground mb-1">Jouw besparing per maand</p>
+                  <p className="text-4xl font-bold text-[#00b8d9]">€{moneySaved}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{Math.round(hoursSaved)} uur vrij voor andere taken</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section style={{ padding: '80px 0', background: '#0a1220' }}>
+      {/* Pricing */}
+      <section id="pricing" className="py-20 bg-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <Quote className="w-10 h-10 mx-auto mb-4" style={{ color: '#00b8d9' }} />
-            <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#ffffff' }}>Wat onze klanten zeggen</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Kies je abonnement</h2>
+            <p className="text-muted-foreground">Altijd zonder verborgen kosten. Opzeggen kan maandelijks.</p>
           </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
+
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {[
-              { name: 'Marco van Dijk', role: 'Dijk Administratie', text: 'Wij verwerken wekelijks meer dan 50 bankafschriften. Met BSC Pro besparen we per maand ruim 10 uur werk.', initials: 'MV' },
-              { name: 'Sandra Visser', role: 'Boekhouder Rotterdam', text: 'Eindelijk geen handmatig werk meer. Ik verwerk nu 3x zoveel afschriften.', initials: 'SV' },
-              { name: 'Kevin de Groot', role: 'ZZP Accountant', text: 'Voor €2 per upload bespaar ik een uur werk. Beste investering van het jaar.', initials: 'KG' },
-              { name: 'Lisa Brouwer', role: 'Administrateur', text: 'De MT940 export scheelt me uren per week.', initials: 'LB' },
-              { name: 'Jeroen Smit', role: 'Boekhouder Den Haag', text: 'Eindelijk een Nederlandse tool die echt werkt.', initials: 'JS' }
-            ].map((t) => (
-              <div key={t.name} style={{ background: 'rgba(10, 18, 32, 0.8)', border: '1px solid rgba(0, 184, 217, 0.12)', borderRadius: '12px', padding: '24px' }}>
-                <Quote className="w-8 h-8 mb-4" style={{ color: '#00b8d9', opacity: 0.5 }} />
-                <blockquote style={{ color: '#e8edf5', fontSize: '14px', marginBottom: '16px' }}>{t.text}</blockquote>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(0, 184, 217, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(0, 184, 217, 0.2)' }}>
-                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#00b8d9' }}>{t.initials}</span>
+              { name: 'Pay-per-use', price: '€2', period: 'per afschrift', desc: 'Voor zzp\'ers met weinig transacties', features: ['Tot 5 afschriften/maand', 'Excel/CSV/MT940 export', '1 uur levertijd'], cta: 'Start gratis trial' },
+              { name: 'Professional', price: '€30', period: '/maand', desc: 'Voor drukke boekhouders', features: ['Onbeperkt afschriften', 'Directe verwerking', 'CAMT.053 + MT940', 'Prioriteit support', 'Bulk upload (10 tegelijk)'], popular: true, cta: 'Start 14-daagse trial' },
+              { name: 'Office', price: '€99', period: '/maand', desc: 'Voor kantoren met meerdere gebruikers', features: ['Alles van Professional', 'Tot 5 gebruikers', 'Gedeelde team-omgeving', 'API toegang', 'Custom integraties', 'Accountmanager'], cta: 'Neem contact op' },
+            ].map((plan) => (
+              <div key={plan.name} className={`p-6 rounded-2xl border ${plan.popular ? 'bg-cyan-500/10 border-[#00b8d9] relative' : 'bg-card border-border'}`}>
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-[#00b8d9] text-[#080d14] text-xs font-semibold rounded-full">Meest gekozen</div>
+                )}
+                <h3 className="text-lg font-semibold text-foreground mb-2">{plan.name}</h3>
+                <div className="mb-3">
+                  <span className="text-3xl font-bold text-foreground">{plan.price}</span>
+                  <span className="text-muted-foreground text-sm">{plan.period}</span>
+                </div>
+                <p className="text-sm text-muted-foreground mb-5">{plan.desc}</p>
+                
+                <ul className="space-y-3 mb-6">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <Check className="w-4 h-4 text-[#00b8d9] shrink-0 mt-0.5" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                <button className={`w-full py-3 rounded-lg font-semibold ${plan.popular ? 'bg-[#00b8d9] text-[#080d14]' : 'border border-cyan-500/30 text-[#00b8d9] hover:bg-cyan-500/10'}`}>
+                  {plan.cta}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-20 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Wat zeggen onze gebruikers?</h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { name: 'Pieter van Dijk', role: 'ZZP\'er, Amsterdam', text: '"Van 3 uur naar 5 minuten werk per maand. Dit is de beste investering voor mijn bedrijf dit jaar."', rating: 5 },
+              { name: 'Marieke Jansen', role: 'Boekhouder, Rotterdam', text: '"De MT940 export werkt perfect met Twinfield. Mijn klanten zijn verbaasd hoe snel ik nu hun boekhouding af heb."', rating: 5 },
+              { name: 'Thomas Bakker', role: 'Eigenaar, Bakker Accountants', text: '"We draaien nu 40+ afschriften per dag door BSC Pro. Geen enkel ander tool komt in de buurt qua snelheid en nauwkeurigheid."', rating: 5 },
+            ].map((testimonial) => (
+              <div key={testimonial.name} className="p-6 rounded-xl bg-card border border-border">
+                <div className="flex gap-1 mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 text-[#00b8d9] fill-[#00b8d9]" />
+                  ))}
+                </div>
+                <p className="text-foreground text-sm mb-4 leading-relaxed">{testimonial.text}</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                    <span className="text-[#00b8d9] font-semibold text-sm">{testimonial.name.split(' ').map(n => n[0]).join('')}</span>
                   </div>
                   <div>
-                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#ffffff' }}>{t.name}</div>
-                    <div style={{ fontSize: '12px', color: '#6b7fa3' }}>{t.role}</div>
+                    <p className="text-sm font-semibold text-foreground">{testimonial.name}</p>
+                    <p className="text-xs text-muted-foreground">{testimonial.role}</p>
                   </div>
                 </div>
               </div>
@@ -290,53 +307,77 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Moneyback Guarantee */}
-      <section style={{ padding: '24px 0', background: 'rgba(0, 184, 217, 0.08)', borderTop: '1px solid rgba(0, 184, 217, 0.2)', borderBottom: '1px solid rgba(0, 184, 217, 0.2)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center gap-3" style={{ color: '#00b8d9' }}>
-            <CheckCircle className="w-6 h-6" />
-            <span className="text-lg font-semibold">30 dagen geld-terug-garantie. Geen vragen gesteld.</span>
+      {/* FAQ */}
+      <section className="py-20 bg-secondary">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Veelgestelde vragen</h2>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              { q: 'Welke banken worden ondersteund?', a: 'Alle Nederlandse banken: ING, Rabobank, ABN AMRO, SNS, Bunq, Triodos en meer. Zowel zakelijk als particulier.' },
+              { q: 'Hoe veilig is mijn data?', a: 'Je PDF wordt versleuteld opgeslagen en na 24 uur automatisch verwijderd. We zijn AVG-compliant en versturen nooit data naar derden.' },
+              { q: 'Wat is MT940 export?', a: 'MT940 is een standaardformaat voor banktransacties dat door vrijwel alle boekhoudpakketten wordt ondersteund. Je kunt het bestand direct importeren in Twinfield, Exact, AFAS en andere pakketten.' },
+              { q: 'Kan ik meerdere afschriften tegelijk uploaden?', a: 'Ja! Met het Professional abonnement kun je tot 10 afschriften tegelijk uploaden. Ze worden parallel verwerkt.' },
+            ].map((faq, index) => (
+              <div key={index} className="p-5 rounded-xl bg-card border border-border">
+                <h3 className="text-base font-semibold text-foreground mb-2">{faq.q}</h3>
+                <p className="text-sm text-muted-foreground">{faq.a}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section style={{ padding: '80px 0', background: '#080d14' }}>
+      {/* CTA */}
+      <section className="py-20 bg-background">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#ffffff', marginBottom: '16px' }}>Start vandaag nog met besparen</h2>
-          <p style={{ color: '#6b7fa3', marginBottom: '32px' }}>Je eerste 2 PDF uploads zijn gratis — geen creditcard nodig</p>
+          <h2 className="text-2xl md:text-4xl font-bold text-foreground mb-4">Klaar om uren werk te besparen?</h2>
+          <p className="text-lg text-muted-foreground mb-8">Start vandaag nog met je gratis proefperiode. Geen creditcard nodig.</p>
           <Link href="/register">
-            <button style={{ background: '#00b8d9', color: '#080d14', padding: '16px 32px', borderRadius: '6px', fontWeight: 600, fontSize: '16px', border: 'none' }}>
-              Claim je 2 gratis conversies
+            <button className="bg-[#00b8d9] text-[#080d14] px-8 py-4 rounded-lg font-semibold text-lg hover:shadow-[0_0_30px_rgba(0,184,217,0.4)]">
+              Start gratis 14-daagse trial
             </button>
           </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer style={{ background: '#0a1220', padding: '40px 0', borderTop: '1px solid rgba(0, 184, 217, 0.1)' }}>
+      <footer className="py-12 border-t border-border bg-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#00b8d9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <FileText style={{ width: '20px', height: '20px', color: '#080d14' }} />
-              </div>
-              <span style={{ fontSize: '18px', fontWeight: 700, color: '#ffffff' }}>BSC<span style={{ color: '#00b8d9' }}>PRO</span></span>
-            </Link>
-            
-            <div className="flex flex-wrap justify-center gap-6" style={{ fontSize: '14px' }}>
-              <Link href="/beveiliging" style={{ color: '#6b7fa3', textDecoration: 'none' }}>Beveiliging</Link>
-              <Link href="/verwerkersovereenkomst" style={{ color: '#6b7fa3', textDecoration: 'none' }}>Verwerkersovereenkomst</Link>
-              <Link href="/privacy" style={{ color: '#6b7fa3', textDecoration: 'none' }}>Privacy</Link>
-              <Link href="/voorwaarden" style={{ color: '#6b7fa3', textDecoration: 'none' }}>Voorwaarden</Link>
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <h3 className="text-lg font-bold text-foreground mb-4">BSC<span className="text-[#00b8d9]">PRO</span></h3>
+              <p className="text-sm text-muted-foreground">De slimste manier om bankafschriften te converteren. Bespaar uren werk per maand.</p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-foreground mb-3">Product</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><Link href="#features" className="hover:text-[#00b8d9]">Features</Link></li>
+                <li><Link href="#pricing" className="hover:text-[#00b8d9]">Prijzen</Link></li>
+                <li><Link href="#calculator" className="hover:text-[#00b8d9]">Besparing berekenen</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-foreground mb-3">Support</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><Link href="/help" className="hover:text-[#00b8d9]">Help center</Link></li>
+                <li><Link href="/contact" className="hover:text-[#00b8d9]">Contact</Link></li>
+                <li><Link href="/status" className="hover:text-[#00b8d9]">Status</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-foreground mb-3">Juridisch</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><Link href="/privacy" className="hover:text-[#00b8d9]">Privacy policy</Link></li>
+                <li><Link href="/terms" className="hover:text-[#00b8d9]">Algemene voorwaarden</Link></li>
+                <li><Link href="/cookies" className="hover:text-[#00b8d9]">Cookie policy</Link></li>
+              </ul>
             </div>
           </div>
-          
-          <div style={{ marginTop: '32px', paddingTop: '32px', borderTop: '1px solid rgba(0, 184, 217, 0.1)' }}>
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4" style={{ fontSize: '14px', color: '#6b7fa3' }}>
-              <p>© 2026 BSC<span style={{ color: '#00b8d9' }}>PRO</span>. Alle rechten voorbehouden.</p>
-              <p>🇳🇱 Nederlands bedrijf | AVG-proof | EU servers</p>
-            </div>
+          <div className="text-center pt-8 border-t border-border">
+            <p className="text-sm text-muted-foreground">© 2026 BSC Pro. Alle rechten voorbehouden.</p>
           </div>
         </div>
       </footer>

@@ -52,52 +52,22 @@ export default function RegisterPage() {
         <Head>
           <title>Registratie Succesvol | BSC Pro</title>
         </Head>
-        <div className="min-h-screen">
+        <div className="min-h-screen bg-background">
           <Navbar />
-          <div style={{ paddingTop: '120px', minHeight: 'calc(100vh - 200px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ 
-              background: 'rgba(10, 18, 32, 0.8)', 
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(0, 212, 255, 0.15)',
-              borderRadius: '16px',
-              padding: '40px',
-              maxWidth: '420px',
-              width: '100%',
-              margin: '0 16px',
-              textAlign: 'center'
-            }}>
-              <div style={{ 
-                width: '64px', 
-                height: '64px', 
-                background: 'rgba(0, 212, 255, 0.1)', 
-                borderRadius: '50%', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                margin: '0 auto 24px',
-                border: '1px solid rgba(0, 212, 255, 0.3)'
-              }}>
-                <span style={{ fontSize: '28px' }}>✅</span>
+          <div className="pt-28 min-h-[calc(100vh-200px)] flex items-center justify-center px-4">
+            <div className="bg-card border border-border rounded-2xl p-10 max-w-md w-full text-center">
+              <div className="w-16 h-16 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-cyan-500/30">
+                <span className="text-2xl">✅</span>
               </div>
-              <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#ffffff', marginBottom: '12px', fontFamily: 'var(--font-syne), Syne, sans-serif' }}>
+              <h1 className="text-2xl font-bold text-foreground mb-3" style={{ fontFamily: 'var(--font-syne), Syne, sans-serif' }}>
                 Registratie succesvol!
               </h1>
-              <p style={{ color: '#94a3b8', marginBottom: '24px' }}>
+              <p className="text-muted-foreground mb-6">
                 Je account is aangemaakt. Je kunt nu inloggen.
               </p>
               <Link 
                 href="/login"
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  padding: '14px',
-                  background: '#00d4ff',
-                  color: '#080d14',
-                  fontWeight: 600,
-                  borderRadius: '6px',
-                  textAlign: 'center',
-                  textDecoration: 'none'
-                }}
+                className="block w-full py-3.5 bg-[#00b8d9] text-[#080d14] font-semibold rounded-md text-center hover:shadow-[0_0_20px_rgba(0,184,217,0.4)]"
               >
                 Ga naar login
               </Link>
@@ -113,51 +83,32 @@ export default function RegisterPage() {
       <Head>
         <title>Registreren | BSC Pro - Bank Statement Converter</title>
         <meta name="description" content="Maak een gratis account aan bij BSC Pro. Converteer bankafschriften naar Excel/CSV met AI." />
-        <meta name="keywords" content="BSC Pro registreren, gratis account bank converter" />
-        <link rel="canonical" href="https://www.bscpro.nl/register/" />
         <meta name="robots" content="noindex, follow" />
       </Head>
       
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background">
         <Navbar />
 
-        <div style={{ paddingTop: '120px', paddingBottom: '60px', minHeight: 'calc(100vh - 200px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ 
-            background: 'rgba(10, 18, 32, 0.8)', 
-            backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(0, 212, 255, 0.15)',
-            borderRadius: '16px',
-            padding: '40px',
-            maxWidth: '420px',
-            width: '100%',
-            margin: '0 16px'
-          }}>
-            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-              <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#ffffff', marginBottom: '8px', fontFamily: 'var(--font-syne), Syne, sans-serif' }}>
+        <div className="pt-28 pb-16 min-h-[calc(100vh-200px)] flex items-center justify-center px-4">
+          <div className="w-full max-w-md bg-card border border-border rounded-2xl p-10 shadow-lg">
+            <div className="text-center mb-8">
+              <h1 className="text-2xl font-bold text-foreground mb-2">
                 Start gratis
               </h1>
-              <p style={{ color: '#94a3b8', fontSize: '14px' }}>
+              <p className="text-muted-foreground text-sm">
                 Maak je account aan en krijg 2 gratis conversies
               </p>
             </div>
 
             {error && (
-              <div style={{ 
-                marginBottom: '20px', 
-                padding: '12px 16px', 
-                background: 'rgba(239, 68, 68, 0.1)', 
-                border: '1px solid rgba(239, 68, 68, 0.3)', 
-                borderRadius: '8px',
-                color: '#ef4444',
-                fontSize: '14px'
-              }}>
+              <div className="mb-5 px-4 py-3 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive text-sm">
                 {error}
               </div>
             )}
 
-            <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <form onSubmit={handleRegister} className="flex flex-col gap-5">
               <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#ffffff', marginBottom: '8px' }}>
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Naam
                 </label>
                 <input
@@ -165,25 +116,13 @@ export default function RegisterPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'rgba(10, 18, 32, 0.6)',
-                    border: '1px solid rgba(0, 212, 255, 0.15)',
-                    borderRadius: '8px',
-                    color: '#ffffff',
-                    fontSize: '14px',
-                    outline: 'none',
-                    transition: 'border-color 0.2s'
-                  }}
+                  className="w-full px-4 py-3 bg-background border border-input rounded-lg text-foreground text-sm outline-none transition-all focus:border-[#00b8d9] focus:ring-1 focus:ring-[#00b8d9]"
                   placeholder="Jouw naam"
-                  onFocus={(e) => e.target.style.borderColor = '#00d4ff'}
-                  onBlur={(e) => e.target.style.borderColor = 'rgba(0, 212, 255, 0.15)'}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#ffffff', marginBottom: '8px' }}>
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Email
                 </label>
                 <input
@@ -191,25 +130,13 @@ export default function RegisterPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'rgba(10, 18, 32, 0.6)',
-                    border: '1px solid rgba(0, 212, 255, 0.15)',
-                    borderRadius: '8px',
-                    color: '#ffffff',
-                    fontSize: '14px',
-                    outline: 'none',
-                    transition: 'border-color 0.2s'
-                  }}
+                  className="w-full px-4 py-3 bg-background border border-input rounded-lg text-foreground text-sm outline-none transition-all focus:border-[#00b8d9] focus:ring-1 focus:ring-[#00b8d9]"
                   placeholder="jouw@email.nl"
-                  onFocus={(e) => e.target.style.borderColor = '#00d4ff'}
-                  onBlur={(e) => e.target.style.borderColor = 'rgba(0, 212, 255, 0.15)'}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#ffffff', marginBottom: '8px' }}>
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Wachtwoord
                 </label>
                 <input
@@ -218,64 +145,37 @@ export default function RegisterPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'rgba(10, 18, 32, 0.6)',
-                    border: '1px solid rgba(0, 212, 255, 0.15)',
-                    borderRadius: '8px',
-                    color: '#ffffff',
-                    fontSize: '14px',
-                    outline: 'none',
-                    transition: 'border-color 0.2s'
-                  }}
+                  className="w-full px-4 py-3 bg-background border border-input rounded-lg text-foreground text-sm outline-none transition-all focus:border-[#00b8d9] focus:ring-1 focus:ring-[#00b8d9]"
                   placeholder="Minimaal 6 tekens"
-                  onFocus={(e) => e.target.style.borderColor = '#00d4ff'}
-                  onBlur={(e) => e.target.style.borderColor = 'rgba(0, 212, 255, 0.15)'}
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  background: loading ? '#334155' : '#00d4ff',
-                  color: loading ? '#94a3b8' : '#080d14',
-                  fontWeight: 600,
-                  borderRadius: '6px',
-                  border: 'none',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  fontSize: '16px',
-                  transition: 'all 0.2s',
-                  marginTop: '8px'
-                }}
+                className={`w-full py-3.5 font-semibold rounded-lg text-base mt-2 transition-all ${
+                  loading 
+                    ? 'bg-muted text-muted-foreground cursor-not-allowed' 
+                    : 'bg-[#00b8d9] text-[#080d14] hover:shadow-[0_0_20px_rgba(0,184,217,0.4)]'
+                }`}
               >
-                {loading ? 'Bezig...' : 'Account aanmaken'}
+                {loading ? 'Account aanmaken...' : 'Gratis account aanmaken'}
               </button>
             </form>
 
-            <p style={{ textAlign: 'center', fontSize: '12px', color: '#64748b', marginTop: '24px' }}>
-              Door te registreren ga je akkoord met onze{' '}
-              <Link href="/voorwaarden" style={{ color: '#00d4ff', textDecoration: 'none' }}>Algemene Voorwaarden</Link>
-              {' '}en{' '}
-              <Link href="/privacy" style={{ color: '#00d4ff', textDecoration: 'none' }}>Privacy Policy</Link>
-            </p>
-
-            <div style={{ marginTop: '20px', textAlign: 'center' }}>
-              <p style={{ fontSize: '13px', color: '#64748b' }}>
+            <div className="mt-6 text-center">
+              <p className="text-sm text-muted-foreground">
                 Al een account?{' '}
-                <Link href="/login" style={{ color: '#00d4ff', textDecoration: 'none' }}>
-                  Log hier in
+                <Link href="/login" className="text-[#00b8d9] hover:underline">
+                  Log in
                 </Link>
               </p>
             </div>
           </div>
         </div>
 
-        <footer style={{ padding: '24px', textAlign: 'center', borderTop: '1px solid rgba(0, 212, 255, 0.1)' }}>
-          <p style={{ fontSize: '14px', color: '#64748b' }}>
+        <footer className="py-6 text-center border-t border-border bg-background">
+          <p className="text-sm text-muted-foreground">
             © 2026 BSC Pro. Alle rechten voorbehouden.
           </p>
         </footer>
