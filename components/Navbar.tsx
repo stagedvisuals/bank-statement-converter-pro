@@ -37,10 +37,9 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinks = [
+    { href: '/over-ons', label: 'Over ons' },
     { href: '#calculator', label: 'Bereken je winst' },
     { href: '#pricing', label: 'Prijzen' },
-    { href: '/privacy', label: 'Privacy' },
-    { href: '/voorwaarden', label: 'Voorwaarden' },
   ];
 
   return (
