@@ -4,7 +4,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import { FileText, Upload, Download, Zap, AlertTriangle, LogOut, Loader2, Brain, FileSpreadsheet, Database, FileCode, Table, History, Settings, LayoutDashboard, Calculator, Lightbulb, CheckCircle2, Calendar, Sun, Moon } from 'lucide-react';
-import { DynamicLogo } from '../components/DynamicLogo';
+import { Logo } from '../components/Logo';
 
 // Theme Toggle Component
 function ThemeToggle() {
@@ -153,7 +153,11 @@ export default function Dashboard() {
         zIndex: 50 
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-          <DynamicLogo />
+          <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div className="text-slate-900 dark:text-white">
+              <Logo />
+            </div>
+          </Link>
           <div style={{ display: 'flex', gap: '4px' }}>
             <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', color: '#00b8d9', background: 'rgba(0, 184, 217, 0.15)', borderRadius: '6px', fontSize: '14px', fontWeight: 500, textDecoration: 'none' }}>
               <LayoutDashboard style={{ width: '16px', height: '16px' }} />Dashboard
