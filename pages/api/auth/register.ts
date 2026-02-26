@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
+import { isBlockedEmailDomain } from '@/lib/blocked-email-domains'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   console.log('[Register] Request received:', req.method)
@@ -23,10 +24,55 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Email and password required' })
   }
 
+  // STAP 1A: Check weggooi email domeinen
+  if (isBlockedEmailDomain(email)) {
+    console.log('[Register] Blocked disposable email:', email)
+    return res.status(400).json({
+      error: 'Gebruik een zakelijk of persoonlijk emailadres. Weggooi-emails zijn niet toegestaan.'
+    })
+  }
+
+  // STAP 1B: Haal IP adres op
+  const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() 
+    || req.headers['x-real-ip'] 
+    || req.socket.remoteAddress 
+    || '0.0.0.0'
+  
+  console.log('[Register] IP Address:', ipAddress)
+
   try {
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { autoRefreshToken: false, persistSession: false }
     })
+
+    // STAP 1B: Check max 2 accounts per IP
+    const { data: existingAccounts, error: ipCheckError } = await supabase
+      .from('user_profiles')
+      .select('id')
+      .eq('registration_ip', ipAddress)
+
+    if (ipCheckError) {
+      console.log('[Register] IP check error:', ipCheckError.message)
+    }
+
+    if (existingAccounts && existingAccounts.length >= 2) {
+      console.log('[Register] Too many accounts from IP:', ipAddress, 'Count:', existingAccounts.length)
+      
+      // Log security event
+      await supabase.from('security_logs').insert({
+        event_type: 'REGISTRATION_BLOCKED',
+        ip_address: ipAddress,
+        details: { 
+          email: email,
+          reason: 'MAX_ACCOUNTS_PER_IP_EXCEEDED',
+          existing_count: existingAccounts.length
+        }
+      })
+      
+      return res.status(429).json({
+        error: 'Te veel accounts geregistreerd vanaf dit netwerk. Neem contact op via info@bscpro.nl'
+      })
+    }
 
     // Try admin create first (no email sent, auto-confirmed)
     const { data, error } = await supabase.auth.admin.createUser({
@@ -65,23 +111,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log('[Register] User created:', data.user?.id)
 
-    // Try to create profile, but don't fail if it doesn't work
+    // Try to create profile with security data
     if (data.user) {
       const { error: profileError } = await supabase
-        .from('profiles')
+        .from('user_profiles')
         .upsert({
           id: data.user.id,
           email: data.user.email,
           full_name: name || email.split('@')[0],
           role: 'user',
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
+          registration_ip: ipAddress,
+          trial_conversions_used: 0
         }, { onConflict: 'id' })
 
       if (profileError) {
         console.log('[Register] Profile error (non-fatal):', profileError.message)
       } else {
-        console.log('[Register] Profile created')
+        console.log('[Register] Profile created with IP:', ipAddress)
       }
+
+      // Log successful registration in security_logs
+      await supabase.from('security_logs').insert({
+        user_id: data.user.id,
+        event_type: 'REGISTRATION_SUCCESS',
+        ip_address: ipAddress,
+        details: { 
+          email: email,
+          accounts_from_ip: (existingAccounts?.length || 0) + 1
+        }
+      })
     }
 
     return res.status(200).json({
