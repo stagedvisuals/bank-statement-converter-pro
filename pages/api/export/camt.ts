@@ -78,8 +78,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     camt += `  </BkToCstmrStmt>\n`;
     camt += `</Document>`;
     
+    // Filename: [IBAN]_[datum].xml
+    const sanitizedIban = (rekeningnummer || 'NL00XXXX0000000000').replace(/\s/g, '');
+    const filename = `${sanitizedIban}_${date}.xml`;
+    
     res.setHeader('Content-Type', 'application/xml');
-    res.setHeader('Content-Disposition', `attachment; filename="BSC-PRO-${bank}-CAMT053.xml"`);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(camt);
   } catch (error: any) {
     console.error('CAMT export error:', error);

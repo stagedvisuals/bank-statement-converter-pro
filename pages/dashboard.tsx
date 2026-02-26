@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
-import { FileText, Upload, Download, Zap, AlertTriangle, LogOut, Loader2, Brain, FileSpreadsheet, Database, FileCode, Table, History, Settings, LayoutDashboard, Calculator, Lightbulb, CheckCircle2 } from 'lucide-react';
+import { FileText, Upload, Download, Zap, AlertTriangle, LogOut, Loader2, Brain, FileSpreadsheet, Database, FileCode, Table, History, Settings, LayoutDashboard, Calculator, Lightbulb, CheckCircle2, Calendar } from 'lucide-react';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -205,6 +205,34 @@ export default function Dashboard() {
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 {['Exact Online', 'Moneybird', 'e-Boekhouden.nl', 'SnelStart', 'AFAS', 'Twinfield'].map(app => <span key={app} style={{ padding: '6px 12px', background: 'rgba(0, 184, 217, 0.1)', border: '1px solid rgba(0, 184, 217, 0.2)', borderRadius: '999px', fontSize: '13px', color: '#e8edf5' }}>• {app}</span>)}
               </div>
+            </div>
+
+            {/* Jaaroverzicht Sectie */}
+            <div style={{ background: 'rgba(10, 18, 32, 0.8)', border: '1px solid rgba(0, 184, 217, 0.15)', borderRadius: '12px', padding: '24px', color: '#e8edf5' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Calendar style={{ width: '20px', height: '20px', color: '#00b8d9' }} />
+                📅 Combineer tot jaaroverzicht
+              </h3>
+              <p style={{ color: '#6b7fa3', marginBottom: '16px' }}>
+                Je hebt meerdere uploads gedaan. Combineer alle transacties in één jaarexport.
+              </p>
+              <button style={{ 
+                width: '100%', 
+                padding: '12px 24px', 
+                background: 'rgba(0, 184, 217, 0.1)', 
+                border: '1px solid rgba(0, 184, 217, 0.3)', 
+                color: '#00b8d9', 
+                borderRadius: '8px', 
+                fontWeight: 600, 
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}>
+                <Calendar style={{ width: '18px', height: '18px' }} />
+                Maak jaaroverzicht
+              </button>
             </div>
 
             {/* KvK Badge */}
