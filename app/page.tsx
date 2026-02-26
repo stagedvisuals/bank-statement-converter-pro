@@ -237,37 +237,124 @@ export default function Home() {
             <p className="text-muted-foreground">Altijd zonder verborgen kosten. Opzeggen kan maandelijks.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {[
-              { name: 'Pay-per-use', price: '€2', period: 'per afschrift', desc: 'Voor zzp\'ers met weinig transacties', features: ['Tot 5 afschriften/maand', 'Excel/CSV/MT940 export', '1 uur levertijd'], cta: 'Start gratis trial' },
-              { name: 'Professional', price: '€30', period: '/maand', desc: 'Voor drukke boekhouders', features: ['Onbeperkt afschriften', 'Directe verwerking', 'CAMT.053 + MT940', 'Prioriteit support', 'Bulk upload (10 tegelijk)'], popular: true, cta: 'Start 14-daagse trial' },
-              { name: 'Office', price: '€99', period: '/maand', desc: 'Voor kantoren met meerdere gebruikers', features: ['Alles van Professional', 'Tot 5 gebruikers', 'Gedeelde team-omgeving', 'API toegang', 'Custom integraties', 'Accountmanager'], cta: 'Neem contact op' },
-            ].map((plan) => (
-              <div key={plan.name} className={`p-6 rounded-2xl border ${plan.popular ? 'bg-cyan-500/10 border-[#00b8d9] relative' : 'bg-card border-border'}`}>
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-[#00b8d9] text-[#080d14] text-xs font-semibold rounded-full">Meest gekozen</div>
-                )}
-                <h3 className="text-lg font-semibold text-foreground mb-2">{plan.name}</h3>
-                <div className="mb-3">
-                  <span className="text-3xl font-bold text-foreground">{plan.price}</span>
-                  <span className="text-muted-foreground text-sm">{plan.period}</span>
-                </div>
-                <p className="text-sm text-muted-foreground mb-5">{plan.desc}</p>
-                
-                <ul className="space-y-3 mb-6">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2 text-sm text-muted-foreground">
-                      <Check className="w-4 h-4 text-[#00b8d9] shrink-0 mt-0.5" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-
-                <button className={`w-full py-3 rounded-lg font-semibold ${plan.popular ? 'bg-[#00b8d9] text-[#080d14]' : 'border border-cyan-500/30 text-[#00b8d9] hover:bg-cyan-500/10'}`}>
-                  {plan.cta}
-                </button>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            {/* TIER 1 - Pay-per-use */}
+            <div className="p-6 rounded-2xl border bg-card border-border">
+              <h3 className="text-lg font-semibold text-foreground mb-2">Pay-per-use</h3>
+              <div className="mb-3">
+                <span className="text-3xl font-bold text-foreground">€2</span>
+                <span className="text-muted-foreground text-sm"> per afschrift</span>
               </div>
-            ))}
+              <p className="text-sm text-muted-foreground mb-5">Voor zzp'ers met weinig transacties</p>
+              
+              <ul className="space-y-3 mb-6">
+                {['Tot 5 afschriften/maand', 'Excel/CSV/MT940 export', '1 uur levertijd'].map((feature) => (
+                  <li key={feature} className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <Check className="w-4 h-4 text-[#00b8d9] shrink-0 mt-0.5" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <button className="w-full py-3 rounded-lg font-semibold border border-cyan-500/30 text-[#00b8d9] hover:bg-cyan-500/10">
+                Start gratis trial
+              </button>
+            </div>
+
+            {/* TIER 2 - Starter (Meest gekozen) */}
+            <div className="p-6 rounded-2xl border bg-cyan-500/10 border-[#00b8d9] relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-[#00b8d9] text-[#080d14] text-xs font-semibold rounded-full">Meest gekozen</div>
+              
+              {/* Kortingsbadge */}
+              <div className="mb-2">
+                <span className="inline-block px-3 py-1 text-[11px] font-bold text-white rounded-full" style={{ background: 'linear-gradient(135deg, #ff4444, #ff6b35)' }}>
+                  40% korting - Beperkte tijd
+                </span>
+              </div>
+              
+              <h3 className="text-lg font-semibold text-foreground mb-2">Starter</h3>
+              <div className="mb-3 flex items-baseline gap-2">
+                <span className="text-base text-muted-foreground line-through">€15</span>
+                <span className="text-3xl font-bold text-foreground">€9</span>
+                <span className="text-muted-foreground text-sm">/maand</span>
+              </div>
+              <p className="text-sm text-muted-foreground mb-5">Voor startende ondernemers</p>
+              
+              <ul className="space-y-3 mb-6">
+                {['50 afschriften/maand', 'Excel/CSV/MT940/CAMT.053', 'BTW categorisering', 'Prioriteit verwerking'].map((feature) => (
+                  <li key={feature} className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <Check className="w-4 h-4 text-[#00b8d9] shrink-0 mt-0.5" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <button className="w-full py-3 rounded-lg font-semibold bg-[#00b8d9] text-[#080d14]">
+                Start 14-daagse trial
+              </button>
+            </div>
+
+            {/* TIER 3 - Professional */}
+            <div className="p-6 rounded-2xl border bg-card border-border">
+              {/* Kortingsbadge */}
+              <div className="mb-2">
+                <span className="inline-block px-3 py-1 text-[11px] font-bold text-white rounded-full" style={{ background: 'linear-gradient(135deg, #ff4444, #ff6b35)' }}>
+                  37% korting - Beperkte tijd
+                </span>
+              </div>
+              
+              <h3 className="text-lg font-semibold text-foreground mb-2">Professional</h3>
+              <div className="mb-3 flex items-baseline gap-2">
+                <span className="text-base text-muted-foreground line-through">€30</span>
+                <span className="text-3xl font-bold text-foreground">€19</span>
+                <span className="text-muted-foreground text-sm">/maand</span>
+              </div>
+              <p className="text-sm text-muted-foreground mb-5">Voor drukke boekhouders</p>
+              
+              <ul className="space-y-3 mb-6">
+                {['Onbeperkt afschriften', 'Directe verwerking', 'CAMT.053 + MT940', 'Prioriteit support', 'Bulk upload (10 tegelijk)'].map((feature) => (
+                  <li key={feature} className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <Check className="w-4 h-4 text-[#00b8d9] shrink-0 mt-0.5" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <button className="w-full py-3 rounded-lg font-semibold border border-cyan-500/30 text-[#00b8d9] hover:bg-cyan-500/10">
+                Start 14-daagse trial
+              </button>
+            </div>
+
+            {/* TIER 4 - Office (Binnenkort beschikbaar) */}
+            <div className="p-6 rounded-2xl border bg-card border-border opacity-60 pointer-events-none relative">
+              {/* Binnenkort banner */}
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-slate-500 text-white text-xs font-semibold rounded-full whitespace-nowrap">
+                🔜 Binnenkort beschikbaar
+              </div>
+              
+              <h3 className="text-lg font-semibold text-foreground mb-2 mt-2">Office</h3>
+              <div className="mb-3">
+                <span className="text-3xl font-bold text-muted-foreground">€99</span>
+                <span className="text-muted-foreground text-sm">/maand</span>
+              </div>
+              <p className="text-sm text-muted-foreground mb-5">Voor kantoren met meerdere gebruikers</p>
+              
+              <ul className="space-y-3 mb-6">
+                {['Alles van Professional', 'Tot 5 gebruikers', 'Gedeelde team-omgeving', 'API toegang', 'Custom integraties', 'Accountmanager'].map((feature) => (
+                  <li key={feature} className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <Check className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <a 
+                href="mailto:info@bscpro.nl?subject=Interesse%20in%20Office%20plan"
+                className="block w-full py-3 rounded-lg font-semibold text-center bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
+              >
+                Notificeer mij
+              </a>
+            </div>
           </div>
         </div>
       </section>
