@@ -85,6 +85,9 @@ export default function Dashboard() {
           <Link href="/"><img src="/logo.svg" alt="BSC Pro" style={{ height: '40px' }} /></Link>
           <div style={{ display: 'flex', gap: '4px' }}>
             <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', color: '#00b8d9', background: 'rgba(0, 184, 217, 0.15)', borderRadius: '6px', fontSize: '14px', fontWeight: 500, textDecoration: 'none' }}><LayoutDashboard style={{ width: '16px', height: '16px' }} />Dashboard</Link>
+            <div style={{ position: 'relative' }}>
+              <Link href="/tools/btw-calculator" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', color: '#6b7fa3', fontSize: '14px', textDecoration: 'none' }}><Calculator style={{ width: '16px', height: '16px' }} />Tools</Link>
+            </div>
             <Link href="/history" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', color: '#6b7fa3', fontSize: '14px', textDecoration: 'none' }}><History style={{ width: '16px', height: '16px' }} />Geschiedenis</Link>
             <Link href="/onboarding" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', color: '#6b7fa3', fontSize: '14px', textDecoration: 'none' }}><Settings style={{ width: '16px', height: '16px' }} />Instellingen</Link>
           </div>
