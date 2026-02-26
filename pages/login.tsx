@@ -75,43 +75,26 @@ export default function LoginPage() {
       <div className="min-h-screen">
         <Navbar />
 
-        <div style={{ paddingTop: '120px', paddingBottom: '60px', minHeight: 'calc(100vh - 200px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ 
-            background: 'rgba(10, 18, 32, 0.8)', 
-            backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(0, 212, 255, 0.15)',
-            borderRadius: '16px',
-            padding: '40px',
-            maxWidth: '420px',
-            width: '100%',
-            margin: '0 16px'
-          }}>
-            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-              <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#ffffff', marginBottom: '8px', fontFamily: 'var(--font-syne), Syne, sans-serif' }}>
+        <div className="pt-[120px] pb-[60px] min-h-[calc(100vh-200px)] flex items-center justify-center bg-slate-50 dark:bg-[#080d14] transition-colors duration-300">
+          <div className="bg-white dark:bg-[rgba(10,18,32,0.8)] backdrop-blur-xl border border-slate-200 dark:border-cyan-500/15 rounded-2xl p-10 max-w-[420px] w-full mx-4 shadow-lg dark:shadow-none transition-colors duration-300">
+            <div className="text-center mb-8">
+              <h1 className="text-[28px] font-bold text-slate-900 dark:text-white mb-2" style={{ fontFamily: 'var(--font-syne), Syne, sans-serif' }}>
                 Welkom terug
               </h1>
-              <p style={{ color: '#94a3b8', fontSize: '14px' }}>
+              <p className="text-slate-500 dark:text-slate-400 text-sm">
                 Log in om je documenten te converteren
               </p>
             </div>
 
             {error && (
-              <div style={{ 
-                marginBottom: '20px', 
-                padding: '12px 16px', 
-                background: 'rgba(239, 68, 68, 0.1)', 
-                border: '1px solid rgba(239, 68, 68, 0.3)', 
-                borderRadius: '8px',
-                color: '#ef4444',
-                fontSize: '14px'
-              }}>
+              <div className="mb-5 px-4 py-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-lg text-red-600 dark:text-red-400 text-sm">
                 {error}
               </div>
             )}
 
-            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <form onSubmit={handleLogin} className="flex flex-col gap-5">
               <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#ffffff', marginBottom: '8px' }}>
+                <label className="block text-sm font-medium text-slate-700 dark:text-white mb-2">
                   Email
                 </label>
                 <input
@@ -119,25 +102,13 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'rgba(10, 18, 32, 0.6)',
-                    border: '1px solid rgba(0, 212, 255, 0.15)',
-                    borderRadius: '8px',
-                    color: '#ffffff',
-                    fontSize: '14px',
-                    outline: 'none',
-                    transition: 'border-color 0.2s'
-                  }}
+                  className="w-full px-4 py-3 bg-slate-100 dark:bg-[rgba(10,18,32,0.6)] border border-slate-300 dark:border-cyan-500/15 rounded-lg text-slate-900 dark:text-white text-sm outline-none transition-all focus:border-cyan-400"
                   placeholder="jouw@email.nl"
-                  onFocus={(e) => e.target.style.borderColor = '#00d4ff'}
-                  onBlur={(e) => e.target.style.borderColor = 'rgba(0, 212, 255, 0.15)'}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#ffffff', marginBottom: '8px' }}>
+                <label className="block text-sm font-medium text-slate-700 dark:text-white mb-2">
                   Wachtwoord
                 </label>
                 <input
@@ -145,48 +116,28 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'rgba(10, 18, 32, 0.6)',
-                    border: '1px solid rgba(0, 212, 255, 0.15)',
-                    borderRadius: '8px',
-                    color: '#ffffff',
-                    fontSize: '14px',
-                    outline: 'none',
-                    transition: 'border-color 0.2s'
-                  }}
+                  className="w-full px-4 py-3 bg-slate-100 dark:bg-[rgba(10,18,32,0.6)] border border-slate-300 dark:border-cyan-500/15 rounded-lg text-slate-900 dark:text-white text-sm outline-none transition-all focus:border-cyan-400"
                   placeholder="••••••••"
-                  onFocus={(e) => e.target.style.borderColor = '#00d4ff'}
-                  onBlur={(e) => e.target.style.borderColor = 'rgba(0, 212, 255, 0.15)'}
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  background: loading ? '#334155' : '#00d4ff',
-                  color: loading ? '#94a3b8' : '#080d14',
-                  fontWeight: 600,
-                  borderRadius: '6px',
-                  border: 'none',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  fontSize: '16px',
-                  transition: 'all 0.2s',
-                  marginTop: '8px'
-                }}
+                className={`w-full py-3.5 font-semibold rounded-lg border-none text-base mt-2 transition-all ${
+                  loading 
+                    ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed' 
+                    : 'bg-cyan-400 text-slate-900 hover:shadow-[0_0_20px_rgba(0,184,217,0.4)] cursor-pointer'
+                }`}
               >
                 {loading ? 'Inloggen...' : 'Inloggen'}
               </button>
             </form>
 
-            <div style={{ marginTop: '24px', textAlign: 'center' }}>
-              <p style={{ fontSize: '13px', color: '#64748b' }}>
+            <div className="mt-6 text-center">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Nog geen account?{' '}
-                <Link href="/register" style={{ color: '#00d4ff', textDecoration: 'none' }}>
+                <Link href="/register" className="text-cyan-500 hover:text-cyan-400 no-underline">
                   Registreer hier
                 </Link>
               </p>
@@ -194,8 +145,8 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <footer style={{ padding: '24px', textAlign: 'center', borderTop: '1px solid rgba(0, 212, 255, 0.1)' }}>
-          <p style={{ fontSize: '14px', color: '#64748b' }}>
+        <footer className="py-6 text-center border-t border-slate-200 dark:border-cyan-500/10 bg-slate-50 dark:bg-[#080d14] transition-colors duration-300">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             © 2026 BSC Pro. Alle rechten voorbehouden.
           </p>
         </footer>
