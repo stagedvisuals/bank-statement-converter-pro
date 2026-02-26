@@ -425,7 +425,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="py-12 border-t border-border bg-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
+          <div className="grid md:grid-cols-5 gap-8 mb-8">
             <div>
               <h3 className="text-lg font-bold text-foreground mb-4">BSC<span className="text-[#00b8d9]">PRO</span></h3>
               <p className="text-sm text-muted-foreground">De slimste manier om bankafschriften te converteren. Bespaar uren werk per maand.</p>
@@ -436,6 +436,13 @@ export default function Home() {
                 <li><Link href="#features" className="hover:text-[#00b8d9]">Features</Link></li>
                 <li><Link href="#pricing" className="hover:text-[#00b8d9]">Prijzen</Link></li>
                 <li><Link href="#calculator" className="hover:text-[#00b8d9]">Besparing berekenen</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-foreground mb-3">Koppelingen</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><Link href="/snelstart/rabobank-pdf-importeren" className="hover:text-[#00b8d9]">Rabobank → SnelStart</Link></li>
+                <li><Link href="/exact-online/ing-prive-importeren" className="hover:text-[#00b8d9]">ING → Exact Online</Link></li>
               </ul>
             </div>
             <div>
