@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { Sun, Moon } from 'lucide-react';
 import { Logo } from './Logo';
@@ -12,7 +12,9 @@ function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
 
   // Prevent hydration mismatch
-  useState(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   if (!mounted) return <div style={{ width: '36px', height: '36px' }} />;
 
