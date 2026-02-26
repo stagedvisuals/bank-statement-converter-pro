@@ -10,6 +10,14 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_SITE_URL: 'https://www.bscpro.nl',
   },
+  async rewrites() {
+    return [
+      {
+        source: '/dashboard',
+        destination: '/dashboard',
+      },
+    ]
+  },
 }
 
 export default nextConfig
