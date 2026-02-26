@@ -40,7 +40,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             {/* Trust Bar */}
-            <div style={{ display: 'flex', flexWrap: 'nowrap', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '32px', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '32px', padding: '0 16px' }}>
               <div style={{ background: 'rgba(0, 184, 217, 0.1)', border: '1px solid rgba(0, 184, 217, 0.2)', borderRadius: '999px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
                 <div className="flex">
                   {[1,2,3,4,5].map((i) => (
@@ -69,12 +69,13 @@ export default function Home() {
               marginBottom: '24px',
               lineHeight: 1.1,
               fontFamily: 'var(--font-syne), Syne, sans-serif',
-              wordBreak: 'break-word',
-              hyphens: 'auto',
+              wordBreak: 'normal',
+              hyphens: 'none',
+              whiteSpace: 'normal',
               maxWidth: '100%',
-              fontSize: 'clamp(32px, 8vw, 64px)'
+              fontSize: 'clamp(28px, 7.5vw, 64px)'
             }} className="md:text-[clamp(40px,6vw,60px)] lg:text-[clamp(48px,5vw,72px)]">
-              Converteer bank&shy;afschriften <span style={{ color: '#00b8d9' }}>in seconden</span>
+              Converteer bankafschriften <span style={{ color: '#00b8d9' }}>in seconden</span>
             </h1>
             
             <p style={{ fontSize: '18px', color: '#6b7fa3', marginBottom: '32px', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
@@ -158,7 +159,7 @@ export default function Home() {
                   <step.icon style={{ width: '28px', height: '28px', color: '#00b8d9' }} />
                 </div>
                 <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>{step.title}</h3>
-                <p style={{ color: '#6b7fa3', fontSize: '14px' }}>{step.desc}</p>
+                <p style={{ color: '#8a9bb5', fontSize: '14px', lineHeight: 1.5 }}>{step.desc}</p>
               </div>
             ))}
           </div>
@@ -334,17 +335,18 @@ export default function Home() {
               <span style={{ fontSize: '18px', fontWeight: 700, color: '#ffffff' }}>BSC<span style={{ color: '#00b8d9' }}>PRO</span></span>
             </Link>
             
-            <div className="flex gap-6" style={{ fontSize: '14px' }}>
-              {['Privacy', 'Voorwaarden', 'Contact'].map((link) => (
-                <Link key={link} href={`/${link.toLowerCase()}`} style={{ color: '#6b7fa3', textDecoration: 'none' }}>{link}</Link>
-              ))}
+            <div className="flex flex-wrap justify-center gap-6" style={{ fontSize: '14px' }}>
+              <Link href="/beveiliging" style={{ color: '#6b7fa3', textDecoration: 'none' }}>Beveiliging</Link>
+              <Link href="/verwerkersovereenkomst" style={{ color: '#6b7fa3', textDecoration: 'none' }}>Verwerkersovereenkomst</Link>
+              <Link href="/privacy" style={{ color: '#6b7fa3', textDecoration: 'none' }}>Privacy</Link>
+              <Link href="/voorwaarden" style={{ color: '#6b7fa3', textDecoration: 'none' }}>Voorwaarden</Link>
             </div>
           </div>
           
           <div style={{ marginTop: '32px', paddingTop: '32px', borderTop: '1px solid rgba(0, 184, 217, 0.1)' }}>
             <div className="flex flex-col md:flex-row justify-between items-center gap-4" style={{ fontSize: '14px', color: '#6b7fa3' }}>
               <p>© 2026 BSC<span style={{ color: '#00b8d9' }}>PRO</span>. Alle rechten voorbehouden.</p>
-              <p>Data opgeslagen in Nederland 🇳🇱</p>
+              <p>🇳🇱 Nederlands bedrijf | AVG-proof | EU servers</p>
             </div>
           </div>
         </div>

@@ -19,7 +19,7 @@ export default function Navbar() {
         background: 'rgba(8, 13, 20, 0.95)', 
         backdropFilter: 'blur(12px)',
         borderBottom: '1px solid rgba(0, 184, 217, 0.1)',
-        padding: '0 16px', 
+        padding: '0 24px', 
         height: '72px', 
         position: 'fixed',
         top: 0,
@@ -28,26 +28,25 @@ export default function Navbar() {
         zIndex: 50
       }}
     >
-      <div className="max-w-7xl mx-auto h-full flex justify-between items-center">
-        {/* Logo */}
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div className="max-w-7xl mx-auto h-full relative flex items-center">
+        {/* Logo - links */}
+        <Link href="/" style={{ background: 'transparent', border: 'none', padding: 0 }}>
           <img 
             src="/logo.svg" 
             alt="BSC Pro" 
-            style={{ height: '36px', width: 'auto' }} 
+            style={{ height: '48px', width: 'auto', display: 'block' }} 
           />
-          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1' }}>
-            <span style={{ fontSize: '18px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.5px' }}>
-              BSC<span style={{ color: '#00b8d9' }}>PRO</span>
-            </span>
-            <span className="hidden md:block" style={{ fontSize: '8px', color: '#6b7fa3', marginTop: '2px' }}>
-              BANK STATEMENT CONVERTER
-            </span>
-          </div>
         </Link>
         
-        {/* Desktop links - hidden on mobile */}
-        <div className="hidden md:flex items-center gap-8">
+        {/* Desktop links - perfect gecentreerd */}
+        <div 
+          className="hidden md:flex items-center gap-8"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)'
+          }}
+        >
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -57,7 +56,8 @@ export default function Navbar() {
                 fontSize: '14px', 
                 textDecoration: 'none',
                 fontWeight: 500,
-                transition: 'color 0.2s' 
+                transition: 'color 0.2s',
+                whiteSpace: 'nowrap'
               }}
               className="hover:text-white"
             >
@@ -67,7 +67,10 @@ export default function Navbar() {
         </div>
         
         {/* Rechts: altijd inloggen + hamburger op mobiel */}
-        <div className="flex items-center gap-2">
+        <div 
+          className="flex items-center gap-2"
+          style={{ marginLeft: 'auto' }}
+        >
           <Link href="/login">
             <button 
               style={{ 
@@ -76,10 +79,11 @@ export default function Navbar() {
                 color: '#00b8d9',
                 fontWeight: 500,
                 borderRadius: '6px',
-                padding: '8px 16px',
+                padding: '8px 20px',
                 fontSize: '14px',
                 cursor: 'pointer',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                whiteSpace: 'nowrap'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = 'rgba(0, 184, 217, 0.1)';

@@ -1,9 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   console.log('[Register] Request received:', req.method)
 
@@ -11,9 +8,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
+  // Get environment variables inside handler to ensure they're available
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
   if (!supabaseUrl || !supabaseServiceKey) {
     console.error('[Register] Missing env vars:', { url: !!supabaseUrl, key: !!supabaseServiceKey })
     return res.status(500).json({ error: 'Server configuration error' })
+  }
+
+  // Validate Supabase URL format
+  if (!supabaseUrl.startsWith('http://') && !supabaseUrl.startsWith('https://')) {
+    console.error('[Register] Invalid Supabase URL format:', supabaseUrl)
+    return res.status(500).json({ error: 'Invalid Supabase configuration' })
   }
 
   const { email, password, name } = req.body
