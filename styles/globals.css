@@ -3,7 +3,19 @@
 @tailwind utilities;
 
 :root {
-  /* BSC Pro Brand Colors - Teal/Cyan Palette matching logo */
+  /* Light Mode Colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-card: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --border-color: #e2e8f0;
+  --accent-cyan: #00b8d9;
+  --accent-cyan-light: rgba(0, 184, 217, 0.1);
+  --accent-cyan-border: rgba(0, 184, 217, 0.3);
+  
+  /* BSC Pro Brand Colors */
   --navy: #0F172A;
   --navy-light: #1E293B;
   --slate: #64748B;
@@ -21,6 +33,20 @@
   --warning-light: #FCD34D;
 }
 
+.dark {
+  /* Dark Mode Colors */
+  --bg-primary: #080d14;
+  --bg-secondary: #0a1220;
+  --bg-card: rgba(10, 18, 32, 0.8);
+  --text-primary: #e8edf5;
+  --text-secondary: #6b7fa3;
+  --text-muted: #475569;
+  --border-color: rgba(0, 184, 217, 0.15);
+  --accent-cyan: #00b8d9;
+  --accent-cyan-light: rgba(0, 184, 217, 0.15);
+  --accent-cyan-border: rgba(0, 184, 217, 0.3);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -30,10 +56,11 @@ html {
 }
 
 body {
-  background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
-  color: #0F172A;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Glass morphism for fintech theme */
@@ -42,6 +69,11 @@ body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .glass {
+  background: rgba(10, 18, 32, 0.85);
+  border: 1px solid rgba(0, 184, 217, 0.15);
 }
 
 .glass-dark {
@@ -69,8 +101,16 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
+.dark .card-shadow {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
 .card-shadow-hover {
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.dark .card-shadow-hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
 }
 
 /* Section backgrounds */
@@ -87,8 +127,16 @@ body {
   color: #0F172A;
 }
 
+.dark .text-navy {
+  color: #e8edf5;
+}
+
 .text-slate {
   color: #64748B;
+}
+
+.dark .text-slate {
+  color: #6b7fa3;
 }
 
 .text-success {
@@ -101,16 +149,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #F1F5F9;
+  background: var(--bg-secondary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: var(--border-color);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: var(--accent-cyan);
 }
 
 /* Range slider styling */
@@ -119,7 +167,7 @@ input[type="range"] {
   appearance: none;
   width: 100%;
   height: 8px;
-  background: #E2E8F0;
+  background: var(--border-color);
   border-radius: 4px;
   outline: none;
 }
@@ -129,10 +177,10 @@ input[type="range"]::-webkit-slider-thumb {
   appearance: none;
   width: 24px;
   height: 24px;
-  background: #0D9488;
+  background: var(--accent-cyan);
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.4);
+  box-shadow: 0 2px 6px rgba(0, 184, 217, 0.4);
   transition: transform 0.15s ease;
 }
 
@@ -143,9 +191,27 @@ input[type="range"]::-webkit-slider-thumb:hover {
 input[type="range"]::-moz-range-thumb {
   width: 24px;
   height: 24px;
-  background: #0D9488;
+  background: var(--accent-cyan);
   border-radius: 50%;
   cursor: pointer;
   border: none;
-  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.4);
+  box-shadow: 0 2px 6px rgba(0, 184, 217, 0.4);
+}
+
+/* Theme transition */
+.transition-theme {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Dark mode card styling */
+.card-dark {
+  background: rgba(10, 18, 32, 0.8);
+  border: 1px solid rgba(0, 184, 217, 0.15);
+  border-radius: 12px;
+}
+
+.card-light {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
 }
