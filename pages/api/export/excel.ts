@@ -83,6 +83,45 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
     });
     
+    // Groepeer transacties per BTW tarief
+    const btwGroups: { [key: number]: { count: number; total: number } } = {};
+    transactions.forEach((t: any) => {
+      const rate = t.btw?.rate || 21;
+      if (!btwGroups[rate]) btwGroups[rate] = { count: 0, total: 0 };
+      btwGroups[rate].count++;
+      btwGroups[rate].total += Math.abs(t.bedrag);
+    });
+    
+    // Voeg BTW data toe
+    Object.entries(btwGroups).forEach(([rate, data]) => {
+      const btwRate = parseInt(rate);
+      const subtotal = data.total / (1 + btwRate / 100);
+      const btwAmount = data.total - subtotal;
+      const categoryName = btwRate === 0 ? 'Overig (0%)' : btwRate === 9 ? 'Lage BTW (9%)' : 'Standaard BTW (21%)';
+      
+      const row = btwSheet.addRow([
+        categoryName,
+        data.count,
+        subtotal,
+        btwAmount,
+        data.total,
+        `${btwRate}%`
+      ]);
+      
+      // Formatteer bedragen
+      [3, 4, 5].forEach(col => {
+        row.getCell(col).numFmt = '€#,##0.00';
+      });
+    });
+    
+    // Kolom breedtes voor BTW sheet
+    btwSheet.getColumn(1).width = 25;
+    btwSheet.getColumn(2).width = 12;
+    btwSheet.getColumn(3).width = 18;
+    btwSheet.getColumn(4).width = 15;
+    btwSheet.getColumn(5).width = 18;
+    btwSheet.getColumn(6).width = 10;
+    
     // Footer
     worksheet.addRow([]);
     worksheet.addRow(['Gegenereerd door BSCPro.nl']);

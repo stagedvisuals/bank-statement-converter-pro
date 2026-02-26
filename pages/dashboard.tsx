@@ -141,6 +141,32 @@ export default function Dashboard() {
 
         {transactions.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            
+            {/* Categorisatie Sectie met Progress Bars */}
+            {categorySummary.length > 0 && (
+              <div style={{ background: 'rgba(10, 18, 32, 0.8)', border: '1px solid rgba(0, 184, 217, 0.15)', borderRadius: '12px', padding: '24px', color: '#e8edf5' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px', color: '#e8edf5' }}>🏷 Categorisatie</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {categorySummary.map((cat: any, idx: number) => (
+                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{ fontSize: '20px' }}>{cat.category?.emoji || '📦'}</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                          <span style={{ color: '#e8edf5', fontSize: '14px' }}>{cat.category?.name || cat.categoryName}</span>
+                          <span style={{ color: '#6b7fa3', fontSize: '13px' }}>{cat.percentage || Math.round((cat.count / transactions.length) * 100)}%</span>
+                        </div>
+                        <div style={{ height: '8px', background: 'rgba(107, 127, 163, 0.2)', borderRadius: '4px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', background: '#00b8d9', borderRadius: '4px', width: `${cat.percentage || Math.round((cat.count / transactions.length) * 100)}%`, transition: 'width 0.3s ease' }} />
+                        </div>
+                      </div>
+                      <span style={{ color: '#e8edf5', fontSize: '13px', fontWeight: 500, minWidth: '70px', textAlign: 'right' }}>€{(cat.total || 0).toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
+                <p style={{ marginTop: '16px', fontSize: '12px', color: '#6b7fa3' }}>✨ Automatisch gecategoriseerd door AI</p>
+              </div>
+            )}
+
             <div style={{ background: 'rgba(10, 18, 32, 0.9)', border: '1px solid rgba(0, 184, 217, 0.2)', borderRadius: '12px', padding: '24px', color: '#e8edf5' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#e8edf5', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}><Download style={{ width: '20px', height: '20px', color: '#00b8d9' }} />Exporteer je data</h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '16px' }}>
