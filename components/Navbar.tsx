@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { Logo } from './Logo';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -30,12 +31,10 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto h-full relative flex items-center">
         {/* Logo - links */}
-        <Link href="/" style={{ background: 'transparent', border: 'none', padding: 0 }}>
-          <img 
-            src="/logo.svg" 
-            alt="BSC Pro" 
-            style={{ height: '48px', width: 'auto', display: 'block' }} 
-          />
+        <Link href="/" style={{ background: 'transparent', border: 'none', padding: 0, textDecoration: 'none' }}>
+          <div className="text-slate-900 dark:text-white">
+            <Logo />
+          </div>
         </Link>
         
         {/* Desktop links - perfect gecentreerd */}
