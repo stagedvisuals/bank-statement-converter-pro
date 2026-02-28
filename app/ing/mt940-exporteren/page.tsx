@@ -1,4 +1,94 @@
-export const metadata = { title: 'ING MT940 | BSCPro', description: 'Exporteer ING naar MT940 formaat.' };
-export default function Page() {
-  return <div className="min-h-screen bg-background"><div className="max-w-4xl mx-auto px-6 py-12"><h1 className="text-4xl font-bold mb-4">ING naar MT940</h1><p className="text-lg text-muted-foreground mb-8">Converteer ING afschriften naar MT940 formaat.</p><div className="bg-gradient-to-r from-[#00b8d9]/10 to-cyan-500/10 border rounded-xl p-8 text-center"><a href="/" className="inline-flex items-center gap-2 px-6 py-3 bg-[#00b8d9] text-[#080d14] rounded-lg font-semibold">Start gratis →</a></div></div></div>;
+import Link from 'next/link';
+
+export const metadata = {
+  title: 'ING naar MT940 exporteren | BSCPro',
+  description: 'Converteer ING PDF afschriften naar MT940 formaat. Universeel compatibel met alle boekhoudpakketten.',
+};
+
+export default function IngMt940Page() {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        <h1 className="text-4xl font-bold mb-4">ING naar MT940 exporteren</h1>
+        <p className="text-lg text-muted-foreground mb-8">
+          MT940 is het meest universele formaat voor banktransacties. Of je nu Twinfield, Exact, AFAS of SnelStart gebruikt — MT940 wordt overal ondersteund. BSCPro maakt het van je ING PDF in seconden.
+        </p>
+
+        <h2 className="text-2xl font-bold mb-6">Hoe werkt het?</h2>
+        <div className="space-y-4 mb-12">
+          <div className="flex gap-4 items-start">
+            <span className="bg-[#00b8d9] text-black rounded-full w-8 h-8 flex items-center justify-center font-bold shrink-0">1</span>
+            <div>
+              <strong>Download je ING PDF</strong>
+              <p className="text-muted-foreground">Vanuit Mijn ING of de ING Zakelijk app.</p>
+            </div>
+          </div>
+          <div className="flex gap-4 items-start">
+            <span className="bg-[#00b8d9] text-black rounded-full w-8 h-8 flex items-center justify-center font-bold shrink-0">2</span>
+            <div>
+              <strong>Upload bij BSCPro</strong>
+              <p className="text-muted-foreground">Onze AI leest alle transacties uit je PDF.</p>
+            </div>
+          </div>
+          <div className="flex gap-4 items-start">
+            <span className="bg-[#00b8d9] text-black rounded-full w-8 h-8 flex items-center justify-center font-bold shrink-0">3</span>
+            <div>
+              <strong>Selecteer MT940 export</strong>
+              <p className="text-muted-foreground">Kies MT940 uit de lijst met beschikbare formaten.</p>
+            </div>
+          </div>
+          <div className="flex gap-4 items-start">
+            <span className="bg-[#00b8d9] text-black rounded-full w-8 h-8 flex items-center justify-center font-bold shrink-0">4</span>
+            <div>
+              <strong>Download en importeer</strong>
+              <p className="text-muted-foreground">Het MT940 bestand importeer je in elk boekhoudpakket.</p>
+            </div>
+          </div>
+        </div>
+
+        <h2 className="text-2xl font-bold mb-6">Waarom BSCPro?</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+          <div className="border rounded-xl p-4">
+            <div className="text-2xl mb-2">⚡</div>
+            <strong>Binnen 10 seconden</strong>
+            <p className="text-muted-foreground text-sm">Van PDF upload naar MT940 bestand.</p>
+          </div>
+          <div className="border rounded-xl p-4">
+            <div className="text-2xl mb-2">🔒</div>
+            <strong>AVG-proof</strong>
+            <p className="text-muted-foreground text-sm">Data wordt na 24 uur automatisch verwijderd.</p>
+          </div>
+          <div className="border rounded-xl p-4">
+            <div className="text-2xl mb-2">✅</div>
+            <strong>99.5% nauwkeurig</strong>
+            <p className="text-muted-foreground text-sm">Correcte MT940 structuur, altijd compatibel.</p>
+          </div>
+        </div>
+
+        <h2 className="text-2xl font-bold mb-6">Veelgestelde vragen</h2>
+        <div className="space-y-4 mb-12">
+          <div className="border rounded-xl p-4">
+            <strong>Wat is het voordeel van MT940?</strong>
+            <p className="text-muted-foreground mt-2">MT940 is een wereldwijde standaard. Het wordt ondersteund door Twinfield, Exact, AFAS, SnelStart, Moneybird en vrijwel alle andere boekhoudpakketten.</p>
+          </div>
+          <div className="border rounded-xl p-4">
+            <strong>Werkt dit met ING Zakelijk én ING Privé?</strong>
+            <p className="text-muted-foreground mt-2">Ja! Alle ING rekeningtypes worden ondersteund — zowel zakelijk als particulier.</p>
+          </div>
+          <div className="border rounded-xl p-4">
+            <strong>Is mijn bankafschrift veilig?</strong>
+            <p className="text-muted-foreground mt-2">Ja. Je PDF wordt versleuteld verwerkt en na 24 uur automatisch verwijderd. Wij zijn volledig AVG-compliant.</p>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-[#00b8d9]/10 to-cyan-500/10 border border-[#00b8d9]/20 rounded-xl p-8 text-center">
+          <h2 className="text-2xl font-bold mb-2">Klaar om te beginnen?</h2>
+          <p className="text-muted-foreground mb-6">Je eerste 2 conversies zijn gratis. Geen creditcard nodig.</p>
+          <Link href="/register" className="inline-flex items-center gap-2 px-8 py-4 bg-[#00b8d9] text-[#080d14] rounded-lg font-semibold text-lg">
+            Converteer je ING PDF naar MT940 →
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 }

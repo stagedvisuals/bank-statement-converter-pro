@@ -1,4 +1,94 @@
-export const metadata = { title: 'ABN AMRO naar Exact Online | BSCPro', description: 'Importeer ABN AMRO in Exact Online.' };
-export default function Page() {
-  return <div className="min-h-screen bg-background"><div className="max-w-4xl mx-auto px-6 py-12"><h1 className="text-4xl font-bold mb-4">ABN AMRO naar Exact Online</h1><p className="text-lg text-muted-foreground mb-8">Zet ABN AMRO afschriften om naar Exact Online formaat.</p><div className="bg-gradient-to-r from-[#00b8d9]/10 to-cyan-500/10 border rounded-xl p-8 text-center"><a href="/" className="inline-flex items-center gap-2 px-6 py-3 bg-[#00b8d9] text-[#080d14] rounded-lg font-semibold">Start gratis →</a></div></div></div>;
+import Link from 'next/link';
+
+export const metadata = {
+  title: 'ABN AMRO naar Exact Online importeren | BSCPro',
+  description: 'Importeer ABN AMRO bankafschriften direct in Exact Online. Automatische conversie naar CAMT.053 of MT940.',
+};
+
+export default function AbnExactOnlinePage() {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        <h1 className="text-4xl font-bold mb-4">ABN AMRO naar Exact Online importeren</h1>
+        <p className="text-lg text-muted-foreground mb-8">
+          Exact Online is marktleider in cloud boekhouden. Maar ABN AMRO afschriften als PDF verwerken? Dat kost handmatig veel tijd. Met BSCPro is het binnen 10 seconden gedaan.
+        </p>
+
+        <h2 className="text-2xl font-bold mb-6">Hoe werkt het?</h2>
+        <div className="space-y-4 mb-12">
+          <div className="flex gap-4 items-start">
+            <span className="bg-[#00b8d9] text-black rounded-full w-8 h-8 flex items-center justify-center font-bold shrink-0">1</span>
+            <div>
+              <strong>Download je ABN AMRO PDF</strong>
+              <p className="text-muted-foreground">Vanuit Internet Bankieren of de Mobiel Bankieren app.</p>
+            </div>
+          </div>
+          <div className="flex gap-4 items-start">
+            <span className="bg-[#00b8d9] text-black rounded-full w-8 h-8 flex items-center justify-center font-bold shrink-0">2</span>
+            <div>
+              <strong>Upload bij BSCPro</strong>
+              <p className="text-muted-foreground">Onze AI herkent automatisch alle transacties.</p>
+            </div>
+          </div>
+          <div className="flex gap-4 items-start">
+            <span className="bg-[#00b8d9] text-black rounded-full w-8 h-8 flex items-center justify-center font-bold shrink-0">3</span>
+            <div>
+              <strong>Kies CAMT.053 of MT940</strong>
+              <p className="text-muted-foreground">Exact Online ondersteunt beide formaten optimaal.</p>
+            </div>
+          </div>
+          <div className="flex gap-4 items-start">
+            <span className="bg-[#00b8d9] text-black rounded-full w-8 h-8 flex items-center justify-center font-bold shrink-0">4</span>
+            <div>
+              <strong>Importeer in Exact Online</strong>
+              <p className="text-muted-foreground">Ga naar Bank → Bankafschriften importeren in Exact Online.</p>
+            </div>
+          </div>
+        </div>
+
+        <h2 className="text-2xl font-bold mb-6">Waarom BSCPro?</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+          <div className="border rounded-xl p-4">
+            <div className="text-2xl mb-2">⚡</div>
+            <strong>Binnen 10 seconden</strong>
+            <p className="text-muted-foreground text-sm">Van PDF upload naar importeerbaar bestand.</p>
+          </div>
+          <div className="border rounded-xl p-4">
+            <div className="text-2xl mb-2">🔒</div>
+            <strong>AVG-proof</strong>
+            <p className="text-muted-foreground text-sm">Data wordt na 24 uur automatisch verwijderd.</p>
+          </div>
+          <div className="border rounded-xl p-4">
+            <div className="text-2xl mb-2">✅</div>
+            <strong>99.5% nauwkeurig</strong>
+            <p className="text-muted-foreground text-sm">Geen handmatig controleren meer nodig.</p>
+          </div>
+        </div>
+
+        <h2 className="text-2xl font-bold mb-6">Veelgestelde vragen</h2>
+        <div className="space-y-4 mb-12">
+          <div className="border rounded-xl p-4">
+            <strong>Welk formaat werkt het beste met Exact Online?</strong>
+            <p className="text-muted-foreground mt-2">Exact Online ondersteunt zowel CAMT.053 als MT940 uitstekend. CAMT.053 is moderner en bevat meer details.</p>
+          </div>
+          <div className="border rounded-xl p-4">
+            <strong>Werkt dit met ABN AMRO Zakelijk?</strong>
+            <p className="text-muted-foreground mt-2">Ja! Zowel particuliere als zakelijke ABN AMRO rekeningen worden volledig ondersteund.</p>
+          </div>
+          <div className="border rounded-xl p-4">
+            <strong>Is mijn bankafschrift veilig?</strong>
+            <p className="text-muted-foreground mt-2">Ja. Je PDF wordt versleuteld verwerkt en na 24 uur automatisch verwijderd. Wij zijn volledig AVG-compliant.</p>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-[#00b8d9]/10 to-cyan-500/10 border border-[#00b8d9]/20 rounded-xl p-8 text-center">
+          <h2 className="text-2xl font-bold mb-2">Klaar om te beginnen?</h2>
+          <p className="text-muted-foreground mb-6">Je eerste 2 conversies zijn gratis. Geen creditcard nodig.</p>
+          <Link href="/register" className="inline-flex items-center gap-2 px-8 py-4 bg-[#00b8d9] text-[#080d14] rounded-lg font-semibold text-lg">
+            Probeer gratis met jouw ABN AMRO afschrift →
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 }
