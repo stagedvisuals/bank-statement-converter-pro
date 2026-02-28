@@ -55,7 +55,7 @@ export default function Home() {
               </div>
             </div>
 
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-foreground mb-6 leading-tight" style={{ fontFamily: 'var(--font-syne), Syne, sans-serif' }}>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white mb-6 leading-tight" style={{ fontFamily: 'var(--font-syne), Syne, sans-serif' }}>
               Converteer bankafschriften <span className="text-[#00b8d9]">in seconden</span>
             </h1>
 
@@ -225,127 +225,111 @@ export default function Home() {
       <section id="pricing" className="py-20 bg-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Kies je abonnement</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-3">Kies je abonnement</h2>
             <p className="text-muted-foreground">Altijd zonder verborgen kosten. Opzeggen kan maandelijks.</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {/* TIER 1 - Pay-per-use */}
-            <div className="p-6 rounded-2xl border bg-card border-border">
-              <h3 className="text-lg font-semibold text-foreground mb-2">Pay-per-use</h3>
-              <div className="mb-3">
-                <span className="text-3xl font-bold text-foreground">€2</span>
-                <span className="text-muted-foreground text-sm"> per afschrift</span>
+            {/* TIER 1 - Losse Scan */}
+            <div className="p-6 rounded-2xl border bg-white dark:bg-[#0a1220] border-slate-200 dark:border-slate-800">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Losse Scan</h3>
+              <div className="mb-2">
+                <span className="text-3xl font-bold text-slate-900 dark:text-white">€2,00</span>
               </div>
-              <p className="text-sm text-muted-foreground mb-5">Voor zzp'ers met weinig transacties</p>
+              <p className="text-sm text-muted-foreground mb-5">Per PDF conversie</p>
               
               <ul className="space-y-3 mb-6">
-                {['Tot 5 afschriften/maand', 'Excel/CSV/MT940 export', '1 uur levertijd'].map((feature) => (
-                  <li key={feature} className="flex items-start gap-2 text-sm text-muted-foreground">
+                {['Per scan betalen', 'Excel/CSV/MT940 export', 'Directe verwerking', 'Geen abonnement'].map((feature) => (
+                  <li key={feature} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
                     <Check className="w-4 h-4 text-[#00b8d9] shrink-0 mt-0.5" />
                     {feature}
                   </li>
                 ))}
               </ul>
 
-              <button className="w-full py-3 rounded-lg font-semibold border border-cyan-500/30 text-[#00b8d9] hover:bg-cyan-500/10">
+              <button className="w-full py-3 rounded-lg font-semibold border border-[#00b8d9]/30 text-[#00b8d9] hover:bg-[#00b8d9]/10 transition-all">
                 Start gratis trial
               </button>
             </div>
 
-            {/* TIER 2 - Starter (Meest gekozen) */}
-            <div className="p-6 rounded-2xl border bg-cyan-500/10 border-[#00b8d9] relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-[#00b8d9] text-[#080d14] text-xs font-semibold rounded-full">Meest gekozen</div>
-              
-              {/* Kortingsbadge */}
-              <div className="mb-2">
-                <span className="inline-block px-3 py-1 text-[11px] font-bold text-white rounded-full" style={{ background: 'linear-gradient(135deg, #ff4444, #ff6b35)' }}>
-                  36% korting - Beperkte tijd
-                </span>
+            {/* TIER 2 - ZZP Plan */}
+            <div className="p-6 rounded-2xl border bg-white dark:bg-[#0a1220] border-[#00b8d9] relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-[#00b8d9] text-[#080d14] text-xs font-semibold rounded-full">
+                Meest populair
               </div>
               
-              <h3 className="text-lg font-semibold text-foreground mb-2">Starter</h3>
-              <div className="mb-3 flex items-baseline gap-2">
-                <span className="text-base text-muted-foreground line-through">€23,50</span>
-                <span className="text-3xl font-bold text-foreground">€15</span>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2 mt-2">ZZP Plan</h3>
+              <div className="mb-1">
+                <span className="text-3xl font-bold text-slate-900 dark:text-white">€15,00</span>
                 <span className="text-muted-foreground text-sm">/maand</span>
               </div>
-              <p className="text-sm text-muted-foreground mb-5">Voor startende ondernemers</p>
+              <p className="text-xs text-amber-600 dark:text-amber-400 mb-5">Tijdelijke actie, daarna €22,50</p>
               
               <ul className="space-y-3 mb-6">
-                {['50 afschriften/maand', 'Excel/CSV/MT940/CAMT.053', 'BTW categorisering', 'Prioriteit verwerking'].map((feature) => (
-                  <li key={feature} className="flex items-start gap-2 text-sm text-muted-foreground">
+                {['50 scans per maand', 'Excel/CSV/MT940/CAMT.053', 'BTW categorisering', 'Prioriteit verwerking'].map((feature) => (
+                  <li key={feature} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
                     <Check className="w-4 h-4 text-[#00b8d9] shrink-0 mt-0.5" />
                     {feature}
                   </li>
                 ))}
               </ul>
 
-              <button className="w-full py-3 rounded-lg font-semibold bg-[#00b8d9] text-[#080d14]">
+              <button className="w-full py-3 rounded-lg font-semibold bg-[#00b8d9] text-[#080d14] hover:shadow-[0_0_20px_rgba(0,184,217,0.4)] transition-all">
                 Start 14-daagse trial
               </button>
             </div>
 
-            {/* TIER 3 - Professional */}
-            <div className="p-6 rounded-2xl border bg-card border-border">
-              {/* Kortingsbadge */}
-              <div className="mb-2">
-                <span className="inline-block px-3 py-1 text-[11px] font-bold text-white rounded-full" style={{ background: 'linear-gradient(135deg, #ff4444, #ff6b35)' }}>
-                  25% korting - Beperkte tijd
-                </span>
-              </div>
-
-              <h3 className="text-lg font-semibold text-foreground mb-2">Professional</h3>
-              <div className="mb-3 flex items-baseline gap-2">
-                <span className="text-base text-muted-foreground line-through">€40</span>
-                <span className="text-3xl font-bold text-foreground">€30</span>
+            {/* TIER 3 - Pro Plan */}
+            <div className="p-6 rounded-2xl border bg-white dark:bg-[#0a1220] border-slate-200 dark:border-slate-800">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Pro Plan</h3>
+              <div className="mb-1">
+                <span className="text-3xl font-bold text-slate-900 dark:text-white">€30,00</span>
                 <span className="text-muted-foreground text-sm">/maand</span>
               </div>
-              <p className="text-sm text-muted-foreground mb-5">Voor drukke boekhouders</p>
+              <p className="text-xs text-amber-600 dark:text-amber-400 mb-5">Tijdelijke actie, daarna €40,00</p>
               
               <ul className="space-y-3 mb-6">
-                {['Onbeperkt afschriften', 'Directe verwerking', 'CAMT.053 + MT940', 'Prioriteit support', 'Bulk upload (10 tegelijk)'].map((feature) => (
-                  <li key={feature} className="flex items-start gap-2 text-sm text-muted-foreground">
+                {['Onbeperkt scans', 'Directe verwerking', 'CAMT.053 + MT940', 'Prioriteit support', 'Bulk upload (10 tegelijk)'].map((feature) => (
+                  <li key={feature} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
                     <Check className="w-4 h-4 text-[#00b8d9] shrink-0 mt-0.5" />
                     {feature}
                   </li>
                 ))}
               </ul>
 
-              <button className="w-full py-3 rounded-lg font-semibold border border-cyan-500/30 text-[#00b8d9] hover:bg-cyan-500/10">
+              <button className="w-full py-3 rounded-lg font-semibold border border-[#00b8d9]/30 text-[#00b8d9] hover:bg-[#00b8d9]/10 transition-all">
                 Start 14-daagse trial
               </button>
             </div>
 
-            {/* TIER 4 - Office (Binnenkort beschikbaar) */}
-            <div className="p-6 rounded-2xl border bg-card border-border opacity-60 pointer-events-none relative">
-              {/* Binnenkort banner */}
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-slate-500 text-white text-xs font-semibold rounded-full whitespace-nowrap">
-                🔜 Binnenkort beschikbaar
+            {/* TIER 4 - Enterprise (Coming Soon) */}
+            <div className="p-6 rounded-2xl border bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 relative overflow-hidden">
+              {/* Coming Soon Overlay */}
+              <div className="absolute inset-0 bg-slate-100/80 dark:bg-slate-900/80 backdrop-blur-[1px] z-10 flex items-center justify-center">
+                <div className="bg-slate-800 dark:bg-slate-700 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                  Coming Soon
+                </div>
               </div>
               
-              <h3 className="text-lg font-semibold text-foreground mb-2 mt-2">Office</h3>
-              <div className="mb-3">
-                <span className="text-3xl font-bold text-muted-foreground">€99</span>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Enterprise</h3>
+              <div className="mb-2">
+                <span className="text-3xl font-bold text-slate-900 dark:text-white">€99,00</span>
                 <span className="text-muted-foreground text-sm">/maand</span>
               </div>
-              <p className="text-sm text-muted-foreground mb-5">Voor kantoren met meerdere gebruikers</p>
+              <p className="text-sm text-muted-foreground mb-5">Kantoren en grote bedrijven</p>
               
               <ul className="space-y-3 mb-6">
-                {['Alles van Professional', 'Tot 5 gebruikers', 'Gedeelde team-omgeving', 'API toegang', 'Custom integraties', 'Accountmanager'].map((feature) => (
-                  <li key={feature} className="flex items-start gap-2 text-sm text-muted-foreground">
-                    <Check className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                {['Alles van Pro Plan', 'Tot 5 gebruikers', 'Gedeelde team-omgeving', 'API toegang', 'Custom integraties', 'Accountmanager'].map((feature) => (
+                  <li key={feature} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
+                    <Check className="w-4 h-4 text-[#00b8d9] shrink-0 mt-0.5" />
                     {feature}
                   </li>
                 ))}
               </ul>
 
-              <a 
-                href="mailto:info@bscpro.nl?subject=Interesse%20in%20Office%20plan"
-                className="block w-full py-3 rounded-lg font-semibold text-center bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
-              >
-                Notificeer mij
-              </a>
+              <button disabled className="w-full py-3 rounded-lg font-semibold bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed">
+                Binnenkort beschikbaar
+              </button>
             </div>
           </div>
         </div>
@@ -429,6 +413,12 @@ export default function Home() {
             <div>
               <h3 className="text-lg font-bold text-foreground mb-4">BSC<span className="text-[#00b8d9]">PRO</span></h3>
               <p className="text-sm text-muted-foreground">De slimste manier om bankafschriften te converteren. Bespaar uren werk per maand.</p>
+              <div className="mt-4 flex items-center gap-2">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                  🧪 Testfase
+                </span>
+                <span className="text-slate-500 text-xs">v1.0 - 27 feb 2026</span>
+              </div>
             </div>
             <div>
               <h4 className="font-semibold text-foreground mb-3">Product</h4>
@@ -455,14 +445,17 @@ export default function Home() {
             <div>
               <h4 className="font-semibold text-foreground mb-3">Juridisch</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/privacy" className="hover:text-[#00b8d9]">Privacybeleid</Link></li>
-                <li><Link href="/voorwaarden" className="hover:text-[#00b8d9]">Algemene voorwaarden</Link></li>
-                <li><Link href="/gdpr" className="hover:text-[#00b8d9]">GDPR / AVG</Link></li>
+                <li><Link href="/privacy" className="hover:text-[#00b8d9]">Privacyverklaring</Link></li>
+                <li><Link href="/voorwaarden" className="hover:text-[#00b8d9]">Algemene Voorwaarden</Link></li>
               </ul>
             </div>
           </div>
           <div className="text-center pt-8 border-t border-border">
-            <p className="text-sm text-muted-foreground">© 2026 BSC Pro. Alle rechten voorbehouden.</p>
+            <p className="text-sm text-muted-foreground mb-2">© 2026 BSC Pro. Alle rechten voorbehouden.</p>
+            <p className="text-xs text-slate-500 max-w-md mx-auto">
+              BSC PRO is een ondersteunend hulpmiddel. Controleer alle uitgelezen data altijd zelf. 
+              Wij zijn geen boekhoudkantoor en geven geen fiscaal advies.
+            </p>
           </div>
         </div>
       </footer>

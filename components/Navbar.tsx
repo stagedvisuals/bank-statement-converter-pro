@@ -39,6 +39,7 @@ export default function Navbar() {
 
   const navLinks = [
     { href: '/over-ons', label: 'Over ons' },
+    { href: '/tools', label: 'Tools' },
     { href: '#calculator', label: 'Bereken je winst' },
     { href: '#pricing', label: 'Prijzen' },
   ];

@@ -69,9 +69,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Get user profile - handle case where profile doesn't exist
     const { data: profile, error: profileError } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .select('*')
-      .eq('id', data.user?.id)
+      .eq('user_id', data.user?.id)
       .single()
 
     // STAP 3: Update user profile met login info
@@ -80,13 +80,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (profile && data.user) {
       // Update login info
       const { error: updateError } = await supabase
-        .from('profiles')
+        .from('user_profiles')
         .update({
           last_login_ip: ipAddress,
           last_login_at: now,
           login_count: (profile.login_count || 0) + 1
         })
-        .eq('id', data.user.id)
+        .eq('user_id', data.user.id)
 
       if (updateError) {
         console.log('[API Login] Failed to update login info:', updateError.message)
@@ -126,9 +126,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.log('[API Login] Profile not found, creating fallback')
       // Create profile if it doesn't exist
       const { data: newProfile, error: createError } = await supabase
-        .from('profiles')
+        .from('user_profiles')
         .insert({
-          id: data.user?.id,
+          user_id: data.user?.id,
           email: data.user?.email,
           full_name: data.user?.email?.split('@')[0] || 'User',
           role: 'user',

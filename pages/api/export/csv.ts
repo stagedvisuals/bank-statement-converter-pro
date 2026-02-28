@@ -10,22 +10,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // BOM for Excel UTF-8 support
     const BOM = '\uFEFF';
     
-    // Headers
-    const headers = ['Datum', 'Omschrijving', 'Categorie', 'BTW_Percentage', 'Bedrag', 'Saldo', 'IBAN', 'Tegenrekening'];
+    // Headers met categorisatie
+    const headers = ['Datum', 'Omschrijving', 'Categorie', 'Grootboek', 'BTW_Percentage', 'Bedrag', 'Saldo', 'IBAN', 'Tegenrekening', 'Methode'];
     let csv = BOM + headers.join(';') + '\n';
+    
+    // Haal classificaties op
+    const SmartCategorizationEngine = (await import('@/lib/smart-categorization')).default;
+    const categorizationEngine = new SmartCategorizationEngine(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    const classifications = await categorizationEngine.classifyTransactions(
+      transactions,
+      req.body.user?.id || 'anonymous'
+    );
     
     let runningBalance = 0;
     transactions.forEach((t: any) => {
       runningBalance += t.bedrag;
+      const classification = t.id ? classifications.get(t.id) : null;
+      
       const row = [
         t.datum,  // DD-MM-YYYY formaat
         `"${t.omschrijving?.replace(/"/g, '""')}"`,  // Escape quotes
-        `${t.categoryEmoji || ''} ${t.categoryName || t.category}`,
-        `${t.btw?.rate || 21}`,
+        classification?.category_name || t.categoryName || t.category || 'Niet geclassificeerd',
+        classification?.grootboek_code || '',  // Grootboekrekening
+        classification?.btw_percentage || t.btw?.rate || 21,
         t.bedrag.toFixed(2),  // Punt als decimaal
         runningBalance.toFixed(2),
         rekeningnummer || '',
-        ''  // Tegenrekening
+        '',  // Tegenrekening
+        classification?.method === 'rule_match' ? 'Automatisch' : 'Handmatig'
       ];
       csv += row.join(';') + '\n';
     });

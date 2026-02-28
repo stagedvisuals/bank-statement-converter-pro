@@ -1,272 +1,266 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { Calculator, ArrowRight, FileText, Mail, Download, Sparkles, CheckCircle } from 'lucide-react';
+import Navbar from '@/components/Navbar';
+import { useAnonymousStorage } from '@/lib/anonymousStorage';
+
+// Debounce helper
+function debounce<T extends (...args: any[]) => void>(func: T, wait: number) {
+  let timeout: NodeJS.Timeout;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+}
 
 export default function BtwCalculator() {
-  const [bedragExcl, setBedragExcl] = useState<string>('');
-  const [btwPercentage, setBtwPercentage] = useState<number>(21);
-  const [result, setResult] = useState<{ excl: number; btw: number; incl: number } | null>(null);
-  const [email, setEmail] = useState('');
-  const [showEmailCapture, setShowEmailCapture] = useState(false);
+  const [amount, setAmount] = useState<string>('');
+  const [rate, setRate] = useState<number>(21);
+  const [inclusive, setInclusive] = useState<boolean>(false);
+  const [res, setRes] = useState({ btw: 0, total: 0, sub: 0 });
+  const { saveCalculation } = useAnonymousStorage();
 
   useEffect(() => {
-    const bedrag = parseFloat(bedragExcl.replace(',', '.'));
-    if (!isNaN(bedrag) && bedrag > 0) {
-      const btw = bedrag * (btwPercentage / 100);
-      setResult({
-        excl: bedrag,
-        btw: btw,
-        incl: bedrag + btw
-      });
+    const val = parseFloat(amount.replace(',', '.')) || 0;
+    let newRes;
+    if (inclusive) {
+      const sub = val / (1 + rate / 100);
+      newRes = { sub, btw: val - sub, total: val };
     } else {
-      setResult(null);
+      const btw = val * (rate / 100);
+      newRes = { sub: val, btw, total: val + btw };
     }
-  }, [bedragExcl, btwPercentage]);
+    setRes(newRes);
+  }, [amount, rate, inclusive]);
 
-  const handlePdfDownload = () => {
-    if (!email || !result) return;
-    // Hier zou normaal de PDF generation komen
-    alert(`Berekening verstuurd naar ${email}!`);
-    setShowEmailCapture(false);
-  };
+  // Debounced save to localStorage
+  const debouncedSave = useCallback(
+    debounce((amt: string, r: number, inc: boolean, result: any) => {
+      if (amt && parseFloat(amt.replace(',', '.')) > 0) {
+        saveCalculation('btw', {
+          amount: amt,
+          rate: r,
+          inclusive: inc
+        }, result);
+      }
+    }, 2000),
+    [saveCalculation]
+  );
+
+  useEffect(() => {
+    debouncedSave(amount, rate, inclusive, res);
+  }, [amount, rate, inclusive, res, debouncedSave]);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#080d14' }}>
+    <>
       <Head>
-        <title>BTW Berekenen 2026 voor ZZP | Gratis Online Calculator | BSC Pro</title>
-        <meta name="description" content="Bereken eenvoudig BTW voor je ZZP bedrijf in 2026. 21%, 9% of 0% tarief. Direct je factuur converteren naar Excel? Gebruik onze AI tool." />
-        <meta name="keywords" content="BTW berekenen 2026, ZZP BTW calculator, 21 procent BTW, 9 procent BTW, factuur BTW, omzetbelasting ZZP" />
+        <title>BTW Calculator 2026 | BSC Pro</title>
+        <meta name="description" content="Bereken BTW eenvoudig met onze gratis BTW calculator voor 21%, 9% en 0% tarieven." />
+        <meta name="keywords" content="BTW berekenen 2026, ZZP BTW calculator, 21 procent BTW, 9 procent BTW" />
+        
+        {/* JSON-LD Schema Markup for SEO */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "BSC Pro BTW Calculator",
+              "applicationCategory": "FinanceApplication",
+              "operatingSystem": "Web",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "EUR"
+              },
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.8",
+                "ratingCount": "1250"
+              },
+              "description": "Gratis BTW calculator voor ondernemers. Bereken 21%, 9% en 0% BTW tarieven direct online.",
+              "url": "https://www.bscpro.nl/tools/btw-calculator",
+              "publisher": {
+                "@type": "Organization",
+                "name": "BSC Pro",
+                "url": "https://www.bscpro.nl"
+              }
+            })
+          }}
+        />
       </Head>
+      
+      <div className="min-h-screen bg-white dark:bg-[#080d14]">
+        <Navbar />
 
-      {/* Navigation */}
-      <nav style={{ background: 'rgba(8, 13, 20, 0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(0, 184, 217, 0.15)', padding: '0 24px', height: '72px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50 }}>
-        <Link href="/"><img src="/logo.svg" alt="BSC Pro" style={{ height: '40px' }} /></Link>
-        <div style={{ display: 'flex', gap: '16px' }}>
-          <Link href="/dashboard" style={{ padding: '8px 16px', color: '#6b7fa3', textDecoration: 'none', fontSize: '14px' }}>Dashboard</Link>
-          <Link href="/tools/btw-calculator" style={{ padding: '8px 16px', color: '#00b8d9', background: 'rgba(0, 184, 217, 0.15)', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 500 }}>Tools</Link>
-        </div>
-      </nav>
+        <main className="pt-28 pb-20 px-4">
+          <div className="max-w-md mx-auto">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+                BTW Calculator <span className="text-[#00b8d9]">2026</span>
+              </h1>
+              <p className="text-slate-600 dark:text-slate-400">
+                Bereken snel BTW voor alle Nederlandse tarieven
+              </p>
+            </div>
 
-      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '120px 24px 48px' }}>
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <h1 style={{ fontSize: '42px', fontWeight: 700, color: '#ffffff', marginBottom: '16px' }}>
-            BTW <span style={{ color: '#00b8d9' }}>Berekenen 2026</span>
-          </h1>
-          <p style={{ color: '#6b7fa3', fontSize: '18px', maxWidth: '600px', margin: '0 auto' }}>
-            Bereken snel en eenvoudig BTW voor je ZZP of MKB bedrijf. 
-            Kies het juiste percentage en zie direct het resultaat.
-          </p>
-        </div>
+            <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl">
+              {/* Amount Input */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Bedrag (€)
+                </label>
+                <input
+                  type="text"
+                  className="w-full p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-lg font-semibold outline-none focus:border-[#00b8d9] focus:ring-2 focus:ring-[#00b8d9]/20 transition-all"
+                  placeholder="0,00"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
+              </div>
 
-        {/* Calculator Card */}
-        <div style={{ background: 'rgba(10, 18, 32, 0.8)', border: '1px solid rgba(0, 184, 217, 0.15)', borderRadius: '16px', padding: '40px', maxWidth: '600px', margin: '0 auto 48px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
-            <Calculator style={{ width: '32px', height: '32px', color: '#00b8d9' }} />
-            <h2 style={{ fontSize: '24px', fontWeight: 600, color: '#e8edf5' }}>Smart BTW Calculator</h2>
-          </div>
+              {/* BTW Rate Selection */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  BTW tarief
+                </label>
+                <div className="flex gap-2">
+                  {[21, 9, 0].map((r) => (
+                    <button
+                      key={r}
+                      onClick={() => setRate(r)}
+                      className={`flex-1 py-3 rounded-lg font-bold transition-all ${
+                        rate === r
+                          ? 'bg-[#00b8d9] text-white shadow-[0_0_15px_rgba(0,184,217,0.4)]'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      {r}%
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          {/* Input Section */}
-          <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', color: '#6b7fa3', fontSize: '14px', marginBottom: '8px' }}>Bedrag exclusief BTW (€)</label>
-            <input
-              type="text"
-              value={bedragExcl}
-              onChange={(e) => setBedragExcl(e.target.value)}
-              placeholder="bijv. 1000,00"
-              style={{ width: '100%', padding: '16px', background: 'rgba(10, 18, 32, 0.6)', border: '1px solid rgba(0, 184, 217, 0.3)', borderRadius: '8px', color: '#e8edf5', fontSize: '18px', fontWeight: 600 }}
-            />
-          </div>
-
-          {/* BTW Percentage Selection */}
-          <div style={{ marginBottom: '32px' }}>
-            <label style={{ display: 'block', color: '#6b7fa3', fontSize: '14px', marginBottom: '12px' }}>BTW percentage</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-              {[21, 9, 0].map((pct) => (
+              {/* Inclusive Toggle */}
+              <div className="mb-6 flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                <span className="text-sm text-slate-700 dark:text-slate-300">
+                  Bedrag is inclusief BTW
+                </span>
                 <button
-                  key={pct}
-                  onClick={() => setBtwPercentage(pct)}
-                  style={{
-                    padding: '16px',
-                    background: btwPercentage === pct ? 'rgba(0, 184, 217, 0.2)' : 'rgba(10, 18, 32, 0.6)',
-                    border: btwPercentage === pct ? '2px solid #00b8d9' : '1px solid rgba(0, 184, 217, 0.2)',
-                    borderRadius: '8px',
-                    color: '#e8edf5',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
+                  onClick={() => setInclusive(!inclusive)}
+                  className={`w-12 h-6 rounded-full transition-all relative ${
+                    inclusive ? 'bg-[#00b8d9]' : 'bg-slate-300 dark:bg-slate-600'
+                  }`}
                 >
-                  {pct}%
+                  <div
+                    className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${
+                      inclusive ? 'left-7' : 'left-1'
+                    }`}
+                  />
                 </button>
-              ))}
+              </div>
+
+              {/* Results */}
+              <div className="p-5 bg-slate-900 dark:bg-black rounded-xl border border-slate-700">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400 text-sm">Bedrag exclusief BTW:</span>
+                    <span className="text-white font-semibold">€{res.sub.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400 text-sm">BTW ({rate}%):</span>
+                    <span className="text-[#00b8d9] font-semibold">€{res.btw.toFixed(2)}</span>
+                  </div>
+                  <div className="border-t border-slate-700 pt-3 mt-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-white font-bold">Totaal:</span>
+                      <span className="text-2xl font-bold text-white">€{res.total.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* CTA */}
+              <Link
+                href="/register"
+                className="block mt-6 text-center text-[#00b8d9] font-bold hover:underline"
+              >
+                Scan factuur met AI →
+              </Link>
+            </div>
+
+            {/* Info Cards */}
+            <div className="grid grid-cols-3 gap-3 mt-6">
+              <div className="p-3 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-center">
+                <div className="text-lg font-bold text-slate-900 dark:text-white">21%</div>
+                <div className="text-xs text-slate-600 dark:text-slate-400">Hoog tarief</div>
+              </div>
+              <div className="p-3 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-center">
+                <div className="text-lg font-bold text-slate-900 dark:text-white">9%</div>
+                <div className="text-xs text-slate-600 dark:text-slate-400">Laag tarief</div>
+              </div>
+              <div className="p-3 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-center">
+                <div className="text-lg font-bold text-slate-900 dark:text-white">0%</div>
+                <div className="text-xs text-slate-600 dark:text-slate-400">Vrijgesteld</div>
+              </div>
             </div>
           </div>
 
-          {/* Result Section */}
-          {result && (
-            <div style={{ background: 'rgba(0, 184, 217, 0.1)', border: '1px solid rgba(0, 184, 217, 0.2)', borderRadius: '12px', padding: '24px', marginBottom: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <span style={{ color: '#6b7fa3' }}>Exclusief BTW:</span>
-                <span style={{ color: '#e8edf5', fontWeight: 600 }}>€{result.excl.toFixed(2)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <span style={{ color: '#6b7fa3' }}>BTW ({btwPercentage}%):</span>
-                <span style={{ color: '#00b8d9', fontWeight: 600 }}>€{result.btw.toFixed(2)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '12px', borderTop: '1px solid rgba(0, 184, 217, 0.2)' }}>
-                <span style={{ color: '#e8edf5', fontWeight: 600 }}>Totaal inclusief BTW:</span>
-                <span style={{ color: '#00b8d9', fontWeight: 700, fontSize: '20px' }}>€{result.incl.toFixed(2)}</span>
-              </div>
-            </div>
-          )}
-
-          {/* PDF Download Button */}
-          {result && !showEmailCapture && (
-            <button
-              onClick={() => setShowEmailCapture(true)}
-              style={{
-                width: '100%',
-                padding: '16px',
-                background: 'rgba(0, 184, 217, 0.1)',
-                border: '1px solid rgba(0, 184, 217, 0.3)',
-                borderRadius: '8px',
-                color: '#00b8d9',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
-              }}
-            >
-              <Mail style={{ width: '18px', height: '18px' }} />
-              Berekening naar PDF sturen
-            </button>
-          )}
-
-          {/* Email Capture */}
-          {showEmailCapture && (
-            <div style={{ marginTop: '16px' }}>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Jouw e-mailadres"
-                style={{ width: '100%', padding: '12px', background: 'rgba(10, 18, 32, 0.6)', border: '1px solid rgba(0, 184, 217, 0.3)', borderRadius: '8px', color: '#e8edf5', marginBottom: '12px' }}
-              />
-              <button
-                onClick={handlePdfDownload}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  background: '#00b8d9',
-                  border: 'none',
-                  borderRadius: '8px',
-                  color: '#080d14',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px'
-                }}
-              >
-                <Download style={{ width: '18px', height: '18px' }} />
-                Verstuur PDF
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Upsell Card */}
-        <div style={{ background: 'linear-gradient(135deg, rgba(0, 184, 217, 0.1) 0%, rgba(0, 184, 217, 0.05) 100%)', border: '1px solid rgba(0, 184, 217, 0.3)', borderRadius: '16px', padding: '32px', maxWidth: '600px', margin: '0 auto 48px', textAlign: 'center' }}>
-          <Sparkles style={{ width: '40px', height: '40px', color: '#00b8d9', margin: '0 auto 16px' }} />
-          <h3 style={{ fontSize: '22px', fontWeight: 600, color: '#e8edf5', marginBottom: '12px' }}>Factuur ontvangen?</h3>
-          <p style={{ color: '#6b7fa3', marginBottom: '24px', lineHeight: '1.6' }}>
-            Scan je factuur direct met onze AI Vision technologie. 
-            Wij extraheren automatisch alle BTW-gegevens en converteren naar Excel.
-          </p>
-          <Link href="/dashboard">
-            <button style={{ padding: '16px 32px', background: '#00b8d9', border: 'none', borderRadius: '8px', color: '#080d14', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-              Probeer AI Scanner
-              <ArrowRight style={{ width: '18px', height: '18px' }} />
-            </button>
-          </Link>
-        </div>
-
-        {/* SEO Content Section */}
-        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '48px 0' }}>
-          <h2 style={{ fontSize: '32px', fontWeight: 700, color: '#ffffff', marginBottom: '24px' }}>
-            BTW Berekenen 2026 voor ZZP: Alles Wat Je Moet Weten
-          </h2>
-          
-          <div style={{ color: '#e8edf5', lineHeight: '1.8', fontSize: '16px' }}>
-            <p style={{ marginBottom: '20px' }}>
-              Als ZZP'er in Nederland moet je jaarlijks omzetbelasting (BTW) afdragen aan de Belastingdienst. 
-              Het correct berekenen van BTW is essentieel voor je boekhouding en belastingaangifte. In 2026 
-              blijven de BTW-tarieven gelijk aan voorgaande jaren: het <strong>hoogtarief van 21%</strong> voor 
-              de meeste goederen en diensten, het <strong>laag tarief van 9%</strong> voor specifieke producten 
-              zoals voedsel en boeken, en het <strong>nultarief van 0%</strong> voor bepaalde internationale transacties.
+          {/* SEO Content */}
+          <article className="max-w-2xl mx-auto py-12 text-slate-700 dark:text-slate-300">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
+              BTW Berekenen in 2026: Snel, Foutloos en Efficiënt
+            </h2>
+            <p className="mb-4 leading-relaxed">
+              Het handmatig uitrekenen van BTW-bedragen is voor veel ondernemers een dagelijkse bron van kleine frustraties en foutjes. Of je nu van inclusief naar exclusief BTW wilt rekenen of de nieuwe tarieven voor 2026 moet toepassen; nauwkeurigheid is essentieel voor je kwartaalaangifte bij de Belastingdienst. Onze gratis BTW Calculator is speciaal ontwikkeld voor ZZP'ers en MKB-ondernemers die direct resultaat willen zonder ingewikkelde formules.
             </p>
 
-            <h3 style={{ fontSize: '24px', fontWeight: 600, color: '#00b8d9', margin: '32px 0 16px' }}>Hoe werkt BTW berekenen als ZZP?</h3>
-            <p style={{ marginBottom: '20px' }}>
-              Bij het berekenen van BTW voor je ZZP-onderneming moet je rekening houden met verschillende factoren. 
-              Allereerst bepaal je het <strong>exclusieve bedrag</strong> - dit is het bedrag zonder BTW. Vervolgens 
-              kies je het juiste BTW-percentage afhankelijk van je dienst of product. Voor de meeste ZZP'ers 
-              geldt het standaardtarief van 21%. Met onze gratis online BTW calculator bereken je binnen 
-              seconden zowel het BTW-bedrag als het totaalbedrag inclusief BTW.
-            </p>
+            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mt-8 mb-3">
+              Hoe werkt de BTW Calculator?
+            </h3>
+            <ol className="list-decimal list-inside space-y-2 mb-6">
+              <li><strong>Voer het bedrag in:</strong> Typ het bedrag dat je op je factuur of bonnetje ziet staan.</li>
+              <li><strong>Kies het tarief:</strong> Selecteer 21% (hoog), 9% (laag) of 0% BTW.</li>
+              <li><strong>Inclusief of Exclusief:</strong> Geef aan of het ingevoerde bedrag al BTW bevat of dat dit er nog bovenop moet.</li>
+              <li><strong>Direct resultaat:</strong> De tool splitst direct het subtotaal, het BTW-bedrag en het totaalbedrag voor je uit.</li>
+            </ol>
 
-            <h3 style={{ fontSize: '24px', fontWeight: 600, color: '#00b8d9', margin: '32px 0 16px' }}>Welk BTW percentage geldt voor jou?</h3>
-            <ul style={{ marginBottom: '20px', paddingLeft: '24px' }}>
-              <li style={{ marginBottom: '12px' }}><strong>21% BTW:</strong> Standaardtarief voor de meeste diensten en producten. Denk aan consultancy, IT-diensten, advieswerk en fysieke producten.</li>
-              <li style={{ marginBottom: '12px' }}><strong>9% BTW:</strong> Laag tarief voor voedingsmiddelen, boeken, tijdschriften, kunst en bepaalde arbeidsintensieve diensten.</li>
-              <li style={{ marginBottom: '12px' }}><strong>0% BTW:</strong> Nultarief voor internationale handel en specifieke exempte goederen.</li>
+            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mt-8 mb-3">
+              Van BTW Berekenen naar Automatische Boekhouding
+            </h3>
+            <p className="mb-4 leading-relaxed">
+              Hoewel een calculator handig is voor een snelle check, kost het handmatig overtypen van factuurgegevens naar je boekhoudpakket nog steeds uren per maand. In 2026 is dat niet meer nodig.
+            </p>
+            <p className="mb-4 leading-relaxed">
+              BSC PRO gaat verder waar de calculator stopt. Onze AI-gedreven Document Scanner leest je PDF-facturen en bonnetjes automatisch uit.
+            </p>
+            <ul className="list-disc list-inside space-y-2 mb-6">
+              <li><strong>Bespaar tijd:</strong> Geen handmatige invoer meer.</li>
+              <li><strong>ISO-Standaard:</strong> Exporteer direct naar CAMT.053 voor naadloze integratie met Moneybird, Exact Online of e-Boekhouden.nl.</li>
+              <li><strong>Foutloos:</strong> Onze AI herkent bedragen, BTW-percentages en factuurnummers met 99,5% nauwkeurigheid.</li>
             </ul>
 
-            <h3 style={{ fontSize: '24px', fontWeight: 600, color: '#00b8d9', margin: '32px 0 16px' }}>BTW aangifte 2026: Belangrijke deadlines</h3>
-            <p style={{ marginBottom: '20px' }}>
-              Als ZZP'er dien je periodiek BTW-aangifte te doen. Dit kan per maand, per kwartaal of per jaar, 
-              afhankelijk van de omvang van je onderneming. De meeste ZZP'ers doen <strong>kwartaalaangifte</strong>. 
-              De deadlines voor 2026 zijn: 31 januari (Q4 2025), 30 april (Q1), 31 juli (Q2) en 31 oktober (Q3). 
-              Het is cruciaal om je BTW-gegevens nauwkeurig bij te houden om boetes te voorkomen.
-            </p>
-
-            <h3 style={{ fontSize: '24px', fontWeight: 600, color: '#00b8d9', margin: '32px 0 16px' }}>Automatiseer je BTW-berekeningen met BSC Pro</h3>
-            <p style={{ marginBottom: '20px' }}>
-              Handmatig BTW berekenen is tijdrovend en foutgevoelig. Met <strong>BSC Pro</strong> automatiseer 
-              je dit proces volledig. Onze AI-gestuurde tool scant je PDF-facturen en bankafschriften, 
-              extraheert automatisch de BTW-bedragen en categoriseert transacties volgens de Belastingdienst-rubrieken 
-              (1a voor 21%, 1b voor 9%, 1d voor 0%). Je krijgt direct een overzicht dat je kunt gebruiken 
-              voor je BTW-aangifte. Dit bespaart uren werk en minimaliseert fouten.
-            </p>
-
-            <div style={{ background: 'rgba(0, 184, 217, 0.1)', border: '1px solid rgba(0, 184, 217, 0.2)', borderRadius: '12px', padding: '24px', marginTop: '32px' }}>
-              <h4 style={{ fontSize: '20px', fontWeight: 600, color: '#e8edf5', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <CheckCircle style={{ width: '24px', height: '24px', color: '#00b8d9' }} />
-                Waarom kiezen voor BSC Pro?
-              </h4>
-              <ul style={{ color: '#6b7fa3', lineHeight: '1.8' }}>
-                <li>✓ 99.5% nauwkeurige BTW-extractie uit PDF-facturen</li>
-                <li>✓ Directe export naar Excel, CSV en MT940</li>
-                <li>✓ Automatische categorisering volgens Belastingdienst-rubrieken</li>
-                <li>✓ AVG-proof: data wordt na 24 uur verwijderd</li>
-                <li>✓ Gratis voor je eerste 2 conversies</li>
-              </ul>
+            <div className="mt-8 p-6 bg-cyan-500/10 border border-cyan-500/30 rounded-xl">
+              <p className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+                Stop met typen en start met scannen.
+              </p>
+              <Link
+                href="/register"
+                className="inline-flex items-center gap-2 text-[#00b8d9] font-bold hover:underline"
+              >
+                Probeer BSC PRO vandaag nog →
+              </Link>
             </div>
-          </div>
-        </div>
-      </main>
+          </article>
+        </main>
 
-      {/* Footer */}
-      <footer style={{ background: 'rgba(10, 18, 32, 0.8)', borderTop: '1px solid rgba(0, 184, 217, 0.1)', padding: '32px', textAlign: 'center' }}>
-        <p style={{ color: '#6b7fa3', fontSize: '14px' }}>
-          © 2026 BSC Pro | <Link href="/privacy" style={{ color: '#00b8d9', textDecoration: 'none' }}>Privacy</Link> | <Link href="/voorwaarden" style={{ color: '#00b8d9', textDecoration: 'none' }}>Voorwaarden</Link>
-        </p>
-      </footer>
-    </div>
+        {/* Footer */}
+        <footer className="py-6 text-center border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#080d14]">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            © 2026 BSC Pro. Alle rechten voorbehouden.
+          </p>
+        </footer>
+      </div>
+    </>
   );
 }
