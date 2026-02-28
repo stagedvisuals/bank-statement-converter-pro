@@ -49,6 +49,16 @@ export default function Footer() {
                   SnelStart koppeling
                 </Link>
               </li>
+              <li>
+                <Link href="/abn-amro/twinfield-importeren" className="text-slate-400 hover:text-[#00b8d9] text-sm transition-colors">
+                  ABN AMRO → Twinfield
+                </Link>
+              </li>
+              <li>
+                <Link href="/ing/afas-importeren" className="text-slate-400 hover:text-[#00b8d9] text-sm transition-colors">
+                  ING → AFAS
+                </Link>
+              </li>
             </ul>
           </div>
 
