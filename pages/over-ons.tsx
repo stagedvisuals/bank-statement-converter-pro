@@ -5,7 +5,7 @@ import { FileText, Zap, Shield, Clock, CheckCircle, ArrowRight, Building2, Users
 
 export default function OverOnsPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
       <Head>
         <title>Over Ons | BSC Pro - De onmisbare schakel in jouw boekhouding</title>
         <meta name="description" content="BSC Pro transformeert PDF-bankafschriften in foutloze, direct importeerbare data voor Exact, SnelStart, Moneybird en meer." />

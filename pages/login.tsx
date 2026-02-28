@@ -58,7 +58,7 @@ export default function LoginPage() {
         <meta name="robots" content="noindex, follow" />
       </Head>
       
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background relative">
         <Navbar />
 
         <div className="pt-28 pb-16 min-h-[calc(100vh-200px)] flex items-center justify-center px-4">

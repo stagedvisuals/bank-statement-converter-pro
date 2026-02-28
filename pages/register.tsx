@@ -52,7 +52,7 @@ export default function RegisterPage() {
         <Head>
           <title>Registratie Succesvol | BSC Pro</title>
         </Head>
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background relative">
           <Navbar />
           <div className="pt-28 min-h-[calc(100vh-200px)] flex items-center justify-center px-4">
             <div className="bg-card border border-border rounded-2xl p-10 max-w-md w-full text-center">
@@ -86,7 +86,7 @@ export default function RegisterPage() {
         <meta name="robots" content="noindex, follow" />
       </Head>
       
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background relative">
         <Navbar />
 
         <div className="pt-28 pb-16 min-h-[calc(100vh-200px)] flex items-center justify-center px-4">
