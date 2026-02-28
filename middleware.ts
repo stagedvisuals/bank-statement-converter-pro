@@ -27,6 +27,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // ✅ BEHEER BYPASS - Altijd toestaan (backup admin route)
+  if (pathname.startsWith('/beheer')) {
+    return NextResponse.next()
+  }
+
   // Skip static files en API routes
   if (STATIC_ROUTES.some(route => pathname.startsWith(route))) {
     return NextResponse.next()
@@ -50,5 +55,5 @@ export async function middleware(request: NextRequest) {
 
 // ✅ CONFIGURATIE AANGEPAST - admin toegevoegd aan matcher
 export const config = {
-  matcher: ['/((?!api|_next|_static|favicon|admin).*)'],
+  matcher: ['/((?!api|_next|_static|favicon|admin|beheer).*)'],
 }
