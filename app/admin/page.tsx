@@ -71,8 +71,7 @@ export default function AdminPage() {
   };
 
   if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    return (<div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="bg-card border border-border rounded-2xl p-8 max-w-md w-full">
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -107,8 +106,7 @@ export default function AdminPage() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background">
+  return (<div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-6 py-4">
