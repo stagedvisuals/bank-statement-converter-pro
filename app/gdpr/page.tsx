@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'GDPR/AVG - BSCPro',
-  description: 'BSCPro is AVG-compliant. Lees hoe wij omgaan met persoonsgegevens.',
+  title: 'GDPR/AVG Compliance - BSCPro',
+  description: 'BSCPro is volledig AVG-compliant. Lees hoe wij omgaan met persoonsgegevens.',
 };
 
 export default function GDPRPage() {
