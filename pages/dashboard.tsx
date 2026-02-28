@@ -52,13 +52,55 @@ export default function Dashboard() {
   const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
   const [credits, setCredits] = useState<number>(0);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
-
+  const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
+  
+  // Session timeout voor beveiliging (30 minuten inactiviteit)
+  const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minuten
+  const WARNING_TIME = 2 * 60 * 1000; // Waarschuwing 2 minuten van tevoren
+  
   useEffect(() => {
     const session = localStorage.getItem('bscpro_session');
     const userData = localStorage.getItem('bscpro_user');
     if (!session) { router.push('/login'); return; }
     if (userData) setUser(JSON.parse(userData));
     fetchCredits();
+    
+    // Inactiviteit tracker
+    let inactivityTimer: NodeJS.Timeout;
+    let warningTimer: NodeJS.Timeout;
+    
+    const resetTimers = () => {
+      clearTimeout(inactivityTimer);
+      clearTimeout(warningTimer);
+      setShowTimeoutWarning(false);
+      
+      // Waarschuwing na INACTIVITY_TIMEOUT - WARNING_TIME
+      warningTimer = setTimeout(() => {
+        setShowTimeoutWarning(true);
+      }, INACTIVITY_TIMEOUT - WARNING_TIME);
+      
+      // Logout na INACTIVITY_TIMEOUT
+      inactivityTimer = setTimeout(() => {
+        handleLogout();
+      }, INACTIVITY_TIMEOUT);
+    };
+    
+    // Event listeners voor gebruikersactiviteit
+    const events = ['mousedown', 'keydown', 'touchstart', 'scroll'];
+    events.forEach(event => {
+      window.addEventListener(event, resetTimers);
+    });
+    
+    // Start timers
+    resetTimers();
+    
+    return () => {
+      clearTimeout(inactivityTimer);
+      clearTimeout(warningTimer);
+      events.forEach(event => {
+        window.removeEventListener(event, resetTimers);
+      });
+    };
   }, [router]);
 
   const fetchCredits = async () => {
@@ -620,6 +662,43 @@ export default function Dashboard() {
               <p className="text-xs text-muted-foreground text-center">
                 Verwachte lancering: Q2 2025
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Session Timeout Warning */}
+      {showTimeoutWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-card border border-destructive/30 rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-destructive" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">Sessie verloopt bijna</h3>
+                <p className="text-xs text-muted-foreground">Veiligheidstimeout</p>
+              </div>
+            </div>
+            
+            <p className="text-muted-foreground text-sm mb-6">
+              Je wordt over <strong className="text-foreground">2 minuten</strong> automatisch uitgelogd 
+              vanwege inactiviteit. Klik op een willekeurige plek om je sessie te verlengen.
+            </p>
+            
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setShowTimeoutWarning(false)}
+                className="flex-1 py-2.5 bg-[#00b8d9] text-[#080d14] rounded-lg font-medium hover:shadow-[0_0_20px_rgba(0,184,217,0.4)] transition-all"
+              >
+                Sessie verlengen
+              </button>
+              <button 
+                onClick={handleLogout}
+                className="px-4 py-2.5 border border-border rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Uitloggen
+              </button>
             </div>
           </div>
         </div>
