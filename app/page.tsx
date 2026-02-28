@@ -444,6 +444,11 @@ export default function Home() {
                 <li><Link href="/moneybird/priverekening-pdf-importeren" className="hover:text-[#00b8d9]">PDF → Moneybird</Link></li>
                 <li><Link href="/snelstart/rabobank-pdf-importeren" className="hover:text-[#00b8d9]">Rabobank → SnelStart</Link></li>
                 <li><Link href="/exact-online/ing-prive-importeren" className="hover:text-[#00b8d9]">ING → Exact Online</Link></li>
+                <li><Link href="/abn-amro/twinfield-importeren" className="hover:text-[#00b8d9]">ABN AMRO → Twinfield</Link></li>
+                <li><Link href="/ing/afas-importeren" className="hover:text-[#00b8d9]">ING → AFAS</Link></li>
+                <li><Link href="/rabobank/mt940-exporteren" className="hover:text-[#00b8d9]">Rabobank → MT940</Link></li>
+                <li><Link href="/ing/mt940-exporteren" className="hover:text-[#00b8d9]">ING → MT940</Link></li>
+                <li><Link href="/abn-amro/exact-online-importeren" className="hover:text-[#00b8d9]">ABN AMRO → Exact Online</Link></li>
               </ul>
             </div>
             <div>
