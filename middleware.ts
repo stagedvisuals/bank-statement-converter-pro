@@ -3,9 +3,11 @@ import type { NextRequest } from 'next/server'
 
 // Routes die altijd toegankelijk moeten zijn (zelfs zonder login)
 const PUBLIC_ROUTES = [
+  '/',
   '/login',
   '/register', 
-  '/admin',  // ✅ ADMIN TOEGEVOEGD
+  '/admin',
+  '/beheer',
   '/onboarding',
   '/privacy',
   '/voorwaarden',
