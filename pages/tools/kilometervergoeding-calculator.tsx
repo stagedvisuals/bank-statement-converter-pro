@@ -222,7 +222,7 @@ export default function KilometervergoedingCalculator() {
                       href="/register"
                       className="inline-flex items-center gap-2 text-[#00b8d9] font-bold text-sm hover:underline"
                     >
-                      Start gratis trial
+                      Koop losse scan
                       <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>

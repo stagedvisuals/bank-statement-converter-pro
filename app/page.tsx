@@ -248,7 +248,7 @@ export default function Home() {
               </ul>
 
               <button className="w-full py-3 rounded-lg font-semibold border border-[#00b8d9]/30 text-[#00b8d9] hover:bg-[#00b8d9]/10 transition-all">
-                Start gratis trial
+                Koop losse scan
               </button>
             </div>
 

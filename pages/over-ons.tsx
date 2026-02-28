@@ -195,7 +195,7 @@ export default function OverOnsPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/register">
               <button className="px-8 py-4 bg-[#00b8d9] text-[#080d14] rounded-lg font-semibold text-lg hover:shadow-[0_0_30px_rgba(0,184,217,0.4)] flex items-center justify-center gap-2">
-                Start gratis trial
+                Koop losse scan
                 <ArrowRight className="w-5 h-5" />
               </button>
             </Link>

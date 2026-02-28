@@ -71,13 +71,13 @@ export default function Navbar() {
               </Link>
             ))}
             
-            {/* Koppelingen Dropdown */}
+            {/* Integraties Dropdown */}
             <div className="relative">
               <button
                 onClick={() => setKoppelingenOpen(!koppelingenOpen)}
                 className="flex items-center gap-1 text-muted-foreground hover:text-foreground text-sm font-medium transition-colors whitespace-nowrap"
               >
-                Koppelingen
+                Integraties
                 <ChevronDown className={`w-4 h-4 transition-transform ${koppelingenOpen ? 'rotate-180' : ''}`} />
               </button>
               
@@ -132,9 +132,9 @@ export default function Navbar() {
             </Link>
           ))}
           
-          {/* Mobile Koppelingen */}
+          {/* Mobile Integraties */}
           <div className="border-t border-border pt-4 mt-2">
-            <p className="text-sm text-muted-foreground mb-2">Koppelingen</p>
+            <p className="text-sm text-muted-foreground mb-2">Integraties</p>
             {koppelingenLinks.map((link) => (
               <Link
                 key={link.href}
