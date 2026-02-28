@@ -44,10 +44,12 @@ export default function Navbar() {
     { href: '#pricing', label: 'Prijzen' },
   ];
 
-  const koppelingenLinks = [
+  const integratiesLinks = [
     { href: '/moneybird/priverekening-pdf-importeren', label: 'PDF → Moneybird' },
     { href: '/snelstart/rabobank-pdf-importeren', label: 'Rabobank → SnelStart' },
     { href: '/exact-online/ing-prive-importeren', label: 'ING → Exact Online' },
+    { href: '/abn-amro/twinfield-importeren', label: 'ABN AMRO → Twinfield' },
+    { href: '/ing/afas-importeren', label: 'ING → AFAS' },
   ];
 
   return (
@@ -74,7 +76,8 @@ export default function Navbar() {
             {/* Integraties Dropdown */}
             <div className="relative">
               <button
-                onClick={() => setKoppelingenOpen(!koppelingenOpen)}
+                onMouseEnter={() => setKoppelingenOpen(true)}
+                onMouseLeave={() => setKoppelingenOpen(false)}
                 className="flex items-center gap-1 text-muted-foreground hover:text-foreground text-sm font-medium transition-colors whitespace-nowrap"
               >
                 Integraties
@@ -82,8 +85,8 @@ export default function Navbar() {
               </button>
               
               {koppelingenOpen && (
-                <div className="absolute top-full left-0 mt-2 w-56 bg-card border border-border rounded-lg shadow-lg py-2">
-                  {koppelingenLinks.map((link) => (
+                <div className="absolute top-full left-0 mt-2 w-64 bg-card border border-border rounded-lg shadow-lg py-2 z-50">
+                  {integratiesLinks.map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}

@@ -1,33 +1,50 @@
-import { Shield, Construction } from 'lucide-react';
-import { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'GDPR / AVG | BSC Pro',
-  description: 'GDPR en AVG naleving bij BSC Pro',
+export const metadata = {
+  title: 'GDPR/AVG - BSCPro',
+  description: 'BSCPro is AVG-compliant. Lees hoe wij omgaan met persoonsgegevens.',
 };
 
 export default function GDPRPage() {
   return (
-    <div className="min-h-screen bg-slate-950 py-20">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <Construction className="w-16 h-16 text-teal-400 mx-auto mb-4" />
-          <h1 className="text-4xl font-bold text-white mb-4">GDPR / AVG</h1>
-          <p className="text-[#6b7fa3]">Deze pagina wordt momenteel juridisch getoetst en geüpdatet.</p>
-        </div>
-
-        <div className="bg-slate-800/50 rounded-xl p-8 border border-slate-700 text-center">
-          <Shield className="w-12 h-12 text-teal-400 mx-auto mb-4" />
-          <p className="text-slate-300 leading-relaxed max-w-md mx-auto">
-            We werken aan een complete uitleg van hoe wij voldoen aan de GDPR (AVG) richtlijnen. 
-            Kom binnenkort terug voor meer informatie over:
+    <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        <h1 className="text-3xl font-bold text-foreground mb-6">GDPR / AVG Compliance</h1>
+        
+        <div className="prose dark:prose-invert max-w-none">
+          <p className="text-muted-foreground mb-4">
+            BSCPro is volledig compliant met de Algemene Verordening Gegevensbescherming (AVG).
           </p>
-          <ul className="mt-6 space-y-2 text-slate-400">
-            <li>• Uw rechten onder de AVG</li>
-            <li>• Hoe wij persoonsgegevens verwerken</li>
-            <li>• Data-bewaartermijnen en verwijdering</li>
-            <li>• Contactgegevens functionaris gegevensbescherming</li>
+
+          <h2 className="text-xl font-semibold mt-8 mb-4">Data minimalisatie</h2>
+          <p className="text-muted-foreground mb-4">
+            Wij verwerken alleen de data die strikt noodzakelijk is voor het converteren 
+            van je bankafschriften. Geen onnodige gegevens worden opgeslagen.
+          </p>
+
+          <h2 className="text-xl font-semibold mt-8 mb-4">Bewaartermijn</h2>
+          <p className="text-muted-foreground mb-4">
+            Alle bankafschriften en verwerkte data worden automatisch verwijderd na 24 uur. 
+            Dit is ons standaard beleid voor alle gebruikers.
+          </p>
+
+          <h2 className="text-xl font-semibold mt-8 mb-4">Verwerkersovereenkomst</h2>
+          <p className="text-muted-foreground mb-4">
+            Een verwerkersovereenkomst (VWO) is beschikbaar op verzoek voor zakelijke klanten. 
+            Neem contact op met info@bscpro.nl voor meer informatie.
+          </p>
+
+          <h2 className="text-xl font-semibold mt-8 mb-4">Je rechten onder GDPR</h2>
+          <ul className="list-disc pl-6 text-muted-foreground mb-4">
+            <li>Recht op inzage</li>
+            <li>Recht op rectificatie</li>
+            <li>Recht op vergetelheid</li>
+            <li>Recht op dataportabiliteit</li>
+            <li>Recht van bezwaar</li>
           </ul>
+
+          <h2 className="text-xl font-semibold mt-8 mb-4">Contact</h2>
+          <p className="text-muted-foreground">
+            Voor GDPR/AVG vragen: info@bscpro.nl
+          </p>
         </div>
       </div>
     </div>
