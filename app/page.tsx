@@ -21,6 +21,8 @@ import {
   Calculator
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import LiveCounter from '@/components/LiveCounter';
+import DemoSection from './sections/DemoSection';
 
 export default function Home() {
   const [statements, setStatements] = useState(20);
@@ -91,6 +93,11 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Live Counter */}
+      <div className="flex justify-center pb-4">
+        <LiveCounter />
+      </div>
+
       {/* Logos Bar */}
       <section className="py-6 bg-secondary border-y border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -128,6 +135,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Demo Section */}
+      <DemoSection />
 
       {/* Features Grid */}
       <section id="features" className="py-20 bg-secondary">

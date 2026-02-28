@@ -8,7 +8,6 @@ export async function GET() {
   try {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    // Get today's date at midnight
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
@@ -18,7 +17,6 @@ export async function GET() {
       .gte('created_at', today.toISOString());
 
     if (error) {
-      // Fallback: return a realistic number
       return NextResponse.json({ 
         count: 23 + Math.floor(Math.random() * 30),
         isReal: false
@@ -30,7 +28,6 @@ export async function GET() {
       isReal: true
     });
   } catch {
-    // Fallback bij error
     return NextResponse.json({ 
       count: 23 + Math.floor(Math.random() * 30),
       isReal: false

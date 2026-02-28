@@ -7,45 +7,12 @@ export default function MoneybirdPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-6 py-12">
-        <h1 className="text-4xl font-bold text-foreground mb-4">
-          PDF naar Moneybird importeren
-        </h1>
+        <h1 className="text-4xl font-bold mb-4">PDF naar Moneybird importeren</h1>
         <p className="text-lg text-muted-foreground mb-8">
-          Zet je PDF bankafschriften automatisch om naar een formaat dat Moneybird accepteert. 
-          Bespaar uren werk per maand.
+          Zet je PDF bankafschriften automatisch om naar een formaat dat Moneybird accepteert.
         </p>
-
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
-          <div className="bg-card border border-border rounded-xl p-6">
-            <h2 className="text-xl font-semibold mb-4">Hoe werkt het?</h2>
-            <ol className="space-y-3 text-muted-foreground">
-              <li>1. Upload je PDF bankafschrift</li>
-              <li>2. BSCPro herkent automatisch de transacties</li>
-              <li>3. Download het bestand in MT940 formaat</li>
-              <li>4. Importeer direct in Moneybird</li>
-            </ol>
-          </div>
-          
-          <div className="bg-card border border-border rounded-xl p-6">
-            <h2 className="text-xl font-semibold mb-4">Waarom BSCPro?</h2>
-            <ul className="space-y-2 text-muted-foreground">
-              <li>✓ 99.5% nauwkeurigheid</li>
-              <li>✓ AVG compliant</li>
-              <li>✓ Binnen 30 seconden klaar</li>
-              <li>✓ Gratis proefperiode</li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-r from-[#00b8d9]/10 to-cyan-500/10 border border-[#00b8d9]/20 rounded-xl p-8 text-center">
-          <h2 className="text-2xl font-bold mb-4">Probeer het gratis</h2>
-          <p className="text-muted-foreground mb-6">
-            Upload je eerste bankafschrift en zie direct het resultaat.
-          </p>
-          <a 
-            href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#00b8d9] text-[#080d14] rounded-lg font-semibold hover:shadow-lg transition-all"
-          >
+        <div className="bg-gradient-to-r from-[#00b8d9]/10 to-cyan-500/10 border rounded-xl p-8 text-center">
+          <a href="/" className="inline-flex items-center gap-2 px-6 py-3 bg-[#00b8d9] text-[#080d14] rounded-lg font-semibold">
             Start gratis proef →
           </a>
         </div>
