@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { 
   Shield, LogOut, Globe, Zap, Activity, Users, FileText, DollarSign, 
-  Settings, TrendingUp, BarChart3, Search, Download, Trash2, ArrowUpRight,
+  Wrench, TrendingUp, BarChart3, Search, Download, Trash2, ArrowUpRight,
   ArrowDownRight, Clock, CheckCircle, XCircle, AlertTriangle, RefreshCw,
   Database, Server, CreditCard, Mail, PieChart, LayoutDashboard,
   Cpu, HardDrive, Wifi, Battery, Thermometer, Eye, EyeOff, FileSpreadsheet,
@@ -82,7 +82,7 @@ export default function AdminPage() {
     { id: 'overview', label: 'Overzicht', icon: LayoutDashboard },
     { id: 'users', label: 'Gebruikers', icon: Users },
     { id: 'conversions', label: 'Conversies', icon: FileText },
-    { id: 'tools', label: 'Tools Tester', icon: Settings },
+    { id: 'tools', label: 'Tools Tester', icon: Wrench },
     { id: 'system', label: 'Systeem', icon: Server },
     { id: 'finance', label: 'Financiën', icon: DollarSign },
     { id: 'marketing', label: 'Marketing', icon: TrendingUp },
