@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'; // Admin dashboard
 import { Shield, LogOut, Globe, Zap, Activity, Users, FileText, DollarSign } from 'lucide-react';
 
 export default function AdminPage() {
