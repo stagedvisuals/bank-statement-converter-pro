@@ -336,14 +336,62 @@ export default function Dashboard() {
                   <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                     <Download className="w-5 h-5 text-[#00b8d9]" />Exporteer je data
                   </h3>
-                  {/* Standaard exports */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                    {[['excel','Excel',FileSpreadsheet], ['mt940','MT940',Database], ['csv','CSV',Table], ['camt','CAMT.053',FileCode]].map(([k,l,Icon]: any) => (
-                      <button key={k} onClick={() => setSelectedExport(k as any)} className={`flex flex-col items-center gap-2 p-4 rounded-lg cursor-pointer transition-all ${selectedExport === k ? 'bg-cyan-500/15 border-2 border-[#00b8d9]' : 'bg-background border border-border hover:border-[#00b8d9]/50'}`}>
-                        <Icon className="w-8 h-8 text-[#00b8d9]" />
-                        <span className="text-sm font-medium text-foreground">{l}</span>
-                      </button>
-                    ))}
+                  {/* Standaard exports - NL Boekhoudpakketten */}
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+                    {/* Excel - Universeel */}
+                    <button 
+                      onClick={() => setSelectedExport('excel')} 
+                      className={`flex flex-col items-center gap-2 p-4 rounded-lg cursor-pointer transition-all ${selectedExport === 'excel' ? 'bg-cyan-500/15 border-2 border-[#00b8d9]' : 'bg-background border border-border hover:border-[#00b8d9]/50'}`}
+                    >
+                      <FileSpreadsheet className="w-8 h-8 text-[#00b8d9]" />
+                      <span className="text-sm font-medium text-foreground">Excel (.xlsx)</span>
+                      <span className="text-xs text-muted-foreground">Universeel</span>
+                    </button>
+                    
+                    {/* Moneybird - Branded */}
+                    <button 
+                      onClick={() => setSelectedExport('camt')} 
+                      className={`flex flex-col items-center gap-2 p-4 rounded-lg cursor-pointer transition-all group ${selectedExport === 'camt' ? 'bg-gradient-to-br from-emerald-500/15 to-teal-500/15 border-2 border-emerald-500' : 'bg-background border border-border hover:border-emerald-500/50'}`}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                        <span className="text-white font-bold text-xs">M</span>
+                      </div>
+                      <span className="text-sm font-medium text-foreground">Moneybird</span>
+                      <span className="text-xs text-emerald-600 font-medium">(.xml)</span>
+                    </button>
+                    
+                    {/* Exact Online - Branded */}
+                    <button 
+                      onClick={() => setSelectedExport('camt')} 
+                      className={`flex flex-col items-center gap-2 p-4 rounded-lg cursor-pointer transition-all ${selectedExport === 'camt' ? 'bg-gradient-to-br from-orange-500/15 to-red-500/15 border-2 border-orange-500' : 'bg-background border border-border hover:border-orange-500/50'}`}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                        <span className="text-white font-bold text-xs">E</span>
+                      </div>
+                      <span className="text-sm font-medium text-foreground">Exact Online</span>
+                      <span className="text-xs text-orange-600 font-medium">(.xml)</span>
+                    </button>
+                  </div>
+                  
+                  {/* Legacy formaten */}
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <button 
+                      onClick={() => setSelectedExport('mt940')} 
+                      className={`flex flex-col items-center gap-2 p-3 rounded-lg cursor-pointer transition-all ${selectedExport === 'mt940' ? 'bg-cyan-500/15 border-2 border-[#00b8d9]' : 'bg-background border border-border hover:border-[#00b8d9]/50'}`}
+                    >
+                      <Database className="w-6 h-6 text-muted-foreground" />
+                      <span className="text-sm font-medium text-foreground">MT940</span>
+                      <span className="text-xs text-muted-foreground">Legacy</span>
+                    </button>
+                    
+                    <button 
+                      onClick={() => setSelectedExport('csv')} 
+                      className={`flex flex-col items-center gap-2 p-3 rounded-lg cursor-pointer transition-all ${selectedExport === 'csv' ? 'bg-cyan-500/15 border-2 border-[#00b8d9]' : 'bg-background border border-border hover:border-[#00b8d9]/50'}`}
+                    >
+                      <Table className="w-6 h-6 text-muted-foreground" />
+                      <span className="text-sm font-medium text-foreground">CSV</span>
+                      <span className="text-xs text-muted-foreground">Import</span>
+                    </button>
                   </div>
                   
                   {/* Enterprise QBO Export - Met Lock */}
@@ -373,9 +421,9 @@ export default function Dashboard() {
                   </div>
                   
                   {selectedExport === 'camt' && (
-                    <div className="mb-4 p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
-                      <p className="text-sm text-[#00b8d9]">✓ Nieuwe standaard - vervangt MT940</p>
-                      <p className="text-sm text-muted-foreground">Werkt met alle NL boekhoudpakketten</p>
+                    <div className="mb-4 p-3 bg-gradient-to-r from-emerald-500/10 via-cyan-500/10 to-orange-500/10 border border-cyan-500/20 rounded-lg">
+                      <p className="text-sm text-[#00b8d9] font-medium">✓ CAMT.053 XML Formaat</p>
+                      <p className="text-sm text-muted-foreground">Werkt met Moneybird, Exact Online, Twinfield, SnelStart en alle moderne pakketten</p>
                     </div>
                   )}
                   
