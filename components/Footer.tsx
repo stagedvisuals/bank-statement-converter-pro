@@ -50,6 +50,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/exact-online/ing-prive-importeren" className="text-slate-400 hover:text-[#00b8d9] text-sm transition-colors">
+                  ING → Exact Online
+                </Link>
+              </li>
+              <li>
                 <Link href="/abn-amro/twinfield-importeren" className="text-slate-400 hover:text-[#00b8d9] text-sm transition-colors">
                   ABN AMRO → Twinfield
                 </Link>
@@ -57,6 +62,16 @@ export default function Footer() {
               <li>
                 <Link href="/ing/afas-importeren" className="text-slate-400 hover:text-[#00b8d9] text-sm transition-colors">
                   ING → AFAS
+                </Link>
+              </li>
+              <li>
+                <Link href="/rabobank/mt940-exporteren" className="text-slate-400 hover:text-[#00b8d9] text-sm transition-colors">
+                  Rabobank → MT940
+                </Link>
+              </li>
+              <li>
+                <Link href="/ing/mt940-exporteren" className="text-slate-400 hover:text-[#00b8d9] text-sm transition-colors">
+                  ING → MT940
                 </Link>
               </li>
             </ul>

@@ -50,6 +50,9 @@ export default function Navbar() {
     { href: '/exact-online/ing-prive-importeren', label: 'ING → Exact Online' },
     { href: '/abn-amro/twinfield-importeren', label: 'ABN AMRO → Twinfield' },
     { href: '/ing/afas-importeren', label: 'ING → AFAS' },
+    { href: '/rabobank/mt940-exporteren', label: 'Rabobank → MT940' },
+    { href: '/ing/mt940-exporteren', label: 'ING → MT940' },
+    { href: '/abn-amro/exact-online-importeren', label: 'ABN AMRO → Exact Online' },
   ];
 
   return (
