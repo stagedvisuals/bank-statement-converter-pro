@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import ExcelJS from 'exceljs';
 import SmartCategorizationEngine from '@/lib/smart-categorization';
+import { detectBTW, formatBTW } from '@/lib/btw-detection';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -30,13 +31,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     worksheet.addRow([`Gegenereerd door BSCPro.nl | ${new Date().toLocaleDateString('nl-NL')}`]);
     worksheet.addRow([]);
     
-    // Headers met categorisatie kolommen
+    // Headers met categorisatie kolommen + Trust Score
     worksheet.addRow([
       'Datum', 
       'Omschrijving', 
       'Categorie',
       'Grootboek', 
       'BTW %', 
+      'Trust',  // Nieuw!
       'Bedrag', 
       'Saldo', 
       'IBAN',
@@ -56,14 +58,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     // Kolom breedtes
     worksheet.getColumn(1).width = 12;  // Datum
-    worksheet.getColumn(2).width = 40;  // Omschrijving
-    worksheet.getColumn(3).width = 20;  // Categorie
+    worksheet.getColumn(2).width = 35;  // Omschrijving
+    worksheet.getColumn(3).width = 18;  // Categorie
     worksheet.getColumn(4).width = 12;  // Grootboek
-    worksheet.getColumn(5).width = 8;   // BTW %
-    worksheet.getColumn(6).width = 15;  // Bedrag
-    worksheet.getColumn(7).width = 15;  // Saldo
-    worksheet.getColumn(8).width = 25;  // IBAN
-    worksheet.getColumn(9).width = 12;  // Match Type
+    worksheet.getColumn(5).width = 10;  // BTW %
+    worksheet.getColumn(6).width = 12;  // Trust (Nieuw!)
+    worksheet.getColumn(7).width = 12;  // Bedrag
+    worksheet.getColumn(8).width = 12;  // Saldo
+    worksheet.getColumn(9).width = 22;  // IBAN
+    worksheet.getColumn(10).width = 12; // Match Type
     
     // Data rijen met categorisatie
     let runningBalance = 0;
@@ -73,17 +76,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Haal classificatie op voor deze transactie
       const classification = t.id ? classifications.get(t.id) : null;
       
+      // BTW detectie met nieuwe engine
+      const btwResult = detectBTW(
+        t.tegenpartij || t.omschrijving || '',
+        t.omschrijving || '',
+        classification?.category_name || undefined
+      );
+      
       const row = worksheet.addRow([
         t.datum,
         t.omschrijving,
         classification?.category_name || t.categoryName || 'Niet geclassificeerd',
         classification?.grootboek_code || '',
-        classification?.btw_percentage ? `${classification.btw_percentage}%` : `${t.btw?.rate || 21}%`,
+        formatBTW(btwResult.tarief),
+        `${btwResult.trustScore.badge} ${Math.round(btwResult.trustScore.score)}%`,
         t.bedrag,
         runningBalance,
         rekeningnummer || '',
         classification?.method === 'rule_match' ? '✓ Auto' : 'Handmatig'
       ]);
+      
+      // Voeg Trust Score uitleg toe als commentaar
+      const trustCell = row.getCell(6);
+      trustCell.note = `${btwResult.trustScore.userMessage}\n\nUitleg: ${btwResult.explanation}\nBron: ${btwResult.source}`;
+      
+      // Kleur de trust score cel
+      if (btwResult.trustScore.level === 'high') {
+        trustCell.font = { color: { argb: 'FF10b981' } }; // Emerald
+      } else if (btwResult.trustScore.level === 'medium') {
+        trustCell.font = { color: { argb: 'FFf59e0b' } }; // Amber
+      } else {
+        trustCell.font = { color: { argb: 'FFdc2626' }, bold: true }; // Red
+      }
       
       // Afwisselende kleuren
       if (i % 2 === 1) {

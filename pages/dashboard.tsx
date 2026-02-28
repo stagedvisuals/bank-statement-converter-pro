@@ -3,12 +3,13 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
-import { FileText, Upload, Download, Zap, AlertTriangle, LogOut, Loader2, Brain, FileSpreadsheet, Database, FileCode, Table, History, Settings, LayoutDashboard, Calculator, Sun, Moon } from 'lucide-react';
+import { FileText, Upload, Download, Zap, AlertTriangle, LogOut, Loader2, Brain, FileSpreadsheet, Database, FileCode, Table, History, Settings, LayoutDashboard, Calculator, Sun, Moon, Shield, ShieldAlert, ShieldCheck, Lock, Globe, Crown } from 'lucide-react';
 import { Logo } from '../components/Logo';
 import SmartRulesManager from '../components/SmartRulesManager';
 import DashboardSmartTools from '../components/DashboardSmartTools';
 import OnboardingTracker from '../components/OnboardingTracker';
 import EmptyState from '../components/EmptyState';
+import { detectBTW, TrustLevel } from '@/lib/btw-detection';
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -46,6 +47,9 @@ export default function Dashboard() {
   const [categorySummary, setCategorySummary] = useState<any[]>([]);
   const [selectedExport, setSelectedExport] = useState<'excel' | 'mt940' | 'csv' | 'camt'>('excel');
   const [exportLoading, setExportLoading] = useState(false);
+  const [showEnterpriseModal, setShowEnterpriseModal] = useState(false);
+  const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
   const [credits, setCredits] = useState<number>(0);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
 
@@ -158,6 +162,7 @@ export default function Dashboard() {
   const handleExport = async () => {
     setExportLoading(true);
     try {
+      // QBO is verwijderd - alleen via Enterprise modal beschikbaar
       const endpoints: any = { excel: '/api/export/excel', mt940: '/api/export/mt940', csv: '/api/export/csv', camt: '/api/export/camt' };
       const filenames: any = { excel: `BSC-PRO-${bank}-Export.xlsx`, mt940: `BSC-PRO-${bank}-MT940.sta`, csv: `BSC-PRO-${bank}-Export.csv`, camt: `BSC-PRO-${bank}-CAMT053.xml` };
       const response = await fetch(endpoints[selectedExport], {
@@ -185,9 +190,25 @@ export default function Dashboard() {
     return m[scanStatus] || ''; 
   };
 
-  const btw21 = transactions.filter(t => t.btw?.rate === 21).reduce((sum, t) => sum + (t.bedrag * 0.21), 0);
-  const btw9 = transactions.filter(t => t.btw?.rate === 9).reduce((sum, t) => sum + (t.bedrag * 0.09), 0);
-  const btw0 = transactions.filter(t => t.btw?.rate === 0).reduce((sum, t) => sum + t.bedrag, 0);
+  // Bereken BTW met Trust Score analyse
+  const transactionsWithTrust = transactions.map(t => {
+    const btwResult = detectBTW(t.tegenpartij || t.omschrijving || '', t.omschrijving || '');
+    return { ...t, btwResult };
+  });
+  
+  const highTrustCount = transactionsWithTrust.filter(t => t.btwResult.trustScore.level === 'high').length;
+  const mediumTrustCount = transactionsWithTrust.filter(t => t.btwResult.trustScore.level === 'medium').length;
+  const lowTrustCount = transactionsWithTrust.filter(t => t.btwResult.trustScore.level === 'low').length;
+  
+  const btw21 = transactionsWithTrust
+    .filter(t => t.btwResult.tarief === 21)
+    .reduce((sum, t) => sum + (t.bedrag * 0.21), 0);
+  const btw9 = transactionsWithTrust
+    .filter(t => t.btwResult.tarief === 9)
+    .reduce((sum, t) => sum + (t.bedrag * 0.09), 0);
+  const btw0 = transactionsWithTrust
+    .filter(t => t.btwResult.tarief === 0)
+    .reduce((sum, t) => sum + t.bedrag, 0);
   const totalBtw = btw21 + btw9;
 
   if (!user) return (
@@ -315,29 +336,91 @@ export default function Dashboard() {
                   <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                     <Download className="w-5 h-5 text-[#00b8d9]" />Exporteer je data
                   </h3>
+                  {/* Standaard exports */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                     {[['excel','Excel',FileSpreadsheet], ['mt940','MT940',Database], ['csv','CSV',Table], ['camt','CAMT.053',FileCode]].map(([k,l,Icon]: any) => (
-                      <button key={k} onClick={() => setSelectedExport(k)} className={`flex flex-col items-center gap-2 p-4 rounded-lg cursor-pointer transition-all ${selectedExport === k ? 'bg-cyan-500/15 border-2 border-[#00b8d9]' : 'bg-background border border-border hover:border-[#00b8d9]/50'}`}>
+                      <button key={k} onClick={() => setSelectedExport(k as any)} className={`flex flex-col items-center gap-2 p-4 rounded-lg cursor-pointer transition-all ${selectedExport === k ? 'bg-cyan-500/15 border-2 border-[#00b8d9]' : 'bg-background border border-border hover:border-[#00b8d9]/50'}`}>
                         <Icon className="w-8 h-8 text-[#00b8d9]" />
                         <span className="text-sm font-medium text-foreground">{l}</span>
                       </button>
                     ))}
                   </div>
+                  
+                  {/* Enterprise QBO Export - Met Lock */}
+                  <div className="border-t border-border pt-4 mt-4">
+                    <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider">Enterprise Features</p>
+                    <button 
+                      onClick={() => setShowEnterpriseModal(true)} 
+                      className="w-full flex items-center justify-between p-4 rounded-lg border border-amber-500/30 bg-gradient-to-r from-amber-500/5 to-purple-500/5 hover:from-amber-500/10 hover:to-purple-500/10 transition-all group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-purple-500 flex items-center justify-center">
+                          <Globe className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="text-left">
+                          <p className="font-medium text-foreground flex items-center gap-2">
+                            Export Internationaal (.QBO)
+                            <Lock className="w-3.5 h-3.5 text-amber-500" />
+                          </p>
+                          <p className="text-xs text-muted-foreground">QuickBooks Online, Xero, internationale boekhouding</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 to-purple-500/20 border border-amber-500/30">
+                        <Crown className="w-3.5 h-3.5 text-amber-500" />
+                        <span className="text-xs font-medium text-amber-600">Enterprise</span>
+                      </div>
+                    </button>
+                  </div>
+                  
                   {selectedExport === 'camt' && (
                     <div className="mb-4 p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
                       <p className="text-sm text-[#00b8d9]">✓ Nieuwe standaard - vervangt MT940</p>
                       <p className="text-sm text-muted-foreground">Werkt met alle NL boekhoudpakketten</p>
                     </div>
                   )}
-                  <button onClick={handleExport} disabled={exportLoading} className={`w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2 ${exportLoading ? 'bg-muted text-muted-foreground cursor-not-allowed' : 'bg-[#00b8d9] text-[#080d14] hover:shadow-[0_0_20px_rgba(0,184,217,0.4)]'}`}>
+                  
+                  <button onClick={handleExport} disabled={exportLoading} className={`w-full mt-4 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 ${exportLoading ? 'bg-muted text-muted-foreground cursor-not-allowed' : 'bg-[#00b8d9] text-[#080d14] hover:shadow-[0_0_20px_rgba(0,184,217,0.4)]'}`}>
                     {exportLoading ? <><Loader2 className="w-5 h-5 animate-spin" />Bezig...</> : <><Download className="w-5 h-5" />Download {selectedExport.toUpperCase()}</>}
                   </button>
                 </div>
 
                 <div className="bg-card border border-border rounded-xl p-6">
                   <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                    <Calculator className="w-5 h-5 text-[#00b8d9]" />📊 BTW Aangifte Klaar
+                    <Calculator className="w-5 h-5 text-[#00b8d9]" />📊 AI BTW Analyse
                   </h3>
+                  
+                  {/* Trust Score Dashboard */}
+                  <div className="mb-5 p-4 bg-background border border-border rounded-lg">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-medium text-foreground">Betrouwbaarheid classificaties</span>
+                      <span className="text-xs text-muted-foreground">{Math.round((highTrustCount / transactions.length) * 100)}% geautomatiseerd</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="flex items-center gap-2 p-2 bg-emerald-500/10 rounded-lg">
+                        <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Zeker</p>
+                          <p className="text-lg font-semibold text-emerald-600">{highTrustCount}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 p-2 bg-amber-500/10 rounded-lg">
+                        <Shield className="w-4 h-4 text-amber-500" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Check</p>
+                          <p className="text-lg font-semibold text-amber-600">{mediumTrustCount}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 p-2 bg-red-500/10 rounded-lg">
+                        <ShieldAlert className="w-4 h-4 text-red-500" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Controle</p>
+                          <p className="text-lg font-semibold text-red-600">{lowTrustCount}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* BTW Overzicht */}
                   <div className="grid grid-cols-3 gap-4 mb-5">
                     <div className="bg-background border border-border rounded-lg p-4">
                       <p className="text-sm text-muted-foreground mb-1">Rubriek 1a (21%)</p>
@@ -352,6 +435,7 @@ export default function Dashboard() {
                       <p className="text-xl font-semibold text-foreground">€{btw0.toFixed(2)}</p>
                     </div>
                   </div>
+                  
                   <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-4 flex items-center justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground mb-1">Te betalen BTW</p>
@@ -359,6 +443,10 @@ export default function Dashboard() {
                     </div>
                     <button className="px-5 py-2.5 bg-[#00b8d9] text-[#080d14] rounded-md font-semibold">Kopieer</button>
                   </div>
+                  
+                  <p className="mt-3 text-xs text-muted-foreground text-center">
+                    ⚠️ Controleer transacties met 🟡 en 🔴 status voordat je de BTW aangifte indient
+                  </p>
                 </div>
 
                 <SmartRulesManager />
@@ -368,6 +456,99 @@ export default function Dashboard() {
           </>
         )}
       </main>
+      
+      {/* Enterprise Modal - QBO Export Paywall */}
+      {showEnterpriseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-card border border-border rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-purple-500 flex items-center justify-center">
+                  <Crown className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">Internationale Export (QBO)</h3>
+                  <p className="text-xs text-amber-500 font-medium">Enterprise Feature</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowEnterpriseModal(false)}
+                className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
+              >
+                <span className="text-muted-foreground">✕</span>
+              </button>
+            </div>
+            
+            {/* Content */}
+            <div className="space-y-4">
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Exporteer direct naar <strong className="text-foreground">QuickBooks Online</strong>. 
+                Deze premium functie is onderdeel van ons aankomende Enterprise pakket (€99/mnd), 
+                speciaal voor e-commerce en internationale handel.
+              </p>
+              
+              {/* Features list */}
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Wat krijg je:</p>
+                <div className="flex items-center gap-2 text-sm">
+                  <Globe className="w-4 h-4 text-[#00b8d9]" />
+                  <span>QuickBooks Online integratie</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <FileCode className="w-4 h-4 text-[#00b8d9]" />
+                  <span>Xero, Sage & meer formaten</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Zap className="w-4 h-4 text-[#00b8d9]" />
+                  <span>Prioriteit support & API toegang</span>
+                </div>
+              </div>
+              
+              {/* Waitlist form */}
+              {!waitlistSubmitted ? (
+                <div className="space-y-3">
+                  <p className="text-xs text-muted-foreground">
+                    Laat je e-mail achter en we sturen je een bericht zodra Enterprise beschikbaar is.
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      type="email"
+                      placeholder="jouw@email.nl"
+                      value={waitlistEmail}
+                      onChange={(e) => setWaitlistEmail(e.target.value)}
+                      className="flex-1 px-4 py-2.5 bg-background border border-border rounded-lg text-sm focus:outline-none focus:border-[#00b8d9]"
+                    />
+                    <button
+                      onClick={() => {
+                        if (waitlistEmail.includes('@')) {
+                          setWaitlistSubmitted(true);
+                          // Hier later: API call naar wachtlijst
+                          console.log('Waitlist signup:', waitlistEmail);
+                        }
+                      }}
+                      disabled={!waitlistEmail.includes('@')}
+                      className="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-purple-500 text-white rounded-lg font-medium text-sm hover:shadow-lg hover:shadow-amber-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Inschrijven
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4 text-center">
+                  <p className="text-emerald-600 font-medium">✓ Je staat op de wachtlijst!</p>
+                  <p className="text-xs text-muted-foreground mt-1">We sturen je een e-mail zodra Enterprise live gaat.</p>
+                </div>
+              )}
+              
+              {/* Footer */}
+              <p className="text-xs text-muted-foreground text-center">
+                Verwachte lancering: Q2 2025
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

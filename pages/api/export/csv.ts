@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import { detectBTW, formatBTW } from '@/lib/btw-detection';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -30,16 +31,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       runningBalance += t.bedrag;
       const classification = t.id ? classifications.get(t.id) : null;
       
+      // BTW detectie met nieuwe engine
+      const btwResult = detectBTW(
+        t.tegenpartij || t.omschrijving || '',
+        t.omschrijving || '',
+        classification?.category_name || undefined
+      );
+      
       const row = [
-        t.datum,  // DD-MM-YYYY formaat
-        `"${t.omschrijving?.replace(/"/g, '""')}"`,  // Escape quotes
+        t.datum,
+        `"${t.omschrijving?.replace(/"/g, '""')}"`,
         classification?.category_name || t.categoryName || t.category || 'Niet geclassificeerd',
-        classification?.grootboek_code || '',  // Grootboekrekening
-        classification?.btw_percentage || t.btw?.rate || 21,
-        t.bedrag.toFixed(2),  // Punt als decimaal
+        classification?.grootboek_code || '',
+        formatBTW(btwResult.tarief),
+        t.bedrag.toFixed(2),
         runningBalance.toFixed(2),
         rekeningnummer || '',
-        '',  // Tegenrekening
+        t.tegenrekening || '',
         classification?.method === 'rule_match' ? 'Automatisch' : 'Handmatig'
       ];
       csv += row.join(';') + '\n';
