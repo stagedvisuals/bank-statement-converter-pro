@@ -351,25 +351,25 @@ export default function Dashboard() {
                     {/* Moneybird - Branded */}
                     <button 
                       onClick={() => setSelectedExport('camt')} 
-                      className={`flex flex-col items-center gap-2 p-4 rounded-lg cursor-pointer transition-all group ${selectedExport === 'camt' ? 'bg-gradient-to-br from-emerald-500/15 to-teal-500/15 border-2 border-emerald-500' : 'bg-background border border-border hover:border-emerald-500/50'}`}
+                      className={`flex flex-col items-center gap-2 p-4 rounded-lg cursor-pointer transition-all group ${selectedExport === 'camt' ? 'bg-[#21a03c]/15 border-2 border-[#21a03c]' : 'bg-background border border-border hover:border-[#21a03c]/50'}`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                        <span className="text-white font-bold text-xs">M</span>
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#21a03c' }}>
+                        <FileCode className="w-4 h-4 text-white" />
                       </div>
-                      <span className="text-sm font-medium text-foreground">Moneybird</span>
-                      <span className="text-xs text-emerald-600 font-medium">(.xml)</span>
+                      <span className="text-sm font-medium text-foreground">Export voor Moneybird</span>
+                      <span className="text-xs font-medium" style={{ color: '#21a03c' }}>Compatibel (.xml)</span>
                     </button>
                     
                     {/* Exact Online - Branded */}
                     <button 
                       onClick={() => setSelectedExport('camt')} 
-                      className={`flex flex-col items-center gap-2 p-4 rounded-lg cursor-pointer transition-all ${selectedExport === 'camt' ? 'bg-gradient-to-br from-orange-500/15 to-red-500/15 border-2 border-orange-500' : 'bg-background border border-border hover:border-orange-500/50'}`}
+                      className={`flex flex-col items-center gap-2 p-4 rounded-lg cursor-pointer transition-all ${selectedExport === 'camt' ? 'bg-[#ed1c24]/15 border-2 border-[#ed1c24]' : 'bg-background border border-border hover:border-[#ed1c24]/50'}`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
-                        <span className="text-white font-bold text-xs">E</span>
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#ed1c24' }}>
+                        <FileCode className="w-4 h-4 text-white" />
                       </div>
-                      <span className="text-sm font-medium text-foreground">Exact Online</span>
-                      <span className="text-xs text-orange-600 font-medium">(.xml)</span>
+                      <span className="text-sm font-medium text-foreground">Export voor Exact Online</span>
+                      <span className="text-xs font-medium" style={{ color: '#ed1c24' }}>Compatibel (.xml)</span>
                     </button>
                   </div>
                   
@@ -430,6 +430,13 @@ export default function Dashboard() {
                   <button onClick={handleExport} disabled={exportLoading} className={`w-full mt-4 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 ${exportLoading ? 'bg-muted text-muted-foreground cursor-not-allowed' : 'bg-[#00b8d9] text-[#080d14] hover:shadow-[0_0_20px_rgba(0,184,217,0.4)]'}`}>
                     {exportLoading ? <><Loader2 className="w-5 h-5 animate-spin" />Bezig...</> : <><Download className="w-5 h-5" />Download {selectedExport.toUpperCase()}</>}
                   </button>
+                  
+                  {/* Juridische Disclaimer */}
+                  <p className="mt-3 text-[10px] text-muted-foreground text-center leading-tight">
+                    BSC Pro is een onafhankelijke dienst en is op geen enkele wijze gelieerd aan, gesponsord door, of goedgekeurd door Moneybird of Exact. 
+                    Alle merknamen en logo's zijn eigendom van hun respectieve eigenaren. De exportfunctie genereert standaard CAMT.053 XML-bestanden die 
+                    compatibel zijn met deze boekhoudpakketten. "Export voor" impliceert bestandscompatibiliteit, geen officiële integratie of partnership.
+                  </p>
                 </div>
 
                 <div className="bg-card border border-border rounded-xl p-6">
