@@ -345,41 +345,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-20 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Wat zeggen onze gebruikers?</h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { name: 'Pieter van Dijk', role: 'ZZP\'er, Amsterdam', text: '"Van 3 uur naar 5 minuten werk per maand. Dit is de beste investering voor mijn bedrijf dit jaar."', rating: 5 },
-              { name: 'Marieke Jansen', role: 'Boekhouder, Rotterdam', text: '"De MT940 export werkt perfect met Twinfield. Mijn klanten zijn verbaasd hoe snel ik nu hun boekhouding af heb."', rating: 5 },
-              { name: 'Thomas Bakker', role: 'Eigenaar, Bakker Accountants', text: '"We draaien nu 40+ afschriften per dag door BSC Pro. Geen enkel ander tool komt in de buurt qua snelheid en nauwkeurigheid."', rating: 5 },
-            ].map((testimonial) => (
-              <div key={testimonial.name} className="p-6 rounded-xl bg-card border border-border">
-                <div className="flex gap-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 text-[#00b8d9] fill-[#00b8d9]" />
-                  ))}
-                </div>
-                <p className="text-foreground text-sm mb-4 leading-relaxed">{testimonial.text}</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center">
-                    <span className="text-[#00b8d9] font-semibold text-sm">{testimonial.name.split(' ').map(n => n[0]).join('')}</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">{testimonial.name}</p>
-                    <p className="text-xs text-muted-foreground">{testimonial.role}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* FAQ */}
       <section className="py-20 bg-secondary">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
