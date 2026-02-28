@@ -30,8 +30,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       { id: '4', count: 1, total: 45.99, percentage: '8', category: { name: 'Telecom', emoji: '📞' } },
     ];
 
-    // Verwijder temp file
-    if (file.filepath) fs.unlinkSync(file.filepath);
+    // Verwijder temp file DIRECT na verwerking (AVG compliance)
+    try {
+      if (file.filepath && fs.existsSync(file.filepath)) {
+        fs.unlinkSync(file.filepath);
+        console.log(`[Security] Temp file direct verwijderd: ${file.filepath}`);
+      }
+    } catch (cleanupErr) {
+      console.error('[Security] Kon temp file niet verwijderen:', cleanupErr);
+    }
 
     return res.status(200).json({
       success: true,
@@ -42,6 +49,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   } catch (error: any) {
     console.error('Convert error:', error);
-    return res.status(500).json({ error: error.message || 'Verwerking mislukt' });
+    
+    // User-friendly error messages
+    const errorMessage = error.message || '';
+    let userFriendlyError = 'Oeps! Er is iets misgegaan bij het verwerken van je document.';
+    let errorType = 'unknown';
+    
+    if (errorMessage.includes('password') || errorMessage.includes('beveiligd') || errorMessage.includes('encrypted')) {
+      userFriendlyError = 'Oeps! Dit document is beveiligd met een wachtwoord. Verwijder de beveiliging en probeer opnieuw.';
+      errorType = 'password_protected';
+    } else if (errorMessage.includes('scan') || errorMessage.includes('quality') || errorMessage.includes('resolution')) {
+      userFriendlyError = 'Oeps! De kwaliteit van deze scan is te laag. Probeer een scherpere scan of foto met beter licht.';
+      errorType = 'low_quality';
+    } else if (errorMessage.includes('format') || errorMessage.includes('unsupported')) {
+      userFriendlyError = 'Oeps! Dit bestandsformaat wordt niet ondersteund. Gebruik PDF, JPG of PNG.';
+      errorType = 'unsupported_format';
+    } else if (errorMessage.includes('size') || errorMessage.includes('large')) {
+      userFriendlyError = 'Oeps! Dit bestand is te groot. Maximum is 10MB. Probeer te comprimeren.';
+      errorType = 'file_too_large';
+    } else if (errorMessage.includes('leesbaar') || errorMessage.includes('readable') || errorMessage.includes('parse')) {
+      userFriendlyError = 'Oeps! Dit document is onleesbaar of beschadigd. Probeer een andere scan of check het origineel.';
+      errorType = 'unreadable';
+    } else if (errorMessage.includes('empty') || errorMessage.includes('geen')) {
+      userFriendlyError = 'Oeps! We konden geen transacties vinden in dit document. Controleer of het een bankafschrift is.';
+      errorType = 'no_transactions';
+    }
+    
+    return res.status(500).json({ 
+      error: userFriendlyError,
+      errorType: errorType,
+      technicalError: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+    });
   }
 }

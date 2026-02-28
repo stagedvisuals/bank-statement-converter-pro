@@ -1,5 +1,21 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
+/**
+ * MT940 Sanitizer - Verwijder karakters die MT940 formaat breken
+ * MT940 is een fixed-width tekst formaat, geen XML
+ */
+function sanitizeMT940(text: string | undefined | null): string {
+  if (!text) return 'Transactie';
+  return text
+    .replace(/\r\n/g, ' ')  // Newlines naar spaties
+    .replace(/\n/g, ' ')
+    .replace(/\r/g, ' ')
+    .replace(/:/g, ' ')     // Kolons zijn field separators in MT940
+    .replace(/'/g, '')      // Quotes kunnen problemen geven
+    .substring(0, 65)       // MT940 tag 86 max 65 chars
+    .trim();
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -21,9 +37,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const datum = t.datum?.replace(/-/g, '')?.substring(2) || dateStr.substring(2);
       const bedrag = Math.abs(t.bedrag).toFixed(2).replace('.', ',');
       const isCredit = t.bedrag > 0;
+      const safeOmschrijving = sanitizeMT940(t.omschrijving);
       
       mt940 += `:61:${datum}${isCredit ? 'C' : 'D'}${bedrag}NTRF${String(i + 1).padStart(4, '0')}\r\n`;
-      mt940 += `:86:${t.omschrijving?.substring(0, 65) || 'Transactie'}\r\n`;
+      mt940 += `:86:${safeOmschrijving}\r\n`;
     });
     
     // Eindsaldo (simplified)

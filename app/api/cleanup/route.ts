@@ -22,15 +22,16 @@ export async function GET() {
       }
     })
 
-    const oneHourAgo = new Date(
-      Date.now() - 60 * 60 * 1000
+    // AVG Compliance: Verwijder bestanden ouder dan 24 uur
+    const twentyFourHoursAgo = new Date(
+      Date.now() - 24 * 60 * 60 * 1000
     ).toISOString()
 
-    // Haal oude bestanden op
+    // Haal oude bestanden op (ouder dan 24 uur)
     const { data: oldFiles, error: fetchError } = await supabase
       .from('conversions')
       .select('file_path, id')
-      .lt('created_at', oneHourAgo)
+      .lt('created_at', twentyFourHoursAgo)
 
     if (fetchError) {
       console.error('Error fetching old files:', fetchError)
@@ -56,11 +57,11 @@ export async function GET() {
         }
       }
 
-      // Verwijder database records
+      // Verwijder database records (ouder dan 24 uur)
       const { error: deleteError } = await supabase
         .from('conversions')
         .delete()
-        .lt('created_at', oneHourAgo)
+        .lt('created_at', twentyFourHoursAgo)
 
       if (deleteError) {
         console.error('Error deleting records:', deleteError)
@@ -71,12 +72,13 @@ export async function GET() {
       }
 
       deletedCount = oldFiles.length
-      console.log(`[CLEANUP] Deleted ${deletedCount} old files at ${new Date().toISOString()}`)
+      console.log(`[AVG CLEANUP] ${deletedCount} bestanden ouder dan 24 uur verwijderd op ${new Date().toISOString()}`)
     }
 
     return NextResponse.json({
       success: true,
       deleted: deletedCount,
+      message: `${deletedCount} bestanden ouder dan 24 uur verwijderd (AVG compliant)`,
       checkedAt: new Date().toISOString()
     })
 

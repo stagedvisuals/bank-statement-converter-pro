@@ -53,8 +53,8 @@ function formatQBODate(dateStr: string): string {
   return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
 }
 
-// Escape special characters for QBO
-function escapeQBO(text: string): string {
+// Escape special characters for QBO (SGML/XML)
+function escapeQBO(text: string | undefined | null): string {
   if (!text) return '';
   return text
     .replace(/&/g, '&amp;')
@@ -62,6 +62,7 @@ function escapeQBO(text: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;')
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '') // Verwijder control characters
     .substring(0, 250); // QBO has max length limits
 }
 

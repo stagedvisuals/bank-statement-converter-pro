@@ -153,9 +153,11 @@ export default function Dashboard() {
       setRekeningnummer(data.rekeningnummer || '');
       setCategorySummary(data.categorySummary || []);
       setScanStatus('done');
-    } catch (err: any) { 
-      setError(err.message); 
-      setScanStatus('error'); 
+    } catch (err: any) {
+      // Toon gebruiksvriendelijke foutmelding
+      const errorMessage = err.message || 'Er is iets misgegaan';
+      setError(errorMessage);
+      setScanStatus('error');
     }
   };
 
@@ -314,10 +316,15 @@ export default function Dashboard() {
 
               {(scanStatus === 'uploading' || scanStatus === 'analyzing' || scanStatus === 'extracting') && (
                 <div className="mt-6 text-center">
-                  <div className="inline-flex items-center gap-3 px-6 py-3 bg-cyan-500/10 border border-cyan-500/20 rounded-full">
+                  <div className="inline-flex items-center gap-3 px-6 py-3 bg-cyan-500/10 border border-cyan-500/20 rounded-full animate-pulse">
                     <Loader2 className="w-5 h-5 text-[#00b8d9] animate-spin" />
                     <Brain className="w-5 h-5 text-[#00b8d9]" />
                     <span className="text-[#00b8d9] font-medium">{getStatusText()}</span>
+                  </div>
+                  <div className="mt-4 flex justify-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-[#00b8d9] animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 rounded-full bg-[#00b8d9] animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 rounded-full bg-[#00b8d9] animate-bounce" style={{ animationDelay: '300ms' }}></div>
                   </div>
                 </div>
               )}
@@ -427,8 +434,21 @@ export default function Dashboard() {
                     </div>
                   )}
                   
-                  <button onClick={handleExport} disabled={exportLoading} className={`w-full mt-4 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 ${exportLoading ? 'bg-muted text-muted-foreground cursor-not-allowed' : 'bg-[#00b8d9] text-[#080d14] hover:shadow-[0_0_20px_rgba(0,184,217,0.4)]'}`}>
-                    {exportLoading ? <><Loader2 className="w-5 h-5 animate-spin" />Bezig...</> : <><Download className="w-5 h-5" />Download {selectedExport.toUpperCase()}</>}
+                  <button onClick={handleExport} disabled={exportLoading} className={`w-full mt-4 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 relative overflow-hidden ${exportLoading ? 'bg-muted text-muted-foreground cursor-not-allowed' : 'bg-[#00b8d9] text-[#080d14] hover:shadow-[0_0_20px_rgba(0,184,217,0.4)]'}`}>
+                    {exportLoading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>Genereren {selectedExport.toUpperCase()}...</span>
+                        <div className="absolute bottom-0 left-0 h-1 bg-[#00b8d9]/30 animate-[loading_2s_ease-in-out_infinite]" style={{ width: '100%' }}>
+                          <div className="h-full bg-[#00b8d9] animate-[progress_1.5s_ease-in-out_infinite]" style={{ width: '30%' }}></div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-5 h-5" />
+                        <span>Download {selectedExport.toUpperCase()}</span>
+                      </>
+                    )}
                   </button>
                   
                   {/* Juridische Disclaimer */}
