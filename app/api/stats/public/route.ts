@@ -8,21 +8,32 @@ export async function GET() {
   try {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    const today = new Date().toISOString().split('T')[0];
+    // Get today's date at midnight
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     
-    const { data, error } = await supabase
+    const { data, error, count } = await supabase
       .from('conversions')
       .select('id', { count: 'exact' })
-      .gte('created_at', today);
+      .gte('created_at', today.toISOString());
 
     if (error) {
-      // Fallback: gebruik een realistic getal
-      return NextResponse.json({ count: 23 + Math.floor(Math.random() * 30) });
+      // Fallback: return a realistic number
+      return NextResponse.json({ 
+        count: 23 + Math.floor(Math.random() * 30),
+        isReal: false
+      });
     }
 
-    return NextResponse.json({ count: data?.length || 0 });
+    return NextResponse.json({ 
+      count: count || 0,
+      isReal: true
+    });
   } catch {
     // Fallback bij error
-    return NextResponse.json({ count: 23 + Math.floor(Math.random() * 30) });
+    return NextResponse.json({ 
+      count: 23 + Math.floor(Math.random() * 30),
+      isReal: false
+    });
   }
 }

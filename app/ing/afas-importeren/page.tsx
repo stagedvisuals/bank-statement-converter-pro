@@ -1,0 +1,4 @@
+export const metadata = { title: 'ING naar AFAS | BSCPro', description: 'Importeer ING bankafschriften in AFAS.' };
+export default function Page() {
+  return <div className="min-h-screen bg-background"><div className="max-w-4xl mx-auto px-6 py-12"><h1 className="text-4xl font-bold text-foreground mb-4">ING naar AFAS importeren</h1><p className="text-lg text-muted-foreground mb-8">Zet je ING PDF afschriften om naar AFAS formaat.</p><div className="bg-gradient-to-r from-[#00b8d9]/10 to-cyan-500/10 border border-[#00b8d9]/20 rounded-xl p-8 text-center"><a href="/" className="inline-flex items-center gap-2 px-6 py-3 bg-[#00b8d9] text-[#080d14] rounded-lg font-semibold">Start gratis →</a></div></div></div>;
+}
