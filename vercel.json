@@ -1,15 +1,11 @@
 {
-  "version": 2,
-  "builds": [
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "crons": [
     {
-      "src": "app.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "app.py"
+      "path": "/api/cleanup",
+      "schedule": "0 */6 * * *"
     }
   ]
 }
