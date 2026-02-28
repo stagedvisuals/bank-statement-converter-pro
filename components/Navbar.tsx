@@ -44,7 +44,7 @@ export default function Navbar() {
     { href: '#pricing', label: 'Prijzen' },
   ];
 
-  const integratiesLinks = [
+  const koppelingenLinks = [
     { href: '/moneybird/priverekening-pdf-importeren', label: 'PDF → Moneybird' },
     { href: '/snelstart/rabobank-pdf-importeren', label: 'Rabobank → SnelStart' },
     { href: '/exact-online/ing-prive-importeren', label: 'ING → Exact Online' },
@@ -86,7 +86,7 @@ export default function Navbar() {
               
               {koppelingenOpen && (
                 <div className="absolute top-full left-0 mt-2 w-64 bg-card border border-border rounded-lg shadow-lg py-2 z-50">
-                  {integratiesLinks.map((link) => (
+                  {koppelingenLinks.map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}
