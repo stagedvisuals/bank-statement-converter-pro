@@ -1,7 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Shield, LogOut, Globe, Zap, Activity, Users, FileText, DollarSign } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { 
+  Shield, LogOut, Globe, Zap, Activity, Users, FileText, DollarSign, 
+  Settings, TrendingUp, BarChart3, Search, Download, Trash2, ArrowUpRight,
+  ArrowDownRight, Clock, CheckCircle, XCircle, AlertTriangle, RefreshCw,
+  Database, Server, CreditCard, Mail, PieChart, LayoutDashboard, Tool,
+  Cpu, HardDrive, Wifi, Battery, Thermometer, Eye, EyeOff, FileSpreadsheet,
+  Table, FileCode, Database as DatabaseIcon, Monitor, Smartphone,
+  ChevronDown, ChevronUp, Filter, Calendar, MoreHorizontal, Edit3,
+  Plus, Minus, RotateCcw, Save, Share2, Printer, Copy, ExternalLink,
+  Upload, Zap as ZapIcon
+} from 'lucide-react';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -31,43 +41,6 @@ export default function AdminPage() {
     setIsAuthenticated(false);
   };
 
-  const runEnterpriseTest = async () => {
-    try {
-      const response = await fetch('/api/export/qbo', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Admin-Secret': 'BSCPro2025!'
-        },
-        body: JSON.stringify({
-          transactions: [
-            { datum: '15-02-2025', omschrijving: 'Test', bedrag: -150.00, tegenpartij: 'Test Merchant' },
-            { datum: '16-02-2025', omschrijving: 'Payment', bedrag: 2500.00, tegenpartij: 'Global Corp' },
-          ],
-          bank: 'TestBank',
-          rekeningnummer: 'NL00TEST0000000000',
-          user: { bedrijfsnaam: 'Admin Test BV' }
-        })
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'ADMIN-TEST-QBO.qbo';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        alert('QBO Export succesvol!');
-      } else {
-        alert('QBO Export mislukt');
-      }
-    } catch (error) {
-      alert('Error: ' + error);
-    }
-  };
-
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -76,9 +49,10 @@ export default function AdminPage() {
             <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <Shield className="w-8 h-8 text-destructive" />
             </div>
-            <h1 className="text-2xl font-bold text-foreground">Admin Toegang</h1>
-            <p className="text-muted-foreground mt-2">Beveiligde omgeving</p>
+            <h1 className="text-2xl font-bold text-foreground">God Mode Admin</h1>
+            <p className="text-muted-foreground mt-2">BSC Pro Super Admin</p>
           </div>
+          
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">Wachtwoord</label>
@@ -91,6 +65,7 @@ export default function AdminPage() {
                 placeholder="Admin wachtwoord"
               />
             </div>
+            
             <button
               onClick={handleLogin}
               className="w-full py-3 bg-destructive text-white rounded-lg font-semibold hover:bg-destructive/90"
@@ -103,8 +78,19 @@ export default function AdminPage() {
     );
   }
 
+  const tabs = [
+    { id: 'overview', label: 'Overzicht', icon: LayoutDashboard },
+    { id: 'users', label: 'Gebruikers', icon: Users },
+    { id: 'conversions', label: 'Conversies', icon: FileText },
+    { id: 'tools', label: 'Tools Tester', icon: Tool },
+    { id: 'system', label: 'Systeem', icon: Server },
+    { id: 'finance', label: 'Financiën', icon: DollarSign },
+    { id: 'marketing', label: 'Marketing', icon: TrendingUp },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
+      {/* Header */}
       <header className="bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -113,8 +99,8 @@ export default function AdminPage() {
                 <Shield className="w-5 h-5 text-destructive" />
               </div>
               <div>
-                <h1 className="font-bold text-foreground">BSC Pro Admin</h1>
-                <p className="text-xs text-muted-foreground">God Mode</p>
+                <h1 className="font-bold text-foreground">BSC Pro God Mode</h1>
+                <p className="text-xs text-muted-foreground">Super Admin Dashboard</p>
               </div>
             </div>
             <button
@@ -128,18 +114,16 @@ export default function AdminPage() {
         </div>
       </header>
 
+      {/* Navigation */}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex gap-2 mb-8">
-          {[
-            { id: 'overview', label: 'Overzicht', icon: Activity },
-            { id: 'enterprise', label: 'Enterprise', icon: Globe },
-          ].map(({ id, label, icon: Icon }) => (
+        <div className="flex gap-2 mb-8 overflow-x-auto">
+          {tabs.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => setActiveTab(id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                activeTab === id
-                  ? 'bg-[#00b8d9]/10 text-[#00b8d9] border border-[#00b8d9]/30'
+                activeTab === id 
+                  ? 'bg-[#00b8d9]/10 text-[#00b8d9] border border-[#00b8d9]/30' 
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
             >
@@ -149,78 +133,18 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {activeTab === 'overview' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-card border border-border rounded-xl p-6">
-                <Users className="w-5 h-5 text-[#00b8d9] mb-2" />
-                <p className="text-3xl font-bold text-foreground">247</p>
-                <p className="text-xs text-muted-foreground">Gebruikers</p>
-              </div>
-              <div className="bg-card border border-border rounded-xl p-6">
-                <FileText className="w-5 h-5 text-[#00b8d9] mb-2" />
-                <p className="text-3xl font-bold text-foreground">1,843</p>
-                <p className="text-xs text-muted-foreground">Conversies</p>
-              </div>
-              <div className="bg-card border border-border rounded-xl p-6">
-                <DollarSign className="w-5 h-5 text-emerald-500 mb-2" />
-                <p className="text-3xl font-bold text-foreground">€8,947</p>
-                <p className="text-xs text-muted-foreground">Omzet</p>
-              </div>
-              <div className="bg-card border border-border rounded-xl p-6">
-                <Activity className="w-5 h-5 text-amber-500 mb-2" />
-                <p className="text-3xl font-bold text-foreground">18</p>
-                <p className="text-xs text-muted-foreground">Actief vandaag</p>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-r from-amber-500/10 to-purple-500/10 border border-amber-500/30 rounded-xl p-6">
-              <h3 className="font-semibold text-foreground mb-4">Enterprise Features</h3>
-              <button
-                onClick={runEnterpriseTest}
-                className="flex items-center gap-3 px-6 py-3 bg-[#00b8d9] text-[#080d14] rounded-lg font-semibold hover:shadow-lg transition-all"
-              >
-                <Globe className="w-5 h-5" />
-                Test QBO Export
-              </button>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'enterprise' && (
-          <div className="bg-card border border-border rounded-xl p-6">
-            <h3 className="font-semibold text-foreground mb-4">Enterprise Test Tools</h3>
-            <div className="space-y-4">
-              <button
-                onClick={runEnterpriseTest}
-                className="w-full flex items-center justify-between p-4 border border-border rounded-lg hover:border-[#00b8d9]/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <Globe className="w-5 h-5 text-[#00b8d9]" />
-                  <div>
-                    <p className="font-medium text-foreground">QBO Export Test</p>
-                    <p className="text-xs text-muted-foreground">QuickBooks Online formaat</p>
-                  </div>
-                </div>
-                <span className="text-xs bg-amber-500/20 text-amber-600 px-2 py-1 rounded">Admin Only</span>
-              </button>
-
-              <button
-                onClick={() => alert('API Test - Coming soon')}
-                className="w-full flex items-center justify-between p-4 border border-border rounded-lg hover:border-[#00b8d9]/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <Zap className="w-5 h-5 text-purple-500" />
-                  <div>
-                    <p className="font-medium text-foreground">API Test</p>
-                    <p className="text-xs text-muted-foreground">Enterprise API endpoints</p>
-                  </div>
-                </div>
-                <span className="text-xs bg-amber-500/20 text-amber-600 px-2 py-1 rounded">Admin Only</span>
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Content placeholder */}
+        <div className="bg-card border border-border rounded-xl p-12 text-center">
+          <h2 className="text-2xl font-bold text-foreground mb-4">
+            {tabs.find(t => t.id === activeTab)?.label}
+          </h2>
+          <p className="text-muted-foreground">
+            Deze sectie wordt momenteel geüpdatet met God Mode features.
+          </p>
+          <p className="text-sm text-muted-foreground mt-4">
+            Actieve tab: <strong>{activeTab}</strong>
+          </p>
+        </div>
       </div>
     </div>
   );
