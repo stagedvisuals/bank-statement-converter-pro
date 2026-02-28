@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 export const metadata = {
   title: 'PDF naar Moneybird importeren | BSCPro',
@@ -7,8 +9,10 @@ export const metadata = {
 
 export default function MoneybirdPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className="min-h-screen bg-background flex flex-col">
+      <Navbar />
+      <main className="flex-grow">
+        <div className="max-w-4xl mx-auto px-6 py-12">
         <h1 className="text-4xl font-bold mb-4">PDF naar Moneybird importeren</h1>
         <p className="text-lg text-muted-foreground mb-8">
           Veel ZZP'ers en boekhouders hebben hetzelfde probleem: Moneybird accepteert geen PDF bankafschriften. Je moet handmatig elke transactie invoeren — dat kost uren. BSCPro converteert je PDF automatisch naar een formaat dat Moneybird direct accepteert.
@@ -88,7 +92,9 @@ export default function MoneybirdPage() {
             Start gratis proef →
           </Link>
         </div>
-      </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }

@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 export const metadata = {
   title: 'ING naar Exact Online importeren | BSCPro',
@@ -7,8 +9,10 @@ export const metadata = {
 
 export default function ExactOnlineIngPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className="min-h-screen bg-background flex flex-col">
+      <Navbar />
+      <main className="flex-grow">
+        <div className="max-w-4xl mx-auto px-6 py-12">
         <h1 className="text-4xl font-bold mb-4">ING naar Exact Online importeren</h1>
         <p className="text-lg text-muted-foreground mb-8">
           Exact Online wordt door duizenden Nederlandse bedrijven gebruikt. Maar ING afschriften als PDF importeren? Dat gaat niet automatisch. BSCPro converteert je ING PDF naar CAMT.053 of MT940 formaat voor directe import in Exact Online.
@@ -88,7 +92,9 @@ export default function ExactOnlineIngPage() {
             Probeer gratis met jouw ING afschrift →
           </Link>
         </div>
-      </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }

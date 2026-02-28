@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 export const metadata = {
   title: 'Rabobank naar SnelStart importeren | BSCPro',
@@ -7,8 +9,10 @@ export const metadata = {
 
 export default function SnelstartPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className="min-h-screen bg-background flex flex-col">
+      <Navbar />
+      <main className="flex-grow">
+        <div className="max-w-4xl mx-auto px-6 py-12">
         <h1 className="text-4xl font-bold mb-4">Rabobank naar SnelStart importeren</h1>
         <p className="text-lg text-muted-foreground mb-8">
           SnelStart is populair bij MKB-bedrijven, maar het handmatig invoeren van Rabobank transacties kost enorm veel tijd. BSCPro converteert je Rabobank PDF automatisch naar een formaat dat SnelStart direct importeert.
@@ -88,7 +92,9 @@ export default function SnelstartPage() {
             Probeer gratis met jouw Rabobank afschrift →
           </Link>
         </div>
-      </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }

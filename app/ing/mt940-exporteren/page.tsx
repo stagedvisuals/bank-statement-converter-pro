@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 export const metadata = {
   title: 'ING naar MT940 exporteren | BSCPro',
@@ -7,8 +9,10 @@ export const metadata = {
 
 export default function IngMt940Page() {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className="min-h-screen bg-background flex flex-col">
+      <Navbar />
+      <main className="flex-grow">
+        <div className="max-w-4xl mx-auto px-6 py-12">
         <h1 className="text-4xl font-bold mb-4">ING naar MT940 exporteren</h1>
         <p className="text-lg text-muted-foreground mb-8">
           MT940 is het meest universele formaat voor banktransacties. Of je nu Twinfield, Exact, AFAS of SnelStart gebruikt — MT940 wordt overal ondersteund. BSCPro maakt het van je ING PDF in seconden.
@@ -88,7 +92,9 @@ export default function IngMt940Page() {
             Converteer je ING PDF naar MT940 →
           </Link>
         </div>
-      </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }

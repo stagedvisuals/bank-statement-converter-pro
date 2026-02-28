@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 export const metadata = {
   title: 'ING naar AFAS importeren | BSCPro',
@@ -7,8 +9,10 @@ export const metadata = {
 
 export default function AfasIngPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className="min-h-screen bg-background flex flex-col">
+      <Navbar />
+      <main className="flex-grow">
+        <div className="max-w-4xl mx-auto px-6 py-12">
         <h1 className="text-4xl font-bold mb-4">ING naar AFAS importeren</h1>
         <p className="text-lg text-muted-foreground mb-8">
           AFAS is één van de meest gebruikte boekhoudpakketten in Nederland. Maar ING afschriften als PDF verwerken in AFAS? Dat doe je handmatig of met BSCPro — en wij zijn veel sneller.
@@ -88,7 +92,9 @@ export default function AfasIngPage() {
             Probeer gratis met jouw ING afschrift →
           </Link>
         </div>
-      </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }
