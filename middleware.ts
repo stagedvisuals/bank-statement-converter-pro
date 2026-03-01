@@ -6,6 +6,7 @@ const PUBLIC_ROUTES = [
   '/',
   '/login',
   '/register',
+  '/dashboard',
   '/admin',
   '/beheer',
   '/over-ons',
