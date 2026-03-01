@@ -27,6 +27,9 @@ const PUBLIC_ROUTES = [
   '/_next',
   '/favicon.ico',
   '/logo',
+  '/robots.txt',
+  '/sitemap.xml',
+  '/sitemap',
 ]
 
 export async function middleware(request: NextRequest) {
