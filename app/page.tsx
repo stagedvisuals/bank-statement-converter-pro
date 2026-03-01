@@ -21,7 +21,6 @@ import {
   Calculator
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import LiveCounter from '@/components/LiveCounter';
 import DemoSection from './sections/DemoSection';
 
 export default function Home() {
@@ -90,7 +89,7 @@ export default function Home() {
                   Probeer het gratis
                 </button>
               </Link>
-              <span className="text-sm text-muted-foreground">Je eerste 2 conversies zijn van ons</span>
+              <span className="text-sm text-muted-foreground">Geen creditcard nodig</span>
             </div>
             
             <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
@@ -114,15 +113,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Live Counter */}
-      <div className="flex justify-center pb-4">
-        <LiveCounter />
-      </div>
-
-      {/* Logos Bar */}
+            {/* Logos Bar */}
       <section className="py-6 bg-secondary border-y border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-xs text-muted-foreground mb-4">Vertrouwd door boekhouders uit heel Nederland</p>
+          <p className="text-center text-xs text-muted-foreground mb-4">Ondersteunt alle Nederlandse banken</p>
           <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10 opacity-60">
             {['ING', 'Rabobank', 'ABN AMRO', 'SNS', 'Bunq', 'Triodos'].map((bank) => (
               <span key={bank} className="text-lg font-bold text-muted-foreground">{bank}</span>
@@ -467,7 +461,7 @@ export default function Home() {
               { q: 'Welke banken worden ondersteund?', a: 'Alle Nederlandse banken: ING, Rabobank, ABN AMRO, SNS, Bunq, Triodos en meer. Zowel zakelijk als particulier.' },
               { q: 'Hoe veilig is mijn data?', a: 'Je PDF wordt versleuteld opgeslagen en na 24 uur automatisch verwijderd. We zijn AVG-compliant en versturen nooit data naar derden.' },
               { q: 'Wat is MT940 export?', a: 'MT940 is een standaardformaat voor banktransacties dat door vrijwel alle boekhoudpakketten wordt ondersteund. Je kunt het bestand direct importeren in Twinfield, Exact, AFAS en andere pakketten.' },
-              { q: 'Kan ik meerdere afschriften tegelijk uploaden?', a: 'Ja! Met het Professional abonnement kun je tot 10 afschriften tegelijk uploaden. Ze worden parallel verwerkt.' },
+              { q: 'Kan ik meerdere afschriften tegelijk uploaden?', a: 'Ja! Met het Pro abonnement upload je tot 5 PDFs tegelijk, met Business tot 25 PDFs tegelijk.' },
               { q: 'Wat als ik niet tevreden ben?', a: 'Geen probleem. We bieden 14 dagen geld-terug-garantie op alle betaalde abonnementen. Stuur een email naar info@bscpro.nl en je krijgt je geld terug, geen vragen gesteld.' },
             ].map((faq, index) => (
               <div key={index} className="p-5 rounded-xl bg-card border border-border">
