@@ -29,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Email and password are required' })
   }
 
-  // STAP 3: Haal IP adres op
+  // Haal IP adres op
   const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() 
     || req.headers['x-real-ip'] 
     || req.socket.remoteAddress 
@@ -51,15 +51,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (error) {
       console.error('[API Login] Supabase auth error:', error)
       
-      // Log failed login attempt
-      await supabase.from('security_logs').insert({
-        event_type: 'LOGIN_FAILED',
-        ip_address: ipAddress,
-        details: { 
-          email: email,
-          reason: error.message
-        }
-      })
+      // Log failed login attempt (non-blocking)
+      try {
+        await supabase.from('security_logs').insert({
+          event_type: 'LOGIN_FAILED',
+          ip_address: ipAddress,
+          details: { 
+            email: email,
+            reason: error.message
+          }
+        })
+      } catch {}
       
       return res.status(401).json({ error: 'Invalid email or password' })
     }
@@ -68,92 +70,72 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('[API Login] Fetching user profile')
 
     // Get user profile - handle case where profile doesn't exist
-    const { data: profile, error: profileError } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('user_id', data.user?.id)
-      .single()
+    let profile = null
+    let profileError = null
+    try {
+      const result = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', data.user?.id)
+        .single()
+      profile = result.data
+      profileError = result.error
+    } catch {
+      profileError = { message: 'Table not found' }
+    }
 
-    // STAP 3: Update user profile met login info
+    // Update user profile met login info
     const now = new Date().toISOString()
     
     if (profile && data.user) {
-      // Update login info
-      const { error: updateError } = await supabase
-        .from('user_profiles')
-        .update({
-          last_login_ip: ipAddress,
-          last_login_at: now,
-          login_count: (profile.login_count || 0) + 1
-        })
-        .eq('user_id', data.user.id)
-
-      if (updateError) {
-        console.log('[API Login] Failed to update login info:', updateError.message)
-      } else {
+      // Update login info (non-blocking)
+      try {
+        await supabase
+          .from('user_profiles')
+          .update({
+            last_login_ip: ipAddress,
+            last_login_at: now,
+            login_count: (profile.login_count || 0) + 1
+          })
+          .eq('user_id', data.user.id)
         console.log('[API Login] Updated login info for user:', data.user.id)
+      } catch {
+        console.log('[API Login] Failed to update login info (table may not exist)')
       }
 
-      // Log security event
-      await supabase.from('security_logs').insert({
-        user_id: data.user.id,
-        event_type: 'LOGIN_SUCCESS',
-        ip_address: ipAddress,
-        details: { 
-          email: email,
-          login_count: (profile.login_count || 0) + 1
-        }
-      })
-
-      // Check of IP drastisch veranderd is
-      if (profile.registration_ip && profile.registration_ip !== ipAddress) {
-        console.log('[API Login] IP changed from', profile.registration_ip, 'to', ipAddress)
-        
+      // Log security event (non-blocking)
+      try {
         await supabase.from('security_logs').insert({
           user_id: data.user.id,
-          event_type: 'IP_CHANGE',
+          event_type: 'LOGIN_SUCCESS',
           ip_address: ipAddress,
           details: { 
-            old_ip: profile.registration_ip,
-            new_ip: ipAddress,
-            email: email
+            email: email,
+            login_count: (profile.login_count || 0) + 1
           }
         })
+      } catch {}
+
+      // Check of IP drastisch veranderd is (non-blocking)
+      if (profile.registration_ip && profile.registration_ip !== ipAddress) {
+        console.log('[API Login] IP changed from', profile.registration_ip, 'to', ipAddress)
+        try {
+          await supabase.from('security_logs').insert({
+            user_id: data.user.id,
+            event_type: 'IP_CHANGE',
+            ip_address: ipAddress,
+            details: { 
+              old_ip: profile.registration_ip,
+              new_ip: ipAddress,
+              email: email
+            }
+          })
+        } catch {}
       }
     }
 
     if (profileError) {
-      console.log('[API Login] Profile not found, creating fallback')
-      // Create profile if it doesn't exist
-      const { data: newProfile, error: createError } = await supabase
-        .from('user_profiles')
-        .insert({
-          user_id: data.user?.id,
-          email: data.user?.email,
-          full_name: data.user?.email?.split('@')[0] || 'User',
-          role: 'user',
-          created_at: now,
-          last_login_ip: ipAddress,
-          last_login_at: now,
-          login_count: 1
-        })
-        .select()
-        .single()
-
-      if (createError) {
-        console.error('[API Login] Error creating profile:', createError)
-      }
-
-      console.log('[API Login] Sending response with new profile')
-      return res.status(200).json({
-        success: true,
-        user: {
-          id: data.user?.id,
-          email: data.user?.email,
-          role: 'user'
-        },
-        session: data.session
-      })
+      console.log('[API Login] Profile not found or table missing, continuing without profile')
     }
 
     console.log('[API Login] Profile found, role:', profile?.role)
