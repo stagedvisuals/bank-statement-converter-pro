@@ -1,14 +1,6 @@
 User-agent: *
 Allow: /
-
-# Sitemap location
-Sitemap: https://www.bscpro.nl/sitemap.xml
-
-# Disallow admin panel from indexing
-Disallow: /admin/
-
-# Disallow API routes
+Disallow: /admin
+Disallow: /dashboard
 Disallow: /api/
-
-# Crawl delay to be nice to the server
-Crawl-delay: 1
+Sitemap: https://www.bscpro.nl/sitemap.xml
