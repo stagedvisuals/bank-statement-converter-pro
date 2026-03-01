@@ -1,84 +1,152 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import formidable from 'formidable';
-import fs from 'fs';
+import type { NextApiRequest, NextApiResponse } from 'next'
+import formidable from 'formidable'
+import fs from 'fs'
+import Groq from 'groq-sdk'
 
-export const config = { api: { bodyParser: false } };
+export const config = { api: { bodyParser: false } }
+
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+
+const PROMPT = `Je bent een expert in het lezen van Nederlandse bankafschriften. Analyseer de tekst hieronder en extraheer ALLE transacties.
+
+Return ALLEEN dit JSON formaat, niets anders:
+
+{
+  "bank": "ING of Rabobank of ABN AMRO of SNS of Bunq of Triodos of Onbekend",
+  "rekeningnummer": "NLXX...",
+  "rekeninghouder": "naam",
+  "periode": { "van": "YYYY-MM-DD", "tot": "YYYY-MM-DD" },
+  "transacties": [
+    {
+      "datum": "YYYY-MM-DD",
+      "omschrijving": "schone omschrijving",
+      "bedrag": -85.43,
+      "tegenrekening": "NLXX... of leeg",
+      "categorie": "boodschappen of vervoer of kantoor of salaris of belasting of overig"
+    }
+  ],
+  "saldoStart": 0.00,
+  "saldoEind": 0.00
+}
+
+Regels:
+- Positief bedrag = inkomsten/credit
+- Negatief bedrag = uitgaven/debit
+- datum altijd YYYY-MM-DD formaat
+- bedragen als getal niet als string
+- omschrijving opschonen zonder SEPA/BETALING prefixes
+- als iets niet te lezen is gebruik lege string
+- return ALLEEN geldige JSON, geen uitleg`
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' })
+  }
+
+  const form = formidable({ maxFileSize: 10 * 1024 * 1024 })
+  let tempFilePath: string | null = null
 
   try {
-    const form = formidable({ multiples: false });
-    const [fields, files] = await form.parse(req);
-    const file = files.file?.[0];
-    
-    if (!file) return res.status(400).json({ error: 'Geen bestand geüpload' });
+    const [, files] = await form.parse(req)
+    const file = Array.isArray(files.file) ? files.file[0] : files.file
 
-    // Simuleer AI processing - in productie zou dit OCR + AI zijn
-    const mockTransactions = [
-      { datum: '15-01-2024', omschrijving: 'Albert Heijn B.V.', bedrag: -85.43, category: 'boodschappen', categoryName: 'Boodschappen', categoryEmoji: '🛒', btw: { rate: 9 } },
-      { datum: '16-01-2024', omschrijving: 'Shell Station Amsterdam', bedrag: -65.00, category: 'vervoer', categoryName: 'Vervoer', categoryEmoji: '🚗', btw: { rate: 21 } },
-      { datum: '17-01-2024', omschrijving: 'Klantbetaling - Factuur 2024-001', bedrag: 1250.00, category: 'inkomsten', categoryName: 'Inkomsten', categoryEmoji: '💰', btw: { rate: 21 } },
-      { datum: '18-01-2024', omschrijving: 'KPN Zakelijk', bedrag: -45.99, category: 'telecom', categoryName: 'Telecom', categoryEmoji: '📞', btw: { rate: 21 } },
-      { datum: '19-01-2024', omschrijving: 'WeWork Amsterdam', bedrag: -350.00, category: 'kantoor', categoryName: 'Kantoor', categoryEmoji: '🏢', btw: { rate: 21 } },
-    ];
+    if (!file) {
+      return res.status(400).json({ error: 'Geen bestand ontvangen' })
+    }
 
-    const categorySummary = [
-      { id: '1', count: 1, total: 85.43, percentage: '18', category: { name: 'Boodschappen', emoji: '🛒' } },
-      { id: '2', count: 1, total: 65.00, percentage: '14', category: { name: 'Vervoer', emoji: '🚗' } },
-      { id: '3', count: 1, total: 350.00, percentage: '60', category: { name: 'Kantoor', emoji: '🏢' } },
-      { id: '4', count: 1, total: 45.99, percentage: '8', category: { name: 'Telecom', emoji: '📞' } },
-    ];
+    tempFilePath = file.filepath
 
-    // Verwijder temp file DIRECT na verwerking (AVG compliance)
+    // PDF naar tekst
+    const pdfParse = require('pdf-parse')
+    const pdfBuffer = fs.readFileSync(tempFilePath)
+    const pdfData = await pdfParse(pdfBuffer)
+    const pdfText = pdfData.text
+
+    if (!pdfText || pdfText.trim().length < 50) {
+      return res.status(400).json({ 
+        error: 'PDF kon niet worden gelezen. Probeer een andere PDF.',
+        errorType: 'unreadable'
+      })
+    }
+
+    // Groq AI aanroep
+    const completion = await groq.chat.completions.create({
+      messages: [
+        { role: 'system', content: PROMPT },
+        { role: 'user', content: `Bankafschrift tekst:\n\n${pdfText.substring(0, 12000)}` }
+      ],
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.1,
+      max_tokens: 4096,
+    })
+
+    const rawResponse = completion.choices[0]?.message?.content || ''
+
+    // JSON extraheren uit response
+    const jsonMatch = rawResponse.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) {
+      return res.status(500).json({ 
+        error: 'AI kon geen transacties herkennen in dit document.',
+        errorType: 'no_transactions'
+      })
+    }
+
+    let parsed
     try {
-      if (file.filepath && fs.existsSync(file.filepath)) {
-        fs.unlinkSync(file.filepath);
-        console.log(`[Security] Temp file direct verwijderd: ${file.filepath}`);
+      parsed = JSON.parse(jsonMatch[0])
+    } catch (e) {
+      return res.status(500).json({ 
+        error: 'Verwerking mislukt. Probeer opnieuw.',
+        errorType: 'parse_error'
+      })
+    }
+
+    if (!parsed.transacties || !Array.isArray(parsed.transacties) || parsed.transacties.length === 0) {
+      return res.status(400).json({ 
+        error: 'Geen transacties gevonden in dit document.',
+        errorType: 'no_transactions'
+      })
+    }
+
+    // Temp file verwijderen (AVG compliance)
+    try {
+      if (tempFilePath && fs.existsSync(tempFilePath)) {
+        fs.unlinkSync(tempFilePath)
       }
     } catch (cleanupErr) {
-      console.error('[Security] Kon temp file niet verwijderen:', cleanupErr);
+      console.error('[Security] Kon temp file niet verwijderen:', cleanupErr)
     }
 
     return res.status(200).json({
       success: true,
-      bank: 'ING',
-      rekeningnummer: 'NL91INGB0001234567',
-      transactions: mockTransactions,
-      categorySummary
-    });
+      data: parsed,
+      transactieCount: parsed.transacties.length
+    })
+
   } catch (error: any) {
-    console.error('Convert error:', error);
+    console.error('Convert error:', error)
+    
+    // Cleanup on error
+    if (tempFilePath && fs.existsSync(tempFilePath)) {
+      try { fs.unlinkSync(tempFilePath) } catch {}
+    }
     
     // User-friendly error messages
-    const errorMessage = error.message || '';
-    let userFriendlyError = 'Oeps! Er is iets misgegaan bij het verwerken van je document.';
-    let errorType = 'unknown';
+    const errorMessage = error.message || ''
+    let userFriendlyError = 'Oeps! Er is iets misgegaan bij het verwerken van je document.'
+    let errorType = 'unknown'
     
     if (errorMessage.includes('password') || errorMessage.includes('beveiligd') || errorMessage.includes('encrypted')) {
-      userFriendlyError = 'Oeps! Dit document is beveiligd met een wachtwoord. Verwijder de beveiliging en probeer opnieuw.';
-      errorType = 'password_protected';
-    } else if (errorMessage.includes('scan') || errorMessage.includes('quality') || errorMessage.includes('resolution')) {
-      userFriendlyError = 'Oeps! De kwaliteit van deze scan is te laag. Probeer een scherpere scan of foto met beter licht.';
-      errorType = 'low_quality';
-    } else if (errorMessage.includes('format') || errorMessage.includes('unsupported')) {
-      userFriendlyError = 'Oeps! Dit bestandsformaat wordt niet ondersteund. Gebruik PDF, JPG of PNG.';
-      errorType = 'unsupported_format';
+      userFriendlyError = 'Oeps! Dit document is beveiligd met een wachtwoord. Verwijder de beveiliging en probeer opnieuw.'
+      errorType = 'password_protected'
     } else if (errorMessage.includes('size') || errorMessage.includes('large')) {
-      userFriendlyError = 'Oeps! Dit bestand is te groot. Maximum is 10MB. Probeer te comprimeren.';
-      errorType = 'file_too_large';
-    } else if (errorMessage.includes('leesbaar') || errorMessage.includes('readable') || errorMessage.includes('parse')) {
-      userFriendlyError = 'Oeps! Dit document is onleesbaar of beschadigd. Probeer een andere scan of check het origineel.';
-      errorType = 'unreadable';
-    } else if (errorMessage.includes('empty') || errorMessage.includes('geen')) {
-      userFriendlyError = 'Oeps! We konden geen transacties vinden in dit document. Controleer of het een bankafschrift is.';
-      errorType = 'no_transactions';
+      userFriendlyError = 'Oeps! Dit bestand is te groot. Maximum is 10MB. Probeer te comprimeren.'
+      errorType = 'file_too_large'
     }
     
     return res.status(500).json({ 
       error: userFriendlyError,
-      errorType: errorType,
-      technicalError: process.env.NODE_ENV === 'development' ? errorMessage : undefined
-    });
+      errorType: errorType
+    })
   }
 }
