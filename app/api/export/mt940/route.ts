@@ -8,20 +8,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Geen transacties' }, { status: 400 })
     }
 
-    // MT940 formaat genereren
-    let mt940 = ':20:BSCPRO\n'
-    mt940 += ':25:' + (rekeningnummer || 'NL00XXXX0000000000') + '\n'
-    mt940 += ':28C:00001/1\n'
-    mt940 += ':60F:C' + new Date().toISOString().slice(0,8) + 'EUR0,00\n'
+    const mt940Lines: string[] = []
+    mt940Lines.push(':20:STARTUMS')
+    mt940Lines.push(':25:' + (rekeningnummer || 'NL00BANK0000000000'))
+    mt940Lines.push(':28C:00001/001')
+    mt940Lines.push(':60F:C' + new Date().toISOString().slice(2, 10).replace(/-/g, '') + 'EUR0,00')
 
     transactions.forEach((t: any) => {
-      const date = t.datum?.replace(/-/g, '').slice(2) || new Date().toISOString().slice(2,8)
-      const bedrag = Math.abs(t.bedrag).toFixed(2).replace('.', ',')
-      mt940 += ':61:' + date + (t.bedrag < 0 ? 'D' : 'C') + bedrag + 'NTRF' + t.omschrijving?.slice(0,16) + '\n'
-      mt940 += ':86:' + t.omschrijving + '\n'
+      const date = (t.datum || '').replace(/-/g, '').slice(2)
+      const amount = Math.abs(t.bedrag || 0).toFixed(2).replace('.', ',')
+      const dc = t.bedrag >= 0 ? 'C' : 'D'
+      mt940Lines.push(':61:' + date + dc + amount + 'NTRFNONREF')
+      mt940Lines.push(':86:' + (t.omschrijving || ''))
     })
 
-    mt940 += ':62F:C' + new Date().toISOString().slice(0,8) + 'EUR0,00\n'
+    mt940Lines.push(':62F:C' + new Date().toISOString().slice(2, 10).replace(/-/g, '') + 'EUR0,00')
+
+    const mt940 = mt940Lines.join('\r\n')
 
     return new Response(mt940, {
       headers: {
