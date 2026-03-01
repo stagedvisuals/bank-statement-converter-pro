@@ -108,15 +108,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
 
-    // Temp file verwijderen (AVG compliance)
-    try {
-      if (tempFilePath && fs.existsSync(tempFilePath)) {
-        fs.unlinkSync(tempFilePath)
-      }
-    } catch (cleanupErr) {
-      console.error('[Security] Kon temp file niet verwijderen:', cleanupErr)
-    }
-
     return res.status(200).json({
       success: true,
       data: parsed,
@@ -126,27 +117,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (error: any) {
     console.error('Convert error:', error)
     
-    // Cleanup on error
-    if (tempFilePath && fs.existsSync(tempFilePath)) {
-      try { fs.unlinkSync(tempFilePath) } catch {}
-    }
-    
-    // User-friendly error messages
-    const errorMessage = error.message || ''
-    let userFriendlyError = 'Oeps! Er is iets misgegaan bij het verwerken van je document.'
-    let errorType = 'unknown'
-    
-    if (errorMessage.includes('password') || errorMessage.includes('beveiligd') || errorMessage.includes('encrypted')) {
-      userFriendlyError = 'Oeps! Dit document is beveiligd met een wachtwoord. Verwijder de beveiliging en probeer opnieuw.'
-      errorType = 'password_protected'
-    } else if (errorMessage.includes('size') || errorMessage.includes('large')) {
-      userFriendlyError = 'Oeps! Dit bestand is te groot. Maximum is 10MB. Probeer te comprimeren.'
-      errorType = 'file_too_large'
+    if (error.message?.includes('password')) {
+      return res.status(400).json({ 
+        error: 'PDF is beveiligd met wachtwoord.', 
+        errorType: 'password_protected' 
+      })
     }
     
     return res.status(500).json({ 
-      error: userFriendlyError,
-      errorType: errorType
+      error: 'Er is iets misgegaan. Probeer het opnieuw.', 
+      errorType: 'unknown' 
     })
+  } finally {
+    // Verwijder temp bestand altijd (AVG compliance)
+    if (tempFilePath && fs.existsSync(tempFilePath)) {
+      fs.unlinkSync(tempFilePath)
+    }
   }
 }
