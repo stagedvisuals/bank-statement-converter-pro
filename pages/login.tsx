@@ -41,6 +41,8 @@ export default function LoginPage() {
 
       localStorage.setItem('bscpro_session', JSON.stringify(data.session))
       localStorage.setItem('bscpro_user', JSON.stringify(data.user))
+      // Kleine delay voor cookie propagation
+      await new Promise(resolve => setTimeout(resolve, 100))
       router.push('/dashboard')
 
     } catch (err: any) {
