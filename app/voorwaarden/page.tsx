@@ -42,7 +42,7 @@ export default function VoorwaardenPage() {
               <li>Conversie van PDF bankafschriften naar digitale formaten</li>
               <li>Ondersteunde formaten: MT940, CAMT.053, Excel, CSV, QBO</li>
               <li>Ondersteunde banken: ING, Rabobank, ABN AMRO, SNS, Bunq, Triodos en meer</li>
-              <li>Nauwkeurigheid: 99.5% gemiddeld, geen garantie op 100%</li>
+              <li>Nauwkeurigheid: Hoge nauwkeurigheid, geen garantie op 100%. Controleer altijd zelf.</li>
               <li>Beschikbaarheid: gestreefd naar 99.9% uptime</li>
             </ul>
 
@@ -109,14 +109,25 @@ export default function VoorwaardenPage() {
             </ul>
             <p className="text-muted-foreground mb-6">Bij opzegging door BSCPro: restitutie van prepaid saldo.</p>
 
-            <h2 className="text-2xl font-bold mt-8 mb-4">10. Toepasselijk Recht en Geschillen</h2>
+            <h2 className="text-2xl font-bold mt-8 mb-4">10. Geld-Terug-Garantie</h2>
+            <p className="text-muted-foreground mb-4">
+              Binnen 14 dagen na eerste betaling kun je je abonnement opzeggen en volledig geld terugkrijgen.
+            </p>
+            <p className="text-muted-foreground mb-4">
+              Stuur een email naar <a href="mailto:info@bscpro.nl" className="text-[#00b8d9] hover:underline">info@bscpro.nl</a> met je ordernummer.
+            </p>
+            <p className="text-muted-foreground mb-6">
+              De garantie geldt voor de eerste betaling van nieuwe abonnementen. Losse scans en meerdere betalingen vallen niet onder deze garantie.
+            </p>
+
+            <h2 className="text-2xl font-bold mt-8 mb-4">11. Toepasselijk Recht en Geschillen</h2>
             <p className="text-muted-foreground mb-4">Nederlands recht is van toepassing.</p>
             <p className="text-muted-foreground mb-4">Geschillen worden voorgelegd aan de bevoegde rechter in Nederland.</p>
             <p className="text-muted-foreground mb-6">
               Alternatief: geschillenbeslechting via <a href="https://ec.europa.eu/consumers/odr" className="text-[#00b8d9] hover:underline">ODR-platform</a>
             </p>
 
-            <h2 className="text-2xl font-bold mt-8 mb-4">11. Contact</h2>
+            <h2 className="text-2xl font-bold mt-8 mb-4">12. Contact</h2>
             <p className="text-muted-foreground mb-2">Email: <a href="mailto:info@bscpro.nl" className="text-[#00b8d9] hover:underline">info@bscpro.nl</a></p>
             <p className="text-muted-foreground">Reactie binnen 2 werkdagen.</p>
           </div>

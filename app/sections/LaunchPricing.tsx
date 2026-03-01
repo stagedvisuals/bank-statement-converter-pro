@@ -19,7 +19,7 @@ const plans = [
       'AI-powered parsing',
       'Export naar Excel & CSV',
       'E-mail support',
-      '99.5% accuracy garantie',
+      'Hoge nauwkeurigheid - controleer altijd zelf',
     ],
     cta: 'Kies dit plan',
     color: 'from-teal-500 to-cyan-600',

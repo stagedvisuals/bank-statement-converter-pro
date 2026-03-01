@@ -118,8 +118,8 @@ export default function AccountantsPage() {
               <div style={{ fontSize: '14px', color: '#94A3B8' }}>Conversies per maand</div>
             </div>
             <div>
-              <div style={{ fontSize: '32px', fontWeight: 700, color: '#00b8d9' }}>99.5%</div>
-              <div style={{ fontSize: '14px', color: '#94A3B8' }}>Nauwkeurigheid</div>
+              <div style={{ fontSize: '32px', fontWeight: 700, color: '#00b8d9' }}>Hoge</div>
+              <div style={{ fontSize: '14px', color: '#94A3B8' }}>Nauwkeurigheid*</div>
             </div>
             <div>
               <div style={{ fontSize: '32px', fontWeight: 700, color: '#00b8d9' }}>&lt;3s</div>

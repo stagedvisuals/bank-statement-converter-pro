@@ -14,9 +14,15 @@ export default function MoneybirdPage() {
       <main className="flex-grow">
         <div className="max-w-4xl mx-auto px-6 py-12">
         <h1 className="text-4xl font-bold mb-4">PDF naar Moneybird importeren</h1>
-        <p className="text-lg text-muted-foreground mb-8">
+        <p className="text-lg text-muted-foreground mb-4">
           Veel ZZP'ers en boekhouders hebben hetzelfde probleem: Moneybird accepteert geen PDF bankafschriften. Je moet handmatig elke transactie invoeren — dat kost uren. BSCPro converteert je PDF automatisch naar een formaat dat Moneybird direct accepteert.
         </p>
+
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-8">
+          <p className="text-sm text-amber-800 dark:text-amber-200">
+            ⚠️ <strong>Belangrijk:</strong> BSCPro is een ondersteunend hulpmiddel. Controleer alle uitgelezen transactiedata altijd zelf voordat je deze gebruikt voor boekhouding of belastingaangifte. BSCPro is niet aansprakelijk voor fouten in de output.
+          </p>
+        </div>
 
         <h2 className="text-2xl font-bold mb-6">Hoe werkt het?</h2>
         <div className="space-y-4 mb-12">
@@ -31,7 +37,7 @@ export default function MoneybirdPage() {
             <span className="bg-[#00b8d9] text-black rounded-full w-8 h-8 flex items-center justify-center font-bold shrink-0">2</span>
             <div>
               <strong>AI herkent alle transacties</strong>
-              <p className="text-muted-foreground">Onze AI leest datum, omschrijving en bedrag met 99.5% nauwkeurigheid.</p>
+              <p className="text-muted-foreground">Onze AI leest datum, omschrijving en bedrag met Hoge nauwkeurigheid - controleer altijd zelf.</p>
             </div>
           </div>
           <div className="flex gap-4 items-start">
@@ -64,7 +70,7 @@ export default function MoneybirdPage() {
           </div>
           <div className="border rounded-xl p-4">
             <div className="text-2xl mb-2">✅</div>
-            <strong>99.5% nauwkeurig</strong>
+            <strong>Hoge nauwkeurigheid</strong>
             <p className="text-muted-foreground text-sm">Geen handmatig controleren meer nodig.</p>
           </div>
         </div>

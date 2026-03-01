@@ -14,9 +14,15 @@ export default function SnelstartPage() {
       <main className="flex-grow">
         <div className="max-w-4xl mx-auto px-6 py-12">
         <h1 className="text-4xl font-bold mb-4">Rabobank naar SnelStart importeren</h1>
-        <p className="text-lg text-muted-foreground mb-8">
+        <p className="text-lg text-muted-foreground mb-4">
           SnelStart is populair bij MKB-bedrijven, maar het handmatig invoeren van Rabobank transacties kost enorm veel tijd. BSCPro converteert je Rabobank PDF automatisch naar een formaat dat SnelStart direct importeert.
         </p>
+
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-8">
+          <p className="text-sm text-amber-800 dark:text-amber-200">
+            ⚠️ <strong>Belangrijk:</strong> BSCPro is een ondersteunend hulpmiddel. Controleer alle uitgelezen transactiedata altijd zelf voordat je deze gebruikt voor boekhouding of belastingaangifte. BSCPro is niet aansprakelijk voor fouten in de output.
+          </p>
+        </div>
 
         <h2 className="text-2xl font-bold mb-6">Hoe werkt het?</h2>
         <div className="space-y-4 mb-12">
@@ -31,7 +37,7 @@ export default function SnelstartPage() {
             <span className="bg-[#00b8d9] text-black rounded-full w-8 h-8 flex items-center justify-center font-bold shrink-0">2</span>
             <div>
               <strong>Upload bij BSCPro</strong>
-              <p className="text-muted-foreground">Onze AI leest alle transacties uit je PDF met 99.5% nauwkeurigheid.</p>
+              <p className="text-muted-foreground">Onze AI leest alle transacties uit je PDF met Hoge nauwkeurigheid - controleer altijd zelf.</p>
             </div>
           </div>
           <div className="flex gap-4 items-start">
@@ -64,7 +70,7 @@ export default function SnelstartPage() {
           </div>
           <div className="border rounded-xl p-4">
             <div className="text-2xl mb-2">✅</div>
-            <strong>99.5% nauwkeurig</strong>
+            <strong>Hoge nauwkeurigheid</strong>
             <p className="text-muted-foreground text-sm">Geen handmatig controleren meer nodig.</p>
           </div>
         </div>

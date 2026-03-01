@@ -27,11 +27,28 @@ import DemoSection from './sections/DemoSection';
 export default function Home() {
   const [statements, setStatements] = useState(20);
   const [hourlyRate, setHourlyRate] = useState(75);
+  const [enterpriseEmail, setEnterpriseEmail] = useState('');
+  const [enterpriseSubmitted, setEnterpriseSubmitted] = useState(false);
   
   const manualHours = Math.ceil(statements * 1.5);
   const bscProMinutes = Math.ceil(statements * 0.5);
   const hoursSaved = Math.max(0, manualHours - (bscProMinutes / 60));
   const moneySaved = Math.round(hoursSaved * hourlyRate);
+
+  const handleEnterpriseSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await fetch('/api/enterprise-waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: enterpriseEmail }),
+      });
+      setEnterpriseSubmitted(true);
+      setEnterpriseEmail('');
+    } catch (error) {
+      console.error('Enterprise waitlist error:', error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -82,13 +99,16 @@ export default function Home() {
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle className="w-4 h-4 text-[#00b8d9]" />
-                <span>99.5% nauwkeurig</span>
+                <span>Hoge nauwkeurigheid - controleer altijd zelf</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Clock className="w-4 h-4 text-[#00b8d9]" />
                 <span>24/7 beschikbaar</span>
               </div>
             </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              * Resultaten kunnen variëren. Controleer altijd je eigen data.
+            </p>
           </div>
         </div>
       </section>
@@ -121,7 +141,7 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               { icon: Upload, title: 'Upload je PDF', desc: 'Sleep je PDF bankafschrift naar onze tool. Alle Nederlandse banken ondersteund.' },
-              { icon: Zap, title: 'AI verwerkt automatisch', desc: 'Onze AI herkent alle transacties, datums en bedragen met 99.5% nauwkeurigheid.' },
+              { icon: Zap, title: 'AI verwerkt automatisch', desc: 'Onze AI herkent transacties, datums en bedragen. Controleer altijd zelf.' },
               { icon: FileSpreadsheet, title: 'Download Excel/CSV/MT940', desc: 'Met automatische categorisering, BTW-overzicht en MT940 export.' }
             ].map((step, index) => (
               <div key={index} className="text-center">
@@ -132,6 +152,14 @@ export default function Home() {
                 <p className="text-muted-foreground text-sm leading-relaxed">{step.desc}</p>
               </div>
             ))}
+          </div>
+
+          <div className="max-w-3xl mx-auto mt-12">
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                ⚠️ <strong>Belangrijk:</strong> BSCPro is een ondersteunend hulpmiddel. Controleer alle uitgelezen transactiedata altijd zelf voordat je deze gebruikt voor boekhouding of belastingaangifte. BSCPro is niet aansprakelijk voor fouten in de output.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -152,7 +180,7 @@ export default function Home() {
             {[
               { icon: Clock, title: 'Direct resultaat', desc: 'Upload je PDF en binnen 10 seconden heb je een Excel bestand' },
               { icon: Shield, title: 'Veilig & AVG-proof', desc: 'Je data wordt na 24 uur automatisch verwijderd.' },
-              { icon: CheckCircle, title: '99.5% nauwkeurig', desc: 'Onze AI herkent zelfs de meest complexe bankafschriften' },
+              { icon: CheckCircle, title: 'Hoge nauwkeurigheid', desc: 'Onze AI herkent complexe bankafschriften. Controleer altijd zelf.' },
               { icon: Database, title: 'MT940 Export', desc: 'Als enige in NL: directe MT940 export voor alle boekhoudpakketten', highlight: true },
               { icon: TrendingUp, title: 'Automatisch gecategoriseerd', desc: 'Transacties worden direct gesorteerd. BTW-aangifte in minuten.', highlight: true },
             ].map((feature) => (
@@ -234,7 +262,10 @@ export default function Home() {
       {/* Pricing */}
       <section id="pricing" className="py-20 bg-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
+            <span className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-full text-sm font-medium mb-4">
+              ✅ 14 dagen niet goed, geld terug — geen vragen gesteld
+            </span>
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-3">Kies je abonnement</h2>
             <p className="text-muted-foreground">Altijd zonder verborgen kosten. Opzeggen kan maandelijks.</p>
           </div>
@@ -284,7 +315,11 @@ export default function Home() {
                 ))}
               </ul>
 
-              <button className="w-full py-3 rounded-lg font-semibold bg-[#00b8d9] text-[#080d14] hover:shadow-[0_0_20px_rgba(0,184,217,0.4)] transition-all">
+              <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border">
+                ✅ 14 dagen geld-terug-garantie
+              </p>
+
+              <button className="w-full py-3 rounded-lg font-semibold bg-[#00b8d9] text-[#080d14] hover:shadow-[0_0_20px_rgba(0,184,217,0.4)] transition-all mt-4">
                 Start 14-daagse trial
               </button>
             </div>
@@ -307,27 +342,24 @@ export default function Home() {
                 ))}
               </ul>
 
-              <button className="w-full py-3 rounded-lg font-semibold border border-[#00b8d9]/30 text-[#00b8d9] hover:bg-[#00b8d9]/10 transition-all">
+              <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border">
+                ✅ 14 dagen geld-terug-garantie
+              </p>
+
+              <button className="w-full py-3 rounded-lg font-semibold border border-[#00b8d9]/30 text-[#00b8d9] hover:bg-[#00b8d9]/10 transition-all mt-4">
                 Start 14-daagse trial
               </button>
             </div>
 
-            {/* TIER 4 - Enterprise (Coming Soon) */}
-            <div className="p-6 rounded-2xl border bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 relative overflow-hidden">
-              {/* Coming Soon Overlay */}
-              <div className="absolute inset-0 bg-slate-100/80 dark:bg-slate-900/80 backdrop-blur-[1px] z-10 flex items-center justify-center">
-                <div className="bg-slate-800 dark:bg-slate-700 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                  Coming Soon
-                </div>
-              </div>
-              
+            {/* TIER 4 - Enterprise Waitlist */}
+            <div className="p-6 rounded-2xl border bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Enterprise</h3>
               <div className="mb-2">
                 <span className="text-3xl font-bold text-slate-900 dark:text-white">€99,00</span>
                 <span className="text-muted-foreground text-sm">/maand</span>
               </div>
               <p className="text-sm text-muted-foreground mb-5">Kantoren en grote bedrijven</p>
-              
+
               <ul className="space-y-3 mb-6">
                 {['Alles van Pro Plan', 'Tot 5 gebruikers', 'Gedeelde team-omgeving', 'API toegang', 'Custom integraties', 'Accountmanager'].map((feature) => (
                   <li key={feature} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
@@ -337,9 +369,32 @@ export default function Home() {
                 ))}
               </ul>
 
-              <button disabled className="w-full py-3 rounded-lg font-semibold bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed">
-                Binnenkort beschikbaar
-              </button>
+              <div className="mt-6">
+                <p className="text-sm text-muted-foreground mb-3">
+                  Interesse in Enterprise? Laat je gegevens achter.
+                </p>
+                <form onSubmit={handleEnterpriseSubmit} className="space-y-2">
+                  <input
+                    type="email"
+                    placeholder="jouw@email.nl"
+                    value={enterpriseEmail}
+                    onChange={(e) => setEnterpriseEmail(e.target.value)}
+                    className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background"
+                    required
+                  />
+                  <button
+                    type="submit"
+                    className="w-full px-4 py-2 bg-foreground text-background rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+                  >
+                    Zet me op de wachtlijst →
+                  </button>
+                </form>
+                {enterpriseSubmitted && (
+                  <p className="text-green-600 text-sm mt-2">
+                    ✅ We nemen contact met je op!
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -358,6 +413,7 @@ export default function Home() {
               { q: 'Hoe veilig is mijn data?', a: 'Je PDF wordt versleuteld opgeslagen en na 24 uur automatisch verwijderd. We zijn AVG-compliant en versturen nooit data naar derden.' },
               { q: 'Wat is MT940 export?', a: 'MT940 is een standaardformaat voor banktransacties dat door vrijwel alle boekhoudpakketten wordt ondersteund. Je kunt het bestand direct importeren in Twinfield, Exact, AFAS en andere pakketten.' },
               { q: 'Kan ik meerdere afschriften tegelijk uploaden?', a: 'Ja! Met het Professional abonnement kun je tot 10 afschriften tegelijk uploaden. Ze worden parallel verwerkt.' },
+              { q: 'Wat als ik niet tevreden ben?', a: 'Geen probleem. We bieden 14 dagen geld-terug-garantie op alle betaalde abonnementen. Stuur een email naar info@bscpro.nl en je krijgt je geld terug, geen vragen gesteld.' },
             ].map((faq, index) => (
               <div key={index} className="p-5 rounded-xl bg-card border border-border">
                 <h3 className="text-base font-semibold text-foreground mb-2">{faq.q}</h3>

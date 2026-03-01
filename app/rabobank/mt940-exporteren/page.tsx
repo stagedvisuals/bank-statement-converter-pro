@@ -14,9 +14,15 @@ export default function RabobankMt940Page() {
       <main className="flex-grow">
         <div className="max-w-4xl mx-auto px-6 py-12">
         <h1 className="text-4xl font-bold mb-4">Rabobank naar MT940 exporteren</h1>
-        <p className="text-lg text-muted-foreground mb-8">
+        <p className="text-lg text-muted-foreground mb-4">
           MT940 is het standaard formaat voor banktransacties dat door vrijwel elk boekhoudpakket wordt ondersteund. BSCPro converteert je Rabobank PDF direct naar een proper MT940 bestand.
         </p>
+
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-8">
+          <p className="text-sm text-amber-800 dark:text-amber-200">
+            ⚠️ <strong>Belangrijk:</strong> BSCPro is een ondersteunend hulpmiddel. Controleer alle uitgelezen transactiedata altijd zelf voordat je deze gebruikt voor boekhouding of belastingaangifte. BSCPro is niet aansprakelijk voor fouten in de output.
+          </p>
+        </div>
 
         <h2 className="text-2xl font-bold mb-6">Hoe werkt het?</h2>
         <div className="space-y-4 mb-12">
@@ -64,7 +70,7 @@ export default function RabobankMt940Page() {
           </div>
           <div className="border rounded-xl p-4">
             <div className="text-2xl mb-2">✅</div>
-            <strong>99.5% nauwkeurig</strong>
+            <strong>Hoge nauwkeurigheid</strong>
             <p className="text-muted-foreground text-sm">Correcte MT940 structuur, altijd compatibel.</p>
           </div>
         </div>

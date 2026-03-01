@@ -96,7 +96,7 @@ export function WelcomeState({ onUploadClick }: WelcomeStateProps) {
         transition={{ delay: 0.8 }}
         className="mt-6 text-sm text-[#6b7fa3]"
       >
-        Supports all major Dutch banks • GDPR Compliant • 99.5% Accuracy
+        Supports all major Dutch banks • GDPR Compliant • Hoge nauwkeurigheid
       </motion.p>
     </motion.div>
   );

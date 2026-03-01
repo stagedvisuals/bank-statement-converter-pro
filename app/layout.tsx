@@ -19,7 +19,7 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: "BSC Pro | Bank Statement Converter voor Boekhouders",
-  description: "Converteer PDF bankafschriften automatisch naar Excel, CSV en MT940. 99.5% nauwkeurig. Tijd besparen voor boekhouders en ondernemers.",
+  description: "Converteer PDF bankafschriften automatisch naar Excel, CSV en MT940. Hoge nauwkeurigheid - controleer altijd zelf. Tijd besparen voor boekhouders en ondernemers.",
   keywords: "bank statement converter, PDF naar Excel, bankafschrift converter, MT940 export, boekhouding automatisering",
 };
 
