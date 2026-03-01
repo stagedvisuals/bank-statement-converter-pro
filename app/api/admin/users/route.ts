@@ -50,16 +50,40 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: profileError.message }, { status: 500 });
     }
 
-    // If credits specified, update conversions_count
+    // Add credits if specified
     if (credits > 0) {
-      const { error: creditsError } = await supabase
-        .from('profiles')
-        .update({ conversions_count: credits })
-        .eq('id', userId);
+      const { data: currentCredits } = await supabase
+        .from('user_credits')
+        .select('remaining_credits, total_credits')
+        .eq('user_id', userId)
+        .single();
 
-      if (creditsError) {
-        return NextResponse.json({ error: creditsError.message }, { status: 500 });
+      if (currentCredits) {
+        await supabase
+          .from('user_credits')
+          .update({
+            remaining_credits: (currentCredits.remaining_credits || 0) + credits,
+            total_credits: (currentCredits.total_credits || 0) + credits
+          })
+          .eq('user_id', userId);
+      } else {
+        await supabase
+          .from('user_credits')
+          .insert({
+            user_id: userId,
+            remaining_credits: credits,
+            total_credits: credits
+          });
       }
+
+      await supabase
+        .from('credit_transactions')
+        .insert({
+          user_id: userId,
+          amount: credits,
+          type: 'admin_grant',
+          description: `Admin granted ${credits} credits`
+        });
     }
 
     return NextResponse.json({ success: true });
@@ -83,12 +107,15 @@ export async function DELETE(request: Request) {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Delete user from Supabase Auth (cascades to profiles via RLS)
-    const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+    // Delete from profiles
+    await supabase.from('profiles').delete().eq('id', userId);
 
-    if (authError) {
-      return NextResponse.json({ error: authError.message }, { status: 500 });
-    }
+    // Delete user credits
+    await supabase.from('user_credits').delete().eq('user_id', userId);
+
+    // Delete from Supabase Auth
+    const { error } = await supabase.auth.admin.deleteUser(userId);
+    if (error) console.log('Auth delete error (non-fatal):', error.message);
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
