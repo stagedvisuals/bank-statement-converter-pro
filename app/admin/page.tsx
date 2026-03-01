@@ -327,7 +327,7 @@ export default function AdminPage() {
         {/* Content */}
         <div className="mt-6">
           {activeTab === 'overview' && <OverviewTab stats={stats} isLoading={isLoading} />}
-          {activeTab === 'users' && <UsersTab users={users} isLoading={isLoading} logActivity={logActivity} />}
+          {activeTab === 'users' && <UsersTab users={users} isLoading={isLoading} logActivity={logActivity} onRefresh={fetchData} />}
           {activeTab === 'conversions' && <ConversionsTab conversions={conversions} isLoading={isLoading} />}
           {activeTab === 'tools' && <ToolsTesterTab logActivity={logActivity} />}
           {activeTab === 'system' && <SystemTab health={health} />}
@@ -384,61 +384,256 @@ function OverviewTab({ stats, isLoading }: { stats: Stats | null; isLoading: boo
   );
 }
 
-function UsersTab({ users, isLoading, logActivity }: { users: User[]; isLoading: boolean; logActivity: (a: string) => void }) {
-  const [filter, setFilter] = useState('');
-  
-  const filtered = users.filter(u => u.email?.toLowerCase().includes(filter.toLowerCase()));
-  
-  if (isLoading) return <div className="text-center py-12">Laden...</div>;
+function UsersTab({ users, isLoading, logActivity, onRefresh }: { 
+  users: User[]; 
+  isLoading: boolean; 
+  logActivity: (a: string) => void;
+  onRefresh: () => void;
+}) {
+  const [search, setSearch] = useState('')
+  const [editUser, setEditUser] = useState<User | null>(null)
+  const [editPlan, setEditPlan] = useState('')
+  const [editCredits, setEditCredits] = useState(0)
+  const [saving, setSaving] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+
+  const filtered = users.filter(u => 
+    u.email?.toLowerCase().includes(search.toLowerCase())
+  )
+
+  const planColor = (plan: string) => {
+    const colors: Record<string, string> = {
+      'free': 'bg-muted text-muted-foreground',
+      'starter': 'bg-blue-500/20 text-blue-400',
+      'pro': 'bg-[#00b8d9]/20 text-[#00b8d9]',
+      'business': 'bg-purple-500/20 text-purple-400',
+      'enterprise': 'bg-amber-500/20 text-amber-400',
+    }
+    return colors[plan?.toLowerCase()] || 'bg-muted text-muted-foreground'
+  }
+
+  const handleSaveUser = async () => {
+    if (!editUser) return
+    setSaving(true)
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-secret': 'BSCPro2025!'
+        },
+        body: JSON.stringify({ 
+          userId: editUser.id, 
+          plan: editPlan,
+          credits: editCredits 
+        })
+      })
+      if (res.ok) {
+        logActivity('Updated user ' + editUser.email + ': plan=' + editPlan + ', credits=' + editCredits)
+        setEditUser(null)
+        onRefresh()
+      }
+    } catch {}
+    setSaving(false)
+  }
+
+  const handleDelete = async (userId: string, email: string) => {
+    try {
+      const res = await fetch('/api/admin/users?userId=' + userId, {
+        method: 'DELETE',
+        headers: { 'x-admin-secret': 'BSCPro2025!' }
+      })
+      if (res.ok) {
+        logActivity('Deleted user: ' + email)
+        setConfirmDelete(null)
+        onRefresh()
+      }
+    } catch {}
+  }
+
+  const handleExportCSV = () => {
+    const headers = ['Email', 'Plan', 'Conversies', 'Aangemaakt']
+    const rows = filtered.map(u => [
+      u.email,
+      u.plan || 'free',
+      u.conversions_count || 0,
+      u.created_at ? new Date(u.created_at).toLocaleDateString('nl-NL') : '—'
+    ])
+    const csv = [headers, ...rows].map(r => r.join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'bscpro-users-' + new Date().toISOString().split('T')[0] + '.csv'
+    a.click()
+    logActivity('Exported ' + filtered.length + ' users to CSV')
+  }
+
+  if (isLoading) return <div className="text-center py-12">Laden...</div>
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-4">
-        <input
-          type="text"
-          placeholder="Zoek op email..."
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="flex-1 px-4 py-2 bg-card border border-border rounded-lg"
-        />
+      {/* Header */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex-1">
+          <input
+            type="text"
+            placeholder="Zoek op email..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full px-4 py-2 bg-muted border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00b8d9]"
+          />
+        </div>
         <button
-          onClick={() => logActivity('Exported users CSV')}
-          className="flex items-center gap-2 px-4 py-2 bg-[#00b8d9] text-[#080d14] rounded-lg"
+          onClick={handleExportCSV}
+          className="px-4 py-2 bg-muted border border-border rounded-lg text-sm hover:bg-accent transition-colors"
         >
-          <Download className="w-4 h-4" />
-          Export
+          📥 Export CSV
         </button>
+        <span className="text-sm text-muted-foreground whitespace-nowrap">
+          {filtered.length} gebruikers
+        </span>
       </div>
-      
+
+      {/* Users Table */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr>
               <th className="text-left p-4">Email</th>
               <th className="text-left p-4">Plan</th>
+              <th className="text-left p-4">Conversies</th>
+              <th className="text-left p-4">Aangemaakt</th>
               <th className="text-left p-4">Acties</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((user) => (
-              <tr key={user.id} className="border-t border-border">
+              <tr key={user.id} className="border-t border-border hover:bg-muted/30 transition-colors">
                 <td className="p-4">{user.email}</td>
-                <td className="p-4">{user.plan || 'free'}</td>
                 <td className="p-4">
-                  <button 
-                    onClick={() => logActivity(`Edited user ${user.email}`)}
-                    className="p-1 text-muted-foreground hover:text-foreground"
-                  >
-                    <Edit3 className="w-4 h-4" />
-                  </button>
+                  <span className={'px-2 py-1 rounded-full text-xs ' + planColor(user.plan)}>
+                    {user.plan || 'free'}
+                  </span>
+                </td>
+                <td className="p-4">{user.conversions_count || 0}</td>
+                <td className="p-4 text-muted-foreground">
+                  {user.created_at ? new Date(user.created_at).toLocaleDateString('nl-NL') : '—'}
+                </td>
+                <td className="p-4">
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        setEditUser(user)
+                        setEditPlan(user.plan || 'free')
+                        setEditCredits(user.conversions_count || 0)
+                      }}
+                      className="p-2 text-muted-foreground hover:text-[#00b8d9] transition-colors"
+                      title="Bewerken"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setConfirmDelete(user.id)}
+                      className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                      title="Verwijderen"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* Edit Modal */}
+      {editUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-card border border-border rounded-xl p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold mb-4">Gebruiker bewerken</h3>
+            <p className="text-sm text-muted-foreground mb-4">{editUser.email}</p>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Plan</label>
+                <select
+                  value={editPlan}
+                  onChange={e => setEditPlan(e.target.value)}
+                  className="w-full px-3 py-2 bg-muted border border-border rounded-lg text-sm"
+                >
+                  <option value="free">Free</option>
+                  <option value="starter">Starter</option>
+                  <option value="pro">Pro</option>
+                  <option value="business">Business</option>
+                  <option value="enterprise">Enterprise</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Credits</label>
+                <input
+                  type="number"
+                  value={editCredits}
+                  onChange={e => setEditCredits(parseInt(e.target.value) || 0)}
+                  className="w-full px-3 py-2 bg-muted border border-border rounded-lg text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setEditUser(null)}
+                className="flex-1 px-4 py-2 bg-muted border border-border rounded-lg text-sm hover:bg-accent transition-colors"
+              >
+                Annuleren
+              </button>
+              <button
+                onClick={handleSaveUser}
+                disabled={saving}
+                className="flex-1 px-4 py-2 bg-[#00b8d9] text-[#080d14] rounded-lg text-sm font-medium disabled:opacity-50"
+              >
+                {saving ? 'Opslaan...' : 'Opslaan'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation */}
+      {confirmDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-card border border-border rounded-xl p-6 w-full max-w-md mx-4">
+            <div className="flex items-center gap-3 text-destructive mb-4">
+              <AlertTriangle className="w-6 h-6" />
+              <h3 className="text-lg font-semibold">Gebruiker verwijderen?</h3>
+            </div>
+            <p className="text-sm text-muted-foreground mb-6">
+              Deze actie kan niet ongedaan worden gemaakt. Alle gegevens van deze gebruiker worden permanent verwijderd.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmDelete(null)}
+                className="flex-1 px-4 py-2 bg-muted border border-border rounded-lg text-sm hover:bg-accent transition-colors"
+              >
+                Annuleren
+              </button>
+              <button
+                onClick={() => {
+                  const user = users.find(u => u.id === confirmDelete)
+                  if (user) handleDelete(user.id, user.email)
+                }}
+                className="flex-1 px-4 py-2 bg-destructive text-white rounded-lg text-sm font-medium hover:bg-destructive/90"
+              >
+                Verwijderen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  );
+  )
 }
 
 function ConversionsTab({ conversions, isLoading }: { conversions: Conversion[]; isLoading: boolean }) {
