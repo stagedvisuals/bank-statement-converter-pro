@@ -28,7 +28,8 @@ export default function Home() {
   const [statements, setStatements] = useState(20);
   const [hourlyRate, setHourlyRate] = useState(75);
   const [enterpriseEmail, setEnterpriseEmail] = useState('');
-  const [enterpriseSubmitted, setEnterpriseSubmitted] = useState(false);
+  const [enterpriseSubmitted, setEnterpriseSubmitted] = useState(false)
+  const [enterpriseLoading, setEnterpriseLoading] = useState(false);
   
   const manualHours = Math.ceil(statements * 1.5);
   const bscProMinutes = Math.ceil(statements * 0.5);
@@ -36,19 +37,19 @@ export default function Home() {
   const moneySaved = Math.round(hoursSaved * hourlyRate);
 
   const handleEnterpriseSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
+    setEnterpriseLoading(true)
     try {
       await fetch('/api/enterprise-waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: enterpriseEmail }),
-      });
-      setEnterpriseSubmitted(true);
-      setEnterpriseEmail('');
-    } catch (error) {
-      console.error('Enterprise waitlist error:', error);
-    }
-  };
+        body: JSON.stringify({ email: enterpriseEmail })
+      })
+    } catch {}
+    setEnterpriseSubmitted(true)
+    setEnterpriseEmail('')
+    setEnterpriseLoading(false)
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -260,139 +261,160 @@ export default function Home() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-20 bg-secondary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <span className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-full text-sm font-medium mb-4">
+      {/* Pricing */}
+      <section id="pricing" className="py-20 bg-background">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-6">
+            <span className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-full text-sm font-medium">
               ✅ 14 dagen niet goed, geld terug — geen vragen gesteld
             </span>
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-3">Kies je abonnement</h2>
-            <p className="text-muted-foreground">Altijd zonder verborgen kosten. Opzeggen kan maandelijks.</p>
           </div>
+          <h2 className="text-3xl font-bold text-center mb-4">Kies je abonnement</h2>
+          <p className="text-center text-muted-foreground mb-12">
+            Altijd zonder verborgen kosten. Maandelijks opzegbaar.
+          </p>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {/* TIER 1 - Losse Scan */}
-            <div className="p-6 rounded-2xl border bg-white dark:bg-[#0a1220] border-slate-200 dark:border-slate-800">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Losse Scan</h3>
-              <div className="mb-2">
-                <span className="text-3xl font-bold text-slate-900 dark:text-white">€2,00</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 items-start">
+            {/* LOSSE SCAN */}
+            <div className="border border-border rounded-2xl p-6 bg-card flex flex-col">
+              <div className="mb-4">
+                <h3 className="text-lg font-bold mb-1">Losse Scan</h3>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-bold">€4,95</span>
+                  <span className="text-muted-foreground text-sm">per scan</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Eenmalig, geen abonnement</p>
               </div>
-              <p className="text-sm text-muted-foreground mb-5">Per PDF conversie</p>
-              
-              <ul className="space-y-3 mb-6">
-                {['Per scan betalen', 'Excel/CSV/MT940 export', 'Directe verwerking', 'Geen abonnement'].map((feature) => (
-                  <li key={feature} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
-                    <Check className="w-4 h-4 text-[#00b8d9] shrink-0 mt-0.5" />
-                    {feature}
-                  </li>
-                ))}
+              <ul className="space-y-2 flex-1 mb-6 text-sm">
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>1 PDF conversie</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Excel, CSV en MT940 export</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Directe verwerking</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>24 uur download beschikbaar</span></li>
+                <li className="flex items-start gap-2"><span className="text-muted-foreground shrink-0">✗</span><span className="text-muted-foreground">CAMT.053 en QBO</span></li>
+                <li className="flex items-start gap-2"><span className="text-muted-foreground shrink-0">✗</span><span className="text-muted-foreground">BTW categorisering</span></li>
+                <li className="flex items-start gap-2"><span className="text-muted-foreground shrink-0">✗</span><span className="text-muted-foreground">Bulk upload</span></li>
               </ul>
-
-              <button className="w-full py-3 rounded-lg font-semibold border border-[#00b8d9]/30 text-[#00b8d9] hover:bg-[#00b8d9]/10 transition-all">
-                Koop losse scan
-              </button>
+              <a href="/register" className="block text-center px-4 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-accent transition-colors">
+                Direct kopen
+              </a>
             </div>
 
-            {/* TIER 2 - ZZP Plan */}
-            <div className="p-6 rounded-2xl border bg-white dark:bg-[#0a1220] border-[#00b8d9] relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-[#00b8d9] text-[#080d14] text-xs font-semibold rounded-full">
+            {/* ZZP PLAN */}
+            <div className="border border-[#00b8d9] rounded-2xl p-6 bg-card flex flex-col relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#00b8d9] text-[#080d14] text-xs font-bold rounded-full">
                 Meest populair
               </div>
-              
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2 mt-2">ZZP Plan</h3>
-              <div className="mb-1">
-                <span className="text-3xl font-bold text-slate-900 dark:text-white">€15,00</span>
-                <span className="text-muted-foreground text-sm">/maand</span>
+              <div className="mb-4">
+                <h3 className="text-lg font-bold mb-1">ZZP Plan</h3>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-bold">€15</span>
+                  <span className="text-muted-foreground text-sm">/maand</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">50 scans per maand</p>
               </div>
-              <p className="text-xs text-amber-600 dark:text-amber-400 mb-5">Tijdelijke actie, daarna €22,50</p>
-              
-              <ul className="space-y-3 mb-6">
-                {['50 scans per maand', 'Excel/CSV/MT940/CAMT.053', 'BTW categorisering', 'Prioriteit verwerking'].map((feature) => (
-                  <li key={feature} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
-                    <Check className="w-4 h-4 text-[#00b8d9] shrink-0 mt-0.5" />
-                    {feature}
-                  </li>
-                ))}
+              <ul className="space-y-2 flex-1 mb-6 text-sm">
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>50 scans per maand</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Alle formaten: Excel, CSV, MT940, CAMT.053, QBO</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>BTW categorisering</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Prioriteit verwerking</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>30 dagen download beschikbaar</span></li>
+                <li className="flex items-start gap-2"><span className="text-muted-foreground shrink-0">✗</span><span className="text-muted-foreground">Bulk upload</span></li>
               </ul>
-
-              <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border">
-                ✅ 14 dagen geld-terug-garantie
-              </p>
-
-              <button className="w-full py-3 rounded-lg font-semibold bg-[#00b8d9] text-[#080d14] hover:shadow-[0_0_20px_rgba(0,184,217,0.4)] transition-all mt-4">
+              <p className="text-xs text-muted-foreground border-t border-border pt-3 mb-4">✅ 14 dagen geld-terug-garantie</p>
+              <a href="/register" className="block text-center px-4 py-2.5 bg-[#00b8d9] text-[#080d14] rounded-lg text-sm font-bold hover:shadow-[0_0_20px_rgba(0,184,217,0.4)] transition-all">
                 Start 14-daagse trial
-              </button>
+              </a>
             </div>
 
-            {/* TIER 3 - Pro Plan */}
-            <div className="p-6 rounded-2xl border bg-white dark:bg-[#0a1220] border-slate-200 dark:border-slate-800">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Pro Plan</h3>
-              <div className="mb-1">
-                <span className="text-3xl font-bold text-slate-900 dark:text-white">€30,00</span>
-                <span className="text-muted-foreground text-sm">/maand</span>
+            {/* PRO PLAN */}
+            <div className="border border-border rounded-2xl p-6 bg-card flex flex-col">
+              <div className="mb-4">
+                <h3 className="text-lg font-bold mb-1">Pro Plan</h3>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-bold">€30</span>
+                  <span className="text-muted-foreground text-sm">/maand</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Onbeperkt scannen</p>
               </div>
-              <p className="text-xs text-amber-600 dark:text-amber-400 mb-5">Tijdelijke actie, daarna €40,00</p>
-              
-              <ul className="space-y-3 mb-6">
-                {['Onbeperkt scans', 'Directe verwerking', 'CAMT.053 + MT940', 'Prioriteit support', 'Bulk upload (10 tegelijk)'].map((feature) => (
-                  <li key={feature} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
-                    <Check className="w-4 h-4 text-[#00b8d9] shrink-0 mt-0.5" />
-                    {feature}
-                  </li>
-                ))}
+              <ul className="space-y-2 flex-1 mb-6 text-sm">
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span><strong>Onbeperkt</strong> scans</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Alle formaten: Excel, CSV, MT940, CAMT.053, QBO</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>BTW categorisering</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Prioriteit verwerking</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Bulk upload (tot 10 tegelijk)</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>90 dagen download beschikbaar</span></li>
               </ul>
-
-              <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border">
-                ✅ 14 dagen geld-terug-garantie
-              </p>
-
-              <button className="w-full py-3 rounded-lg font-semibold border border-[#00b8d9]/30 text-[#00b8d9] hover:bg-[#00b8d9]/10 transition-all mt-4">
+              <p className="text-xs text-muted-foreground border-t border-border pt-3 mb-4">✅ 14 dagen geld-terug-garantie</p>
+              <a href="/register" className="block text-center px-4 py-2.5 border border-[#00b8d9]/30 text-[#00b8d9] rounded-lg text-sm font-bold hover:bg-[#00b8d9]/10 transition-colors">
                 Start 14-daagse trial
-              </button>
+              </a>
             </div>
 
-            {/* TIER 4 - Enterprise Waitlist */}
-            <div className="p-6 rounded-2xl border bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Enterprise</h3>
-              <div className="mb-2">
-                <span className="text-3xl font-bold text-slate-900 dark:text-white">€99,00</span>
-                <span className="text-muted-foreground text-sm">/maand</span>
+            {/* ADMIN / ACCOUNTANT PLAN */}
+            <div className="border border-border rounded-2xl p-6 bg-card flex flex-col">
+              <div className="mb-4">
+                <h3 className="text-lg font-bold mb-1">Admin</h3>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-bold">€49</span>
+                  <span className="text-muted-foreground text-sm">/maand</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Voor boekhouders &amp; administrateurs</p>
               </div>
-              <p className="text-sm text-muted-foreground mb-5">Kantoren en grote bedrijven</p>
-
-              <ul className="space-y-3 mb-6">
-                {['Alles van Pro Plan', 'Tot 5 gebruikers', 'Gedeelde team-omgeving', 'API toegang', 'Custom integraties', 'Accountmanager'].map((feature) => (
-                  <li key={feature} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
-                    <Check className="w-4 h-4 text-[#00b8d9] shrink-0 mt-0.5" />
-                    {feature}
-                  </li>
-                ))}
+              <ul className="space-y-2 flex-1 mb-6 text-sm">
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span><strong>Onbeperkt</strong> scans</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Alle Pro features</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Multi-user (tot 3 gebruikers)</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Gedeelde bedrijfsinstellingen</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Centrale facturatie</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>1 jaar download beschikbaar</span></li>
               </ul>
+              <p className="text-xs text-muted-foreground border-t border-border pt-3 mb-4">✅ 14 dagen geld-terug-garantie</p>
+              <a href="/register" className="block text-center px-4 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-accent transition-colors">
+                Start 14-daagse trial
+              </a>
+            </div>
 
-              <div className="mt-6">
-                <p className="text-sm text-muted-foreground mb-3">
-                  Interesse in Enterprise? Laat je gegevens achter.
-                </p>
-                <form onSubmit={handleEnterpriseSubmit} className="space-y-2">
-                  <input
-                    type="email"
-                    placeholder="jouw@email.nl"
-                    value={enterpriseEmail}
-                    onChange={(e) => setEnterpriseEmail(e.target.value)}
-                    className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background"
-                    required
-                  />
-                  <button
-                    type="submit"
-                    className="w-full px-4 py-2 bg-foreground text-background rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
-                  >
-                    Zet me op de wachtlijst →
-                  </button>
-                </form>
-                {enterpriseSubmitted && (
-                  <p className="text-green-600 text-sm mt-2">
-                    ✅ We nemen contact met je op!
-                  </p>
+            {/* ENTERPRISE */}
+            <div className="border border-border rounded-2xl p-6 bg-muted/50 flex flex-col">
+              <div className="mb-4">
+                <h3 className="text-lg font-bold mb-1">Enterprise</h3>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-bold">€99</span>
+                  <span className="text-muted-foreground text-sm">/maand</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Voor kantoren &amp; grote teams</p>
+              </div>
+              <ul className="space-y-2 flex-1 mb-4 text-sm">
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span><strong>Onbeperkt</strong> scans</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Alle Admin features</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Onbeperkt gebruikers</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>API toegang</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Custom integraties</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Dedicated support</span></li>
+              </ul>
+              
+              <div className="mt-auto">
+                <p className="text-xs text-muted-foreground mb-3">Interesse? Laat je gegevens achter:</p>
+                {!enterpriseSubmitted ? (
+                  <form onSubmit={handleEnterpriseSubmit} className="space-y-2">
+                    <input
+                      type="email"
+                      placeholder="jouw@email.nl"
+                      value={enterpriseEmail}
+                      onChange={(e) => setEnterpriseEmail(e.target.value)}
+                      className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background"
+                      required
+                    />
+                    <button
+                      type="submit"
+                      disabled={enterpriseLoading}
+                      className="w-full px-4 py-2 bg-foreground text-background rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+                    >
+                      {enterpriseLoading ? 'Versturen...' : 'Zet me op de wachtlijst →'}
+                    </button>
+                  </form>
+                ) : (
+                  <p className="text-green-600 text-sm text-center py-2">✅ We nemen contact met je op!</p>
                 )}
               </div>
             </div>
