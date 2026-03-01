@@ -187,10 +187,11 @@ export default function Dashboard() {
       await new Promise(r => setTimeout(r, 500));
       if (!response.ok) { const data = await response.json(); throw new Error(data.error || 'Upload mislukt'); }
       const data = await response.json();
-      if (!data.success || !data.transactions?.length) throw new Error(data.error || 'Geen transacties gevonden');
+      const transactions = data.data?.transacties || data.transactions || []
+      if (!data.success || !transactions.length) throw new Error(data.error || 'Geen transacties gevonden')
       setScanStatus('extracting');
       await new Promise(r => setTimeout(r, 500));
-      setTransactions(data.transactions);
+      setTransactions(transactions);
       setBank(data.bank || 'Onbekend');
       setRekeningnummer(data.rekeningnummer || '');
       setCategorySummary(data.categorySummary || []);
