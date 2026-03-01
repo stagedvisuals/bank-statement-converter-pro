@@ -141,10 +141,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('[API Login] Profile found, role:', profile?.role)
     console.log('[API Login] Sending successful response')
 
-    // Zet Supabase session cookies
+    // Zet Supabase session cookies + custom session cookie
     res.setHeader('Set-Cookie', [
       `sb-access-token=${data.session?.access_token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=3600`,
-      `sb-refresh-token=${data.session?.refresh_token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400`
+      `sb-refresh-token=${data.session?.refresh_token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400`,
+      `bscpro-session=authenticated; Path=/; Secure; SameSite=Lax; Max-Age=86400`
     ])
 
     return res.status(200).json({

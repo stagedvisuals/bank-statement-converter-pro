@@ -6,7 +6,6 @@ const PUBLIC_ROUTES = [
   '/',
   '/login',
   '/register',
-  '/dashboard',
   '/admin',
   '/beheer',
   '/over-ons',
@@ -46,7 +45,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 2. Alleen voor non-public routes: check sessie
-  const sessionCookie = request.cookies.get('sb-access-token') || request.cookies.get('sb-refresh-token')
+  const sessionCookie = request.cookies.get('sb-access-token') || request.cookies.get('sb-refresh-token') || request.cookies.get('bscpro-session')
   
   if (!sessionCookie) {
     // Niet ingelogd, redirect naar login
