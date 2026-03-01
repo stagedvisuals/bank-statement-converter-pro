@@ -262,6 +262,7 @@ export default function Home() {
 
       {/* Pricing */}
       {/* Pricing */}
+      {/* Pricing */}
       <section id="pricing" className="py-20 bg-background">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-6">
@@ -382,11 +383,73 @@ export default function Home() {
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>SLA 99,9% uptime garantie</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Dedicated accountmanager</span></li>
               </ul>
-              <div className="mt-auto">
-                <a href="/contact" className="block text-center px-4 py-2.5 bg-foreground text-background rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
-                  Neem contact op
-                </a>
-              </div>
+              {enterpriseSubmitted ? (
+                <p className="text-green-600 dark:text-green-400 text-sm font-medium text-center py-2">
+                  ✅ We nemen binnen 2 werkdagen contact op!
+                </p>
+              ) : (
+                <form onSubmit={handleEnterpriseSubmit} className="space-y-2">
+                  <p className="text-xs text-muted-foreground text-center">Interesse? Laat je email achter:</p>
+                  <input 
+                    type="email" 
+                    placeholder="jouw@email.nl" 
+                    value={enterpriseEmail} 
+                    onChange={(e) => setEnterpriseEmail(e.target.value)} 
+                    required 
+                    className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background focus:outline-none focus:ring-2 focus:ring-[#00b8d9]" 
+                  />
+                  <button 
+                    type="submit" 
+                    disabled={enterpriseLoading} 
+                    className="w-full px-4 py-2 bg-foreground text-background rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-opacity"
+                  >
+                    {enterpriseLoading ? 'Bezig...' : 'Zet me op de wachtlijst →'}
+                  </button>
+                  <p className="text-xs text-muted-foreground text-center">We reageren binnen 2 werkdagen</p>
+                </form>
+              )}
+            </div>
+          </div>
+
+          {/* VERGELIJKINGSTABEL */}
+          <div className="mt-16 overflow-x-auto">
+            <h3 className="text-xl font-bold text-center mb-6">Gedetailleerde vergelijking</h3>
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Functie</th>
+                  <th className="text-center py-3 px-4 font-medium">Losse Scan</th>
+                  <th className="text-center py-3 px-4 font-medium">Starter</th>
+                  <th className="text-center py-3 px-4 font-medium text-[#00b8d9]">Pro</th>
+                  <th className="text-center py-3 px-4 font-medium">Business</th>
+                  <th className="text-center py-3 px-4 font-medium">Enterprise</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-border/50"><td className="py-3 px-4 font-medium">Prijs</td><td className="text-center py-3 px-4">€4,95</td><td className="text-center py-3 px-4">€12/mnd</td><td className="text-center py-3 px-4 font-medium text-[#00b8d9]">€29/mnd</td><td className="text-center py-3 px-4">€69/mnd</td><td className="text-center py-3 px-4">€199/mnd</td></tr>
+                <tr className="border-b border-border/50 bg-muted/20"><td className="py-3 px-4">Scans</td><td className="text-center py-3 px-4">1</td><td className="text-center py-3 px-4">15/mnd</td><td className="text-center py-3 px-4 font-medium">100/mnd</td><td className="text-center py-3 px-4">500/mnd</td><td className="text-center py-3 px-4">Onbeperkt</td></tr>
+                <tr className="border-b border-border/50"><td className="py-3 px-4">Excel / CSV / MT940</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td></tr>
+                <tr className="border-b border-border/50 bg-muted/20"><td className="py-3 px-4">CAMT.053 export</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td></tr>
+                <tr className="border-b border-border/50"><td className="py-3 px-4">QBO (QuickBooks)</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td></tr>
+                <tr className="border-b border-border/50 bg-muted/20"><td className="py-3 px-4">BTW categorisering</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td></tr>
+                <tr className="border-b border-border/50"><td className="py-3 px-4">Bulk upload</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4">Max 5</td><td className="text-center py-3 px-4">Max 25</td><td className="text-center py-3 px-4">Onbeperkt</td></tr>
+                <tr className="border-b border-border/50 bg-muted/20"><td className="py-3 px-4">Gebruikers</td><td className="text-center py-3 px-4">1</td><td className="text-center py-3 px-4">1</td><td className="text-center py-3 px-4">1</td><td className="text-center py-3 px-4">3</td><td className="text-center py-3 px-4">10+</td></tr>
+                <tr className="border-b border-border/50"><td className="py-3 px-4">API toegang</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td></tr>
+                <tr className="border-b border-border/50 bg-muted/20"><td className="py-3 px-4">White-label</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-green-500">✓</td></tr>
+                <tr className="border-b border-border/50"><td className="py-3 px-4">SLA uptime</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-green-500">99,9%</td></tr>
+                <tr className="border-b border-border/50 bg-muted/20"><td className="py-3 px-4">Support</td><td className="text-center py-3 px-4 text-muted-foreground">—</td><td className="text-center py-3 px-4">Email</td><td className="text-center py-3 px-4">Prio email</td><td className="text-center py-3 px-4">Telefoon</td><td className="text-center py-3 px-4">Dedicated</td></tr>
+                <tr><td className="py-3 px-4">Geld-terug-garantie</td><td className="text-center py-3 px-4 text-muted-foreground">—</td><td className="text-center py-3 px-4 text-green-500">14 dagen</td><td className="text-center py-3 px-4 text-green-500">14 dagen</td><td className="text-center py-3 px-4 text-green-500">14 dagen</td><td className="text-center py-3 px-4 text-green-500">14 dagen</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* GARANTIE NOTE */}
+          <div className="mt-10 max-w-2xl mx-auto">
+            <div className="border border-border rounded-xl p-6 bg-card">
+              <h4 className="font-bold mb-2">💬 Wat als ik niet tevreden ben?</h4>
+              <p className="text-muted-foreground text-sm">
+                Geen probleem. We bieden 14 dagen geld-terug-garantie op alle betaalde abonnementen. Stuur een email naar info@bscpro.nl en je krijgt je geld volledig terug, geen vragen gesteld.
+              </p>
             </div>
           </div>
         </div>
