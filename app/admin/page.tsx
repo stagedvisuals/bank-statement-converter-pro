@@ -150,15 +150,48 @@ export default function AdminPage() {
     }
   }, [isAuthenticated, activeTab]);
 
-  // Health check
+  // Health check - comprehensive
   const checkHealth = async () => {
     const adminHeaders = { 'x-admin-secret': 'BSCPro2025!' };
     
+    // Check Database
     try {
       const dbRes = await fetch('/api/admin/stats', { headers: adminHeaders });
       setHealth(prev => ({ ...prev, database: dbRes.ok }));
     } catch {
       setHealth(prev => ({ ...prev, database: false }));
+    }
+    
+    // Check API Convert
+    try {
+      const convertRes = await fetch('/api/convert', { method: 'OPTIONS' });
+      setHealth(prev => ({ ...prev, apiConvert: convertRes.ok || convertRes.status === 405 }));
+    } catch {
+      setHealth(prev => ({ ...prev, apiConvert: false }));
+    }
+    
+    // Check API Cleanup
+    try {
+      const cleanupRes = await fetch('/api/cleanup', { headers: adminHeaders });
+      setHealth(prev => ({ ...prev, apiCleanup: cleanupRes.ok }));
+    } catch {
+      setHealth(prev => ({ ...prev, apiCleanup: false }));
+    }
+    
+    // Check Supabase Auth
+    try {
+      const session = localStorage.getItem('bscpro_session');
+      setHealth(prev => ({ ...prev, supabaseAuth: !!session }));
+    } catch {
+      setHealth(prev => ({ ...prev, supabaseAuth: false }));
+    }
+    
+    // Check Env Vars
+    try {
+      const envRes = await fetch('/api/health');
+      setHealth(prev => ({ ...prev, envVars: envRes.ok }));
+    } catch {
+      setHealth(prev => ({ ...prev, envVars: false }));
     }
   };
 
@@ -444,18 +477,100 @@ function ConversionsTab({ conversions, isLoading }: { conversions: Conversion[];
 }
 
 function ToolsTesterTab({ logActivity }: { logActivity: (a: string) => void }) {
+  const [file, setFile] = useState<File | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState<any>(null)
+  const [error, setError] = useState('')
+
+  const handleTest = async () => {
+    if (!file) {
+      setError('Selecteer eerst een PDF')
+      return
+    }
+    setLoading(true)
+    setError('')
+    setResult(null)
+    
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    try {
+      const response = await fetch('/api/convert', {
+        method: 'POST',
+        body: formData
+      })
+      const data = await response.json()
+      
+      if (!response.ok) {
+        setError(data.error || 'Conversie mislukt')
+      } else {
+        setResult(data)
+        logActivity('Tested conversion: ' + data.transactieCount + ' transacties gevonden')
+      }
+    } catch (err) {
+      setError('Netwerk error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <div className="bg-card border border-border rounded-xl p-6">
-      <h3 className="font-semibold mb-4">Tools Tester</h3>
-      <p className="text-muted-foreground">Upload een PDF om te testen</p>
+    <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+      <h3 className="font-semibold text-lg">🧪 AI Conversie Tester</h3>
+      
+      <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+        <input 
+          type="file" 
+          accept=".pdf" 
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          className="hidden" 
+          id="test-pdf-upload" 
+        />
+        <label htmlFor="test-pdf-upload" className="cursor-pointer">
+          <p className="text-muted-foreground mb-2">
+            {file ? '✅ ' + file.name : 'Klik om een PDF te selecteren'}
+          </p>
+          <span className="px-3 py-1.5 bg-muted rounded-lg text-sm">
+            Bladeren
+          </span>
+        </label>
+      </div>
+
       <button 
-        onClick={() => logActivity('Tested conversion')}
-        className="mt-4 px-4 py-2 bg-[#00b8d9] text-[#080d14] rounded-lg"
+        onClick={handleTest}
+        disabled={loading || !file}
+        className="w-full px-4 py-3 bg-[#00b8d9] text-[#080d14] rounded-lg font-medium disabled:opacity-50"
       >
-        Test Conversie
+        {loading ? '⏳ Verwerken...' : '🚀 Test AI Conversie'}
       </button>
+
+      {error && (
+        <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive text-sm">
+          ❌ {error}
+        </div>
+      )}
+
+      {result && (
+        <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-lg space-y-2">
+          <p className="font-medium text-emerald-600">✅ Conversie geslaagd!</p>
+          <div className="text-sm space-y-1">
+            <p>🏦 Bank: <strong>{result.data?.bank || 'Onbekend'}</strong></p>
+            <p>📊 Transacties: <strong>{result.transactieCount}</strong></p>
+            <p>👤 Rekeninghouder: <strong>{result.data?.rekeninghouder || '—'}</strong></p>
+            <p>📅 Periode: <strong>{result.data?.periode?.van || '—'} → {result.data?.periode?.tot || '—'}</strong></p>
+          </div>
+          <details className="mt-2">
+            <summary className="text-xs text-muted-foreground cursor-pointer">
+              Bekijk ruwe JSON
+            </summary>
+            <pre className="text-xs mt-2 p-2 bg-muted rounded overflow-auto max-h-40">
+              {JSON.stringify(result.data?.transacties?.slice(0, 3), null, 2)}
+            </pre>
+          </details>
+        </div>
+      )}
     </div>
-  );
+  )
 }
 
 function SystemTab({ health }: { health: HealthStatus }) {
