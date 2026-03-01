@@ -164,7 +164,7 @@ export default function AdminPage() {
               </div>
               <div className="bg-card border border-border rounded-xl p-6">
                 <DollarSign className="w-5 h-5 text-emerald-500 mb-2" />
-                <p className="text-3xl font-bold text-foreground">€8,947</p>
+                <p className="text-3xl font-bold text-foreground">€0</p>
                 <p className="text-xs text-muted-foreground">Omzet</p>
               </div>
               <div className="bg-card border border-border rounded-xl p-6">

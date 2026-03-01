@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
       fileName
     })
     
-    // TODO: Implementeer hier je email verzend logica
+    // Email verzenden via Resend - TODO
     // Voorbeeld met SendGrid:
     // await sgMail.send({
     //   to,

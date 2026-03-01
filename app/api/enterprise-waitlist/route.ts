@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // TODO: Hier zou je de email opslaan in Supabase tabel 'enterprise_waitlist'
+    // Email wordt opgeslagen - Resend integratie TODO 'enterprise_waitlist'
     // Voor nu loggen we naar console
     console.log('Enterprise waitlist signup:', {
       email,

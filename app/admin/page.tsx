@@ -331,7 +331,7 @@ export default function AdminPage() {
           {activeTab === 'conversions' && <ConversionsTab conversions={conversions} isLoading={isLoading} />}
           {activeTab === 'tools' && <ToolsTesterTab logActivity={logActivity} />}
           {activeTab === 'system' && <SystemTab health={health} />}
-          {activeTab === 'finance' && <FinanceTab />}
+          {activeTab === 'finance' && <FinanceTab users={users} />}
           {activeTab === 'marketing' && <MarketingTab />}
         </div>
 
@@ -805,13 +805,70 @@ function HealthCard({ title, status }: { title: string; status: boolean }) {
   );
 }
 
-function FinanceTab() {
+function FinanceTab({ users }: { users: User[] }) {
+  const planPrices: Record<string, number> = {
+    'starter': 12,
+    'pro': 29,
+    'business': 69,
+    'enterprise': 199,
+    'free': 0
+  }
+  
+  const mrr = users.reduce((sum, u) => {
+    return sum + (planPrices[u.plan?.toLowerCase()] || 0)
+  }, 0)
+  
+  const paidUsers = users.filter(u => u.plan && u.plan !== 'free').length
+  
   return (
-    <div className="bg-card border border-border rounded-xl p-6">
-      <h3 className="font-semibold mb-4">Financiën</h3>
-      <p className="text-muted-foreground">MRR: €8,947</p>
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-card border border-border rounded-xl p-6">
+          <p className="text-sm text-muted-foreground mb-1">MRR</p>
+          <p className="text-3xl font-bold text-[#00b8d9]">
+            €{mrr.toLocaleString('nl-NL')}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Berekend uit actieve abonnementen
+          </p>
+        </div>
+        <div className="bg-card border border-border rounded-xl p-6">
+          <p className="text-sm text-muted-foreground mb-1">Betalende gebruikers</p>
+          <p className="text-3xl font-bold">{paidUsers}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Van {users.length} totaal
+          </p>
+        </div>
+        <div className="bg-card border border-border rounded-xl p-6">
+          <p className="text-sm text-muted-foreground mb-1">ARR (geschat)</p>
+          <p className="text-3xl font-bold">€{(mrr * 12).toLocaleString('nl-NL')}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            MRR × 12
+          </p>
+        </div>
+      </div>
+      <div className="bg-card border border-border rounded-xl p-6">
+        <h4 className="font-medium mb-4">Plan verdeling</h4>
+        <div className="space-y-2">
+          {['enterprise', 'business', 'pro', 'starter', 'free'].map(plan => {
+            const count = users.filter(u => (u.plan || 'free') === plan).length
+            const revenue = count * (planPrices[plan] || 0)
+            return (
+              <div key={plan} className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-3">
+                  <span className="capitalize font-medium w-20">{plan}</span>
+                  <span className="text-muted-foreground">{count} gebruikers</span>
+                </div>
+                <span className="font-medium">
+                  {revenue > 0 ? '€' + revenue + '/mnd' : '—'}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
     </div>
-  );
+  )
 }
 
 function MarketingTab() {

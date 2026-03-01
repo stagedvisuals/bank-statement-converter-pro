@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // TODO: Hier zou je de email kunnen versturen via Resend of opslaan in Supabase
+    // Email verzenden via Resend - TODO of opslaan in Supabase
     // Voor nu loggen we naar console
     console.log('Contact formulier ontvangen:', {
       naam,

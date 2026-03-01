@@ -18,7 +18,7 @@ export async function GET() {
 
     if (error) {
       return NextResponse.json({ 
-        count: 23 + Math.floor(Math.random() * 30),
+        count: 0,
         isReal: false
       });
     }
@@ -29,7 +29,7 @@ export async function GET() {
     });
   } catch {
     return NextResponse.json({ 
-      count: 23 + Math.floor(Math.random() * 30),
+      count: 0,
       isReal: false
     });
   }

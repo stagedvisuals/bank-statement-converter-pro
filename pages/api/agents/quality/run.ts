@@ -46,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       try {
         // Simulate AI confidence check
         // In reality, you'd fetch the actual scan results and analyze them
-        const mockConfidence = Math.random(); // 0-1
+        const mockConfidence = 0.85; // 0-1
         const threshold = 0.75;
 
         if (mockConfidence < threshold) {

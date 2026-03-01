@@ -36,8 +36,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       try {
         // Note: In production, you'd use Google Trends API
         // For now, we'll create mock data
-        const mockTrendScore = Math.floor(Math.random() * 100);
-        const mockSearchVolume = Math.floor(Math.random() * 10000) + 1000;
+        const mockTrendScore = 0;
+        const mockSearchVolume = 0;
 
         await supabase.from('market_trends').insert({
           keyword: keyword,

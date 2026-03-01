@@ -49,7 +49,7 @@ export async function GET(request: Request) {
 
     if (payError) {
       // Payments table might not exist, that's ok
-      console.log('Payments table error:', payError.message);
+      // console.log removed
     }
 
     // Calculate stats
