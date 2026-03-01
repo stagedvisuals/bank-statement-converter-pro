@@ -416,6 +416,10 @@ function UsersTab({ users, isLoading, logActivity, onRefresh }: {
     if (!editUser) return
     setSaving(true)
     try {
+      // Bereken nieuwe credits (huidige + extra)
+      const currentCredits = editUser.conversions_count || 0
+      const newCredits = editCredits > 0 ? currentCredits + editCredits : currentCredits
+      
       const res = await fetch('/api/admin/users', {
         method: 'PATCH',
         headers: {
@@ -425,11 +429,11 @@ function UsersTab({ users, isLoading, logActivity, onRefresh }: {
         body: JSON.stringify({ 
           userId: editUser.id, 
           plan: editPlan,
-          credits: editCredits 
+          credits: newCredits 
         })
       })
       if (res.ok) {
-        logActivity('Updated user ' + editUser.email + ': plan=' + editPlan + ', credits=' + editCredits)
+        logActivity('Updated user ' + editUser.email + ': plan=' + editPlan + (editCredits > 0 ? ', added ' + editCredits + ' credits' : ''))
         setEditUser(null)
         onRefresh()
       }
