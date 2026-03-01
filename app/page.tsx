@@ -291,7 +291,6 @@ export default function Home() {
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Directe verwerking</span></li>
                 <li className="flex items-start gap-2"><span className="text-muted-foreground shrink-0">✗</span><span className="text-muted-foreground">CAMT.053 en QBO</span></li>
                 <li className="flex items-start gap-2"><span className="text-muted-foreground shrink-0">✗</span><span className="text-muted-foreground">BTW categorisering</span></li>
-                <li className="flex items-start gap-2"><span className="text-muted-foreground shrink-0">✗</span><span className="text-muted-foreground">Bulk upload</span></li>
               </ul>
               <a href="/register" className="block text-center px-4 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-accent transition-colors">Direct kopen</a>
             </div>
@@ -312,7 +311,6 @@ export default function Home() {
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Email support</span></li>
                 <li className="flex items-start gap-2"><span className="text-muted-foreground shrink-0">✗</span><span className="text-muted-foreground">CAMT.053 en QBO</span></li>
                 <li className="flex items-start gap-2"><span className="text-muted-foreground shrink-0">✗</span><span className="text-muted-foreground">BTW categorisering</span></li>
-                <li className="flex items-start gap-2"><span className="text-muted-foreground shrink-0">✗</span><span className="text-muted-foreground">Bulk upload</span></li>
               </ul>
               <a href="/register" className="block text-center px-4 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-accent transition-colors">Start 14-daagse trial</a>
               <p className="text-xs text-muted-foreground text-center mt-2">✅ 14 dagen geld-terug-garantie</p>
@@ -342,54 +340,52 @@ export default function Home() {
               <p className="text-xs text-muted-foreground text-center mt-2">✅ 14 dagen geld-terug-garantie</p>
             </div>
 
-            {/* ADMIN */}
+            {/* BUSINESS */}
             <div className="border border-border rounded-2xl p-6 bg-card flex flex-col">
               <div className="mb-4">
-                <h3 className="text-lg font-bold mb-1">Admin</h3>
+                <h3 className="text-lg font-bold mb-1">Business</h3>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold">€49</span>
+                  <span className="text-3xl font-bold">€69</span>
                   <span className="text-muted-foreground text-sm">/maand</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Voor boekhouders &amp; administrateurs</p>
+                <p className="text-xs text-muted-foreground mt-1">Boekhouder met meerdere klanten</p>
               </div>
               <ul className="space-y-2 flex-1 mb-6 text-sm">
-                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span><strong>Onbeperkt</strong> scans</span></li>
-                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Multi-user (tot 3 gebruikers)</span></li>
-                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Gedeelde bedrijfsinstellingen</span></li>
-                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Centrale facturatie</span></li>
-                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>1 jaar download beschikbaar</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>500 scans per maand</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Alle formaten incl. CAMT.053 en QBO</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>BTW categorisering automatisch</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Bulk upload tot 25 PDFs tegelijk</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>3 gebruikers inbegrepen</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>API toegang</span></li>
               </ul>
               <a href="/register" className="block text-center px-4 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-accent transition-colors">Start 14-daagse trial</a>
               <p className="text-xs text-muted-foreground text-center mt-2">✅ 14 dagen geld-terug-garantie</p>
             </div>
 
             {/* ENTERPRISE */}
-            <div className="border border-border rounded-2xl p-6 bg-muted/50 flex flex-col">
+            <div className="border border-border rounded-2xl p-6 bg-card flex flex-col">
               <div className="mb-4">
                 <h3 className="text-lg font-bold mb-1">Enterprise</h3>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold">€99</span>
+                  <span className="text-3xl font-bold">€199</span>
                   <span className="text-muted-foreground text-sm">/maand</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Voor kantoren &amp; grote teams</p>
+                <p className="text-xs text-muted-foreground mt-1">Accountantskantoren en grote teams</p>
               </div>
-              <ul className="space-y-2 flex-1 mb-4 text-sm">
-                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span><strong>Onbeperkt</strong> scans</span></li>
-                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Onbeperkt gebruikers</span></li>
-                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>API toegang</span></li>
-                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Custom integraties</span></li>
-                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Dedicated support</span></li>
+              <ul className="space-y-2 flex-1 mb-6 text-sm">
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Onbeperkt scans</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Alle formaten + toekomstige formaten</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Onbeperkte bulk upload</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Tot 10 gebruikers</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>API toegang + webhooks</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>White-label optie</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>SLA 99,9% uptime garantie</span></li>
+                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Dedicated accountmanager</span></li>
               </ul>
               <div className="mt-auto">
-                <p className="text-xs text-muted-foreground mb-3">Interesse? Laat je gegevens achter:</p>
-                {!enterpriseSubmitted ? (
-                  <form onSubmit={handleEnterpriseSubmit} className="space-y-2">
-                    <input type="email" placeholder="jouw@email.nl" value={enterpriseEmail} onChange={(e) => setEnterpriseEmail(e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background" required />
-                    <button type="submit" disabled={enterpriseLoading} className="w-full px-4 py-2 bg-foreground text-background rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50">{enterpriseLoading ? 'Versturen...' : 'Zet me op de wachtlijst →'}</button>
-                  </form>
-                ) : (
-                  <p className="text-green-600 text-sm text-center py-2">✅ We nemen contact met je op!</p>
-                )}
+                <a href="/contact" className="block text-center px-4 py-2.5 bg-foreground text-background rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
+                  Neem contact op
+                </a>
               </div>
             </div>
           </div>
