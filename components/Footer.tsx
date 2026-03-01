@@ -19,9 +19,9 @@ export default function Footer() {
             </p>
             <div className="mt-4 flex items-center gap-2">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                🧪 Testfase
+                Testfase
               </span>
-              <span className="text-slate-500 text-xs">v1.0 - 27 feb 2026</span>
+              <span className="text-slate-500 text-xs">v1.0 – In bèta</span>
             </div>
           </div>
 

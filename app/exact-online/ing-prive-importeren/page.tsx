@@ -93,7 +93,7 @@ export default function ExactOnlineIngPage() {
 
         <div className="bg-gradient-to-r from-[#00b8d9]/10 to-cyan-500/10 border border-[#00b8d9]/20 rounded-xl p-8 text-center">
           <h2 className="text-2xl font-bold mb-2">Klaar om te beginnen?</h2>
-          <p className="text-muted-foreground mb-6">Je eerste 2 conversies zijn gratis. Geen creditcard nodig.</p>
+          <p className="text-muted-foreground mb-6">Geen creditcard nodig.</p>
           <Link href="/register" className="inline-flex items-center gap-2 px-8 py-4 bg-[#00b8d9] text-[#080d14] rounded-lg font-semibold text-lg">
             Probeer gratis met jouw ING afschrift →
           </Link>

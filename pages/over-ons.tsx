@@ -101,11 +101,11 @@ export default function OverOnsPage() {
                 <div className="grid grid-cols-2 gap-4 pt-4">
                   <div className="flex items-center gap-3">
                     <Clock className="w-5 h-5 text-[#00b8d9]" />
-                    <span className="text-foreground">Uren bespaard</span>
+                    <span className="text-foreground">Tijdsbesparing</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Shield className="w-5 h-5 text-[#00b8d9]" />
-                    <span className="text-foreground">99.5% nauwkeurig</span>
+                    <span className="text-foreground">Hoge nauwkeurigheid*</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <FileText className="w-5 h-5 text-[#00b8d9]" />
@@ -190,7 +190,7 @@ export default function OverOnsPage() {
           </h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
             Start vandaag met BSC Pro en ervaar hoe eenvoudig bankafschriften converteren kan zijn. 
-            Je eerste 2 conversies zijn gratis.
+            Geen creditcard nodig.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/register">

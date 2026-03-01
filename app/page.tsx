@@ -176,7 +176,7 @@ export default function Home() {
               { icon: Clock, title: 'Direct resultaat', desc: 'Upload je PDF en binnen 10 seconden heb je een Excel bestand' },
               { icon: Shield, title: 'Veilig & AVG-proof', desc: 'Je data wordt na 24 uur automatisch verwijderd.' },
               { icon: CheckCircle, title: 'Hoge nauwkeurigheid', desc: 'Onze AI herkent complexe bankafschriften. Controleer altijd zelf.' },
-              { icon: Database, title: 'MT940 Export', desc: 'Als enige in NL: directe MT940 export voor alle boekhoudpakketten', highlight: true },
+              { icon: Database, title: 'MT940 Export', desc: 'Directe MT940 export voor alle grote boekhoudpakketten', highlight: true },
               { icon: TrendingUp, title: 'Automatisch gecategoriseerd', desc: 'Transacties worden direct gesorteerd. BTW-aangifte in minuten.', highlight: true },
             ].map((feature) => (
               <div key={feature.title} className={`p-5 rounded-xl border ${feature.highlight ? 'bg-cyan-500/10 border-[#00b8d9]/50' : 'bg-card border-border'}`}>

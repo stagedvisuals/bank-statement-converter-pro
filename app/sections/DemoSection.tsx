@@ -129,7 +129,7 @@ export default function DemoSection() {
                 </div>
               </div>
             </div>
-            <p className="text-center text-xs text-muted-foreground mt-4">Je eerste 2 volledige conversies zijn gratis</p>
+            <p className="text-center text-xs text-muted-foreground mt-4">Start direct, geen creditcard nodig</p>
           </div>
         )}
       </div>

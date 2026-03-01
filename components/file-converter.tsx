@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Loader2, Download, FileText, CheckCircle } from 'lucide-react'
+import { FeedbackModal } from './FeedbackModal'
 
 export default function FileConverter() {
   const [file, setFile] = useState<File | null>(null)
@@ -9,6 +10,8 @@ export default function FileConverter() {
   const [result, setResult] = useState<{ downloadUrl: string; transactionCount: number } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [uploadSuccess, setUploadSuccess] = useState(false)
+  const [showFeedback, setShowFeedback] = useState(false)
+  const [conversionId, setConversionId] = useState<string>('')
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
@@ -31,6 +34,8 @@ export default function FileConverter() {
     console.log('Starting conversion for file:', file.name)
     setLoading(true)
     setError(null)
+    setResult(null)
+    setShowFeedback(false)
     
     try {
       const formData = new FormData()
@@ -50,6 +55,9 @@ export default function FileConverter() {
       }
 
       setResult(data)
+      setConversionId(data.conversionId || Date.now().toString())
+      // Show feedback modal after successful conversion
+      setTimeout(() => setShowFeedback(true), 1500)
     } catch (error: any) {
       console.error('Conversion error:', error)
       setError(error.message || 'Upload failed')
@@ -132,6 +140,13 @@ export default function FileConverter() {
           </a>
         </div>
       )}
+
+      {/* Feedback Modal */}
+      <FeedbackModal
+        isOpen={showFeedback}
+        onClose={() => setShowFeedback(false)}
+        conversionId={conversionId}
+      />
     </div>
   )
 }
