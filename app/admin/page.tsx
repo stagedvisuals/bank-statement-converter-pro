@@ -559,14 +559,24 @@ function ToolsTesterTab({ logActivity }: { logActivity: (a: string) => void }) {
             <p>👤 Rekeninghouder: <strong>{result.data?.rekeninghouder || '—'}</strong></p>
             <p>📅 Periode: <strong>{result.data?.periode?.van || '—'} → {result.data?.periode?.tot || '—'}</strong></p>
           </div>
-          <details className="mt-2">
-            <summary className="text-xs text-muted-foreground cursor-pointer">
-              Bekijk ruwe JSON
-            </summary>
-            <pre className="text-xs mt-2 p-2 bg-muted rounded overflow-auto max-h-40">
-              {JSON.stringify(result.data?.transacties?.slice(0, 3), null, 2)}
-            </pre>
-          </details>
+          {result && result.data?.transacties && (
+          <div className="mt-4 space-y-2">
+            <p className="font-medium text-sm">📋 Transacties:</p>
+            <div className="max-h-64 overflow-y-auto space-y-1">
+              {result.data.transacties.map((t: any, i: number) => (
+                <div key={i} className="flex justify-between items-center p-2 bg-muted rounded text-sm">
+                  <div className="flex gap-3">
+                    <span className="text-muted-foreground">{t.datum}</span>
+                    <span className="truncate max-w-[180px]">{t.omschrijving}</span>
+                  </div>
+                  <span className={t.bedrag >= 0 ? 'text-emerald-500 font-medium' : 'text-destructive font-medium'}>
+                    {t.bedrag >= 0 ? '+' : ''}€{t.bedrag.toFixed(2)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         </div>
       )}
     </div>
