@@ -10,6 +10,7 @@ import DashboardSmartTools from '../components/DashboardSmartTools';
 import OnboardingTracker from '../components/OnboardingTracker';
 import EmptyState from '../components/EmptyState';
 import { detectBTW, TrustLevel } from '@/lib/btw-detection';
+import { categorizeTransaction, calculateCategoryStats, MerchantInfo } from '@/lib/merchantCategories';
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -45,6 +46,7 @@ export default function Dashboard() {
   const [rekeningnummer, setRekeningnummer] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [categorySummary, setCategorySummary] = useState<any[]>([]);
+  const [categoryStats, setCategoryStats] = useState<Record<string, { count: number; total: number; percentage: number }>>({});
   const [selectedExport, setSelectedExport] = useState<'excel' | 'mt940' | 'csv' | 'camt'>('excel');
   const [exportLoading, setExportLoading] = useState(false);
   const [showEnterpriseModal, setShowEnterpriseModal] = useState(false);
@@ -233,25 +235,47 @@ export default function Dashboard() {
       // Onboarding step pas na succesvolle scan én credit gebruik
       await completeOnboardingStep('first_upload');
       
-      // STAP 3: Sla resultaat op
+      // STAP 3: Verrijk transacties met smart categorisering
+      const enrichedTransactions = transactions.map((t: any) => {
+        const categoryInfo = categorizeTransaction(t.omschrijving);
+        return {
+          ...t,
+          categorie: categoryInfo?.categorie || t.categorie || 'Overig',
+          subcategorie: categoryInfo?.subcategorie || 'Overig',
+          btw: categoryInfo?.btw || '21%',
+          icon: categoryInfo?.icon || '💼',
+          _smartCategorized: !!categoryInfo
+        };
+      });
+      
+      // Bereken categorie statistieken
+      const stats = calculateCategoryStats(enrichedTransactions);
+      
       setScanStatus('done');
-      setTransactions(transactions);
+      setTransactions(enrichedTransactions);
       setBank(data.data?.bank || data.bank || 'Onbekend');
       setRekeningnummer(data.data?.rekeningnummer || data.rekeningnummer || '');
       setCategorySummary(data.data?.categorySummary || data.categorySummary || []);
+      setCategoryStats(stats);
       
-      // Save scanned data for preview
-      const scanData = data.data || data;
+      // Save scanned data for preview (met gecategoriseerde transacties)
+      const scanData = {
+        ...data.data || data,
+        transacties: enrichedTransactions
+      };
       setScannedData(scanData);
       
       // Save to scan history
       const historyItem = {
         id: Date.now(),
         bank: scanData.bank || 'Onbekend',
-        transacties: scanData.transacties?.length || transactions.length,
+        transacties: enrichedTransactions.length,
         datum: new Date().toLocaleDateString('nl-NL'),
         rekeninghouder: scanData.rekeninghouder || 'Onbekend',
-        data: scanData
+        data: {
+          ...scanData,
+          transacties: enrichedTransactions
+        }
       };
       const history = JSON.parse(localStorage.getItem('bscpro_history') || '[]');
       history.unshift(historyItem);
@@ -645,6 +669,7 @@ export default function Dashboard() {
                         <tr>
                           <th className="text-left p-3">Datum</th>
                           <th className="text-left p-3">Omschrijving</th>
+                          <th className="text-left p-3 hidden md:table-cell">Categorie</th>
                           <th className="text-right p-3">Bedrag</th>
                         </tr>
                       </thead>
@@ -653,6 +678,12 @@ export default function Dashboard() {
                           <tr key={i} className="border-t border-border hover:bg-muted/20">
                             <td className="p-3 text-muted-foreground whitespace-nowrap">{t.datum}</td>
                             <td className="p-3 truncate max-w-[120px] md:max-w-[200px]">{t.omschrijving}</td>
+                            <td className="p-3 hidden md:table-cell">
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs bg-muted">
+                                <span>{t.icon || '💼'}</span>
+                                <span>{t.subcategorie || t.categorie || 'Overig'}</span>
+                              </span>
+                            </td>
                             <td className={`p-3 text-right font-medium whitespace-nowrap ${t.bedrag >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
                               {t.bedrag >= 0 ? '+' : ''}€{t.bedrag?.toFixed(2)}
                             </td>
@@ -662,6 +693,25 @@ export default function Dashboard() {
                     </table>
                   </div>
                 </div>
+
+                {/* Categorie Stats */}
+                {Object.keys(categoryStats).length > 0 && (
+                  <div className="mb-4 p-4 bg-card border border-border rounded-xl">
+                    <h4 className="text-sm font-medium text-muted-foreground mb-3">📊 Categorieën</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                      {Object.entries(categoryStats)
+                        .sort((a, b) => b[1].total - a[1].total)
+                        .slice(0, 8)
+                        .map(([cat, stats]) => (
+                          <div key={cat} className="p-3 bg-muted rounded-lg">
+                            <div className="text-xs text-muted-foreground">{cat}</div>
+                            <div className="text-lg font-semibold">€{stats.total.toFixed(2)}</div>
+                            <div className="text-xs text-muted-foreground">{stats.count} transacties · {stats.percentage}%</div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Download Section */}
                 <div className="p-4 bg-[#00b8d9]/10 border border-[#00b8d9]/30 rounded-xl">
@@ -695,6 +745,11 @@ export default function Dashboard() {
                         setScannedData(item.data);
                         setBank(item.data.bank || 'Onbekend');
                         setTransactions(item.data.transacties || []);
+                        // Herstel category stats
+                        if (item.data.transacties) {
+                          const stats = calculateCategoryStats(item.data.transacties);
+                          setCategoryStats(stats);
+                        }
                         setScanStatus('done');
                       }}
                     >

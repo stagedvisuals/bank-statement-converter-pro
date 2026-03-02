@@ -28,7 +28,7 @@ const extractTextFromPDF = async (buffer: Buffer): Promise<string> => {
     // Method 2: Fallback to pdfjs-dist
     try {
       console.log('Trying pdfjs-dist fallback...')
-      const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js')
+      const pdfjsLib = await import('pdfjs-dist').then(m => m.default || m)
       
       // Disable worker for serverless environment
       pdfjsLib.GlobalWorkerOptions.workerSrc = ''
