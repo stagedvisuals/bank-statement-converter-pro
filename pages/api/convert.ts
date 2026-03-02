@@ -68,7 +68,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   global.rateLimitMap.set(rateLimitKey, [...recentRequests, now])
 
-  const form = formidable({ maxFileSize: 10 * 1024 * 1024 })
+  // Gebruik /tmp voor Vercel compatibility
+  const form = formidable({ 
+    maxFileSize: 10 * 1024 * 1024,
+    uploadDir: '/tmp',
+    keepExtensions: true
+  })
+  
   let tempFilePath: string | null = null
 
   try {
@@ -83,12 +89,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     tempFilePath = file.filepath
+    console.log('Processing file:', tempFilePath, 'Size:', file.size)
 
     // PDF naar tekst
     const pdfParse = require('pdf-parse')
     const pdfBuffer = fs.readFileSync(tempFilePath)
-    const pdfData = await pdfParse(pdfBuffer)
+    
+    // FIX: pdf-parse op Vercel heeft issues met default test file
+    // We gebruiken een workaround door de max optie te zetten
+    const pdfData = await pdfParse(pdfBuffer, { max: 0 })
     const pdfText = pdfData.text
+
+    console.log('PDF text length:', pdfText?.length || 0)
 
     if (!pdfText || pdfText.trim().length < 50) {
       return res.status(400).json({ 
@@ -98,10 +110,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Groq AI aanroep
+    console.log('Calling Groq API...')
     const completion = await groq.chat.completions.create({
       messages: [
         { role: 'system', content: PROMPT },
-        { role: 'user', content: `Bankafschrift tekst:\n\n${pdfText.substring(0, 12000)}` }
+        { role: 'user', content: `Bankafschrift tekst:
+
+${pdfText.substring(0, 12000)}` }
       ],
       model: 'llama-3.3-70b-versatile',
       temperature: 0.1,
@@ -109,6 +124,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     const rawResponse = completion.choices[0]?.message?.content || ''
+    console.log('Groq response received, length:', rawResponse.length)
 
     // JSON extraheren uit response
     const jsonMatch = rawResponse.match(/\{[\s\S]*\}/)
@@ -123,6 +139,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       parsed = JSON.parse(jsonMatch[0])
     } catch (e) {
+      console.error('JSON parse error:', e)
       return res.status(500).json({ 
         error: 'Verwerking mislukt. Probeer opnieuw.',
         errorType: 'parse_error'
@@ -168,6 +185,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   } catch (error: any) {
     console.error('Convert error:', error)
+    console.error('Error stack:', error.stack)
     
     if (error.message?.includes('password')) {
       return res.status(400).json({ 
@@ -176,14 +194,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
     
+    if (error.message?.includes('maxFileSize')) {
+      return res.status(400).json({ 
+        error: 'Bestand is te groot (max 10MB).', 
+        errorType: 'file_too_large' 
+      })
+    }
+    
     return res.status(500).json({ 
       error: 'Er is iets misgegaan. Probeer het opnieuw.', 
-      errorType: 'unknown' 
+      errorType: 'unknown',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
   } finally {
     // Verwijder temp bestand altijd (AVG compliance)
     if (tempFilePath && fs.existsSync(tempFilePath)) {
       fs.unlinkSync(tempFilePath)
+      console.log('Temp file cleaned up:', tempFilePath)
     }
   }
 }
