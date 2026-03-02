@@ -10,6 +10,18 @@ function isAdmin(request: Request) {
   return secret ? validSecrets.includes(secret) : false;
 }
 
+// Helper to get user_id from profile id
+async function getUserIdFromProfile(supabase: any, profileId: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .select('user_id')
+    .eq('id', profileId)
+    .single();
+  
+  if (error || !data) return null;
+  return data.user_id;
+}
+
 export async function GET(request: Request) {
   if (!isAdmin(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
@@ -18,7 +30,6 @@ export async function GET(request: Request) {
   try {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    // Get user profiles with auth user data via RPC
     const { data: profiles, error } = await supabase
       .from('user_profiles')
       .select('id, user_id, bedrijfsnaam, beroep, onboarding_voltooid, aangemaakt_op, bijgewerkt_op')
@@ -28,14 +39,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Get auth users to enrich with email
     const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
     
     if (authError) {
       console.error('Auth users fetch error:', authError);
     }
 
-    // Create email lookup map
     const emailMap = new Map();
     if (authUsers?.users) {
       authUsers.users.forEach((user: any) => {
@@ -43,7 +52,6 @@ export async function GET(request: Request) {
       });
     }
 
-    // Enrich profiles with email
     const enrichedProfiles = (profiles || []).map((profile: any) => ({
       id: profile.id,
       user_id: profile.user_id,
@@ -70,7 +78,13 @@ export async function PATCH(request: Request) {
     const { userId, bedrijfsnaam, beroep, plan, conversions_count, credits } = await request.json();
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Update profile fields that exist
+    // Get the auth user_id from profile
+    const authUserId = await getUserIdFromProfile(supabase, userId);
+    if (!authUserId) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Update profile fields
     const updates: any = {};
     if (bedrijfsnaam !== undefined) updates.bedrijfsnaam = bedrijfsnaam;
     if (beroep !== undefined) updates.beroep = beroep;
@@ -88,12 +102,12 @@ export async function PATCH(request: Request) {
       }
     }
 
-    // Add credits if specified
+    // Add credits if specified (uses auth user_id for user_credits table)
     if (credits > 0) {
       const { data: currentCredits } = await supabase
         .from('user_credits')
         .select('remaining_credits, total_credits')
-        .eq('id', userId)
+        .eq('user_id', authUserId)
         .single();
 
       if (currentCredits) {
@@ -103,12 +117,12 @@ export async function PATCH(request: Request) {
             remaining_credits: (currentCredits.remaining_credits || 0) + credits,
             total_credits: (currentCredits.total_credits || 0) + credits
           })
-          .eq('id', userId);
+          .eq('user_id', authUserId);
       } else {
         await supabase
           .from('user_credits')
           .insert({
-            user_id: userId,
+            user_id: authUserId,
             remaining_credits: credits,
             total_credits: credits
           });
@@ -117,7 +131,7 @@ export async function PATCH(request: Request) {
       await supabase
         .from('credit_transactions')
         .insert({
-          user_id: userId,
+          user_id: authUserId,
           amount: credits,
           type: 'admin_grant',
           description: `Admin granted ${credits} credits`
@@ -145,15 +159,22 @@ export async function DELETE(request: Request) {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Delete from user_profiles (by user_id)
+    // Get auth user_id first
+    const authUserId = await getUserIdFromProfile(supabase, userId);
+
+    // Delete from user_profiles
     await supabase.from('user_profiles').delete().eq('id', userId);
 
-    // Delete user credits
-    await supabase.from('user_credits').delete().eq('id', userId);
+    // Delete user credits (by user_id if we have it)
+    if (authUserId) {
+      await supabase.from('user_credits').delete().eq('user_id', authUserId);
+    }
 
     // Delete from Supabase Auth
-    const { error } = await supabase.auth.admin.deleteUser(userId);
-    if (error) console.log('Auth delete error (non-fatal):', error.message);
+    if (authUserId) {
+      const { error } = await supabase.auth.admin.deleteUser(authUserId);
+      if (error) console.log('Auth delete error (non-fatal):', error.message);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
