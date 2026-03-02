@@ -237,7 +237,7 @@ export default function BtwCalculator() {
             <ul className="list-disc list-inside space-y-2 mb-6">
               <li><strong>Bespaar tijd:</strong> Geen handmatige invoer meer.</li>
               <li><strong>ISO-Standaard:</strong> Exporteer direct naar CAMT.053 voor naadloze integratie met Moneybird, Exact Online of e-Boekhouden.nl.</li>
-              <li><strong>Foutloos:</strong> Onze AI herkent bedragen, BTW-percentages en factuurnummers met 99,5% nauwkeurigheid.</li>
+              <li><strong>Foutloos:</strong> Onze AI herkent bedragen, BTW-percentages en factuurnummers met Hoge nauwkeurigheid*.</li>
             </ul>
 
             <div className="mt-8 p-6 bg-cyan-500/10 border border-cyan-500/30 rounded-xl">

@@ -376,7 +376,7 @@ function UurtariefCalculator() {
 
         <div className="bg-muted/50 rounded-lg p-3 text-sm text-muted-foreground">
           <p>Factureerbare uren per jaar: <strong>{declarabeleUrenPerJaar.toFixed(0)}</strong></p>
-          <p className="mt-2">💡 Marktconform? IT freelancers rekenen €75-150/uur, consultants €100-250/uur</p>
+          <p className="mt-2">💡 Marktconform? IT freelancers rekenen €75-€150/uur, consultants €100-250/uur</p>
         </div>
       </div>
 
