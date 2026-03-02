@@ -64,6 +64,8 @@ const extractTextFromPDF = async (buffer: Buffer): Promise<string> => {
   }
 }
 
+import { categorizeTransaction } from '@/lib/merchantCategories'
+
 const PROMPT = `Je bent een expert in het lezen van Nederlandse bankafschriften. Analyseer de tekst hieronder en extraheer ALLE transacties.
 
 Return ALLEEN dit JSON formaat, niets anders:
@@ -79,12 +81,19 @@ Return ALLEEN dit JSON formaat, niets anders:
       "omschrijving": "schone omschrijving",
       "bedrag": -85.43,
       "tegenrekening": "NLXX... of leeg",
-      "categorie": "boodschappen of vervoer of kantoor of salaris of belasting of overig"
+      "categorie": "Eén van: Inkomen, Boodschappen, Eten & Drinken, Vervoer, Telecom, Abonnementen, Winkelen, Gezondheid, Energie, Verzekeringen, Belasting, Overheid, Financieel, Software, Wonen, Sport & Fitness, Onderwijs, Contant, Overboekingen, Overig",
+      "subcategorie": "Specifiekere omschrijving binnen de categorie",
+      "btw_percentage": "0%, 9% of 21%"
     }
   ],
   "saldoStart": 0.00,
   "saldoEind": 0.00
 }
+
+BTW tarieven:
+- 0%: Salaris, Zorgverzekering, Zorgkosten, Uitkering, Pensioen, Hypotheek, Rente
+- 9%: Boodschappen, Eten & Drinken, Openbaar Vervoer, Boeken
+- 21%: Alle overige producten en diensten
 
 Regels:
 - Positief bedrag = inkomsten/credit
@@ -92,7 +101,7 @@ Regels:
 - datum altijd YYYY-MM-DD formaat
 - bedragen als getal niet als string
 - omschrijving opschonen zonder SEPA/BETALING prefixes
-- als iets niet te lezen is gebruik lege string
+- Kies de meest specifieke categorie die past bij de transactie
 - return ALLEEN geldige JSON, geen uitleg`
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -206,6 +215,24 @@ ${pdfText.substring(0, 12000)}` }
         errorType: 'no_transactions'
       })
     }
+
+    // Verrijk transacties met merchant categorisering
+    parsed.transacties = parsed.transacties.map((t: any) => {
+      // Als de AI al een categorie heeft toegekend, gebruik die
+      if (t.categorie && t.categorie !== 'Overig') {
+        return t
+      }
+      
+      // Anders gebruik de merchant database
+      const cat = categorizeTransaction(t.omschrijving || '')
+      return {
+        ...t,
+        categorie: cat.categorie,
+        subcategorie: cat.subcategorie,
+        btw_percentage: cat.btw,
+        icon: cat.icon
+      }
+    })
 
     // Kwaliteitschecks
     const warnings: string[] = []

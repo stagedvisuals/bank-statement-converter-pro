@@ -258,14 +258,26 @@ export const MERCHANT_CATEGORIES: Record<string, MerchantInfo> = {
   'uitkering': { categorie: 'Inkomen', subcategorie: 'Uitkering', btw: '0%', icon: '💼' },
   'pensioen': { categorie: 'Inkomen', subcategorie: 'Pensioen', btw: '0%', icon: '💼' },
   'dividend': { categorie: 'Inkomen', subcategorie: 'Dividend', btw: '0%', icon: '💰' },
+  
+  // Sport & Fitness
+  'basic fit': { categorie: 'Sport', subcategorie: 'Sportschool', btw: '21%', icon: '💪' },
+  'fitness': { categorie: 'Sport', subcategorie: 'Sportschool', btw: '21%', icon: '💪' },
+  'sportschool': { categorie: 'Sport', subcategorie: 'Sportschool', btw: '21%', icon: '💪' },
+  
+  // Onderwijs
+  'school': { categorie: 'Onderwijs', subcategorie: 'School', btw: '0%', icon: '📚' },
+  'universiteit': { categorie: 'Onderwijs', subcategorie: 'Universiteit', btw: '0%', icon: '📚' },
+  'cursus': { categorie: 'Opleiding', subcategorie: 'Cursus', btw: '21%', icon: '📚' },
 }
 
 /**
  * Categoriseer een transactie op basis van de omschrijving
  * Gebruikt fuzzy matching om merchants te herkennen
  */
-export function categorizeTransaction(omschrijving: string): MerchantInfo | null {
-  if (!omschrijving) return null
+export function categorizeTransaction(omschrijving: string): MerchantInfo {
+  if (!omschrijving) {
+    return { categorie: 'Overig', subcategorie: 'Overig', btw: '21%', icon: '📋' }
+  }
   
   const lowerDesc = omschrijving.toLowerCase()
   
@@ -295,7 +307,24 @@ export function categorizeTransaction(omschrijving: string): MerchantInfo | null
     }
   }
   
-  return null
+  // 4. Fallback patronen
+  if (lowerDesc.includes('pin ') || lowerDesc.includes('betaalautomaat')) {
+    return { categorie: 'Winkelen', subcategorie: 'PIN Betaling', btw: '21%', icon: '💳' }
+  }
+  
+  if (lowerDesc.includes('incasso') || lowerDesc.includes('machtiging')) {
+    return { categorie: 'Abonnementen', subcategorie: 'Automatische Incasso', btw: '21%', icon: '🔄' }
+  }
+  
+  if (lowerDesc.includes('overschrijving') || lowerDesc.includes('overboeking')) {
+    return { categorie: 'Overboekingen', subcategorie: 'Overboeking', btw: '0%', icon: '↔️' }
+  }
+  
+  if (lowerDesc.includes('geldopname') || lowerDesc.includes('atm') || lowerDesc.includes('geldautomaat')) {
+    return { categorie: 'Contant', subcategorie: 'Geldopname', btw: '0%', icon: '💵' }
+  }
+  
+  return { categorie: 'Overig', subcategorie: 'Overig', btw: '21%', icon: '📋' }
 }
 
 /**
