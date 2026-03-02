@@ -9,6 +9,7 @@ import {
   Clock, Zap, HardDrive, Wifi
 } from 'lucide-react';
 import Link from 'next/link';
+import CategoriesTab from '@/components/CategoriesTab'
 
 // Types
 interface User {
@@ -244,6 +245,7 @@ export default function AdminPage() {
     { id: 'overview', label: 'Overzicht', icon: Activity },
     { id: 'users', label: 'Gebruikers', icon: Users },
     { id: 'conversions', label: 'Conversies', icon: FileText },
+    { id: 'categories', label: 'Categorieën', icon: Database },
     { id: 'tools', label: 'Tools Tester', icon: Zap },
     { id: 'system', label: 'Systeem', icon: Settings },
     { id: 'finance', label: 'Financiën', icon: DollarSign },
@@ -329,6 +331,7 @@ export default function AdminPage() {
           {activeTab === 'overview' && <OverviewTab stats={stats} isLoading={isLoading} />}
           {activeTab === 'users' && <UsersTab users={users} isLoading={isLoading} logActivity={logActivity} onRefresh={fetchData} />}
           {activeTab === 'conversions' && <ConversionsTab conversions={conversions} isLoading={isLoading} />}
+          {activeTab === 'categories' && <CategoriesTab />}
           {activeTab === 'tools' && <ToolsTesterTab logActivity={logActivity} />}
           {activeTab === 'system' && <SystemTab health={health} />}
           {activeTab === 'finance' && <FinanceTab users={users} />}
