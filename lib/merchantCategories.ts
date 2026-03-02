@@ -226,6 +226,38 @@ export const MERCHANT_CATEGORIES: Record<string, MerchantInfo> = {
   'tandarts': { categorie: 'Gezondheid', subcategorie: 'Tandarts', btw: '21%', icon: '🦷' },
   'fysiotherapie': { categorie: 'Gezondheid', subcategorie: 'Fysiotherapie', btw: '21%', icon: '🏃' },
   'fysio': { categorie: 'Gezondheid', subcategorie: 'Fysiotherapie', btw: '21%', icon: '🏃' },
+  
+  // Overheid & Belasting
+  'uwv': { categorie: 'Overheid', subcategorie: 'UWV', btw: '0%', icon: '🏛️' },
+  'cak': { categorie: 'Overheid', subcategorie: 'CAK', btw: '0%', icon: '🏛️' },
+  'cjib': { categorie: 'Overheid', subcategorie: 'Boete', btw: '0%', icon: '⚠️' },
+  
+  // Energie
+  'vattenfall': { categorie: 'Huisvesting', subcategorie: 'Energie', btw: '21%', icon: '⚡' },
+  
+  // Verzekeringen
+  
+  // Financieel
+  'rente': { categorie: 'Bankkosten', subcategorie: 'Rente', btw: '0%', icon: '💰' },
+  'aflossing': { categorie: 'Bankkosten', subcategorie: 'Lening', btw: '0%', icon: '💰' },
+  'hypotheek': { categorie: 'Bankkosten', subcategorie: 'Hypotheek', btw: '0%', icon: '🏠' },
+  'tikkie': { categorie: 'Bankkosten', subcategorie: 'Betaaldienst', btw: '0%', icon: '💳' },
+  
+  // Software - AI
+  'openai': { categorie: 'Software', subcategorie: 'AI', btw: '21%', icon: '🤖' },
+  'anthropic': { categorie: 'Software', subcategorie: 'AI', btw: '21%', icon: '🤖' },
+  
+  // Wonen
+  'huur': { categorie: 'Huisvesting', subcategorie: 'Huur', btw: '21%', icon: '🏠' },
+  'vve': { categorie: 'Huisvesting', subcategorie: 'VvE', btw: '21%', icon: '🏠' },
+  'woningcorporatie': { categorie: 'Huisvesting', subcategorie: 'Huur', btw: '21%', icon: '🏠' },
+  
+  // Inkomen
+  'salaris': { categorie: 'Inkomen', subcategorie: 'Salaris', btw: '0%', icon: '💼' },
+  'loon': { categorie: 'Inkomen', subcategorie: 'Salaris', btw: '0%', icon: '💼' },
+  'uitkering': { categorie: 'Inkomen', subcategorie: 'Uitkering', btw: '0%', icon: '💼' },
+  'pensioen': { categorie: 'Inkomen', subcategorie: 'Pensioen', btw: '0%', icon: '💼' },
+  'dividend': { categorie: 'Inkomen', subcategorie: 'Dividend', btw: '0%', icon: '💰' },
 }
 
 /**
