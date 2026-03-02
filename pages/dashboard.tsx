@@ -208,6 +208,10 @@ export default function Dashboard() {
       
       if (!response.ok) {
         // Scan mislukt - GEEN credit aftrekken
+        // Check voor specifieke error types
+        if (data.errorType === 'pdf_format_error') {
+          throw new Error('Dit PDF formaat wordt niet ondersteund. Download je afschrift opnieuw als PDF vanuit je bankapp of probeer een ander bestand.');
+        }
         throw new Error(data.error || 'Conversie mislukt');
       }
       

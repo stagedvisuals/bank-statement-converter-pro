@@ -7,6 +7,63 @@ export const config = { api: { bodyParser: false } }
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
+/**
+ * Extract text from PDF with fallback methods
+ * Method 1: pdf-parse (faster, works for most PDFs)
+ * Method 2: pdfjs-dist (more robust, handles complex PDFs)
+ */
+const extractTextFromPDF = async (buffer: Buffer): Promise<string> => {
+  // Method 1: Try pdf-parse first
+  try {
+    const pdfParse = require('pdf-parse')
+    const data = await pdfParse(buffer, { max: 0 })
+    if (data.text && data.text.trim().length > 50) {
+      console.log('PDF parsed with pdf-parse, length:', data.text.length)
+      return data.text
+    }
+    throw new Error('Insufficient text with pdf-parse')
+  } catch (e1: any) {
+    console.log('pdf-parse failed:', e1.message)
+    
+    // Method 2: Fallback to pdfjs-dist
+    try {
+      console.log('Trying pdfjs-dist fallback...')
+      const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js')
+      
+      // Disable worker for serverless environment
+      pdfjsLib.GlobalWorkerOptions.workerSrc = ''
+      
+      const loadingTask = pdfjsLib.getDocument({ 
+        data: new Uint8Array(buffer),
+        useWorkerFetch: false,
+        isEvalSupported: false,
+        useSystemFonts: true
+      })
+      
+      const pdf = await loadingTask.promise
+      let fullText = ''
+      
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i)
+        const textContent = await page.getTextContent()
+        const pageText = textContent.items
+          .map((item: any) => item.str)
+          .join(' ')
+        fullText += pageText + '\n'
+      }
+      
+      if (fullText.trim().length > 50) {
+        console.log('PDF parsed with pdfjs-dist, length:', fullText.length)
+        return fullText
+      }
+      throw new Error('No text extracted with pdfjs-dist')
+    } catch (e2: any) {
+      console.error('pdfjs-dist also failed:', e2.message)
+      throw new Error(`PDF parsing failed: ${e2.message}`)
+    }
+  }
+}
+
 const PROMPT = `Je bent een expert in het lezen van Nederlandse bankafschriften. Analyseer de tekst hieronder en extraheer ALLE transacties.
 
 Return ALLEEN dit JSON formaat, niets anders:
@@ -92,15 +149,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('Processing file:', tempFilePath, 'Size:', file.size)
 
     // PDF naar tekst
-    const pdfParse = require('pdf-parse')
     const pdfBuffer = fs.readFileSync(tempFilePath)
     
-    // FIX: pdf-parse op Vercel heeft issues met default test file
-    // We gebruiken een workaround door de max optie te zetten
-    const pdfData = await pdfParse(pdfBuffer, { max: 0 })
-    const pdfText = pdfData.text
+    // Extract text using robust method with fallback
+    const pdfText = await extractTextFromPDF(pdfBuffer)
 
-    console.log('PDF text length:', pdfText?.length || 0)
+    console.log('PDF text extracted, length:', pdfText?.length || 0)
 
     if (!pdfText || pdfText.trim().length < 50) {
       return res.status(400).json({ 
@@ -198,6 +252,17 @@ ${pdfText.substring(0, 12000)}` }
       return res.status(400).json({ 
         error: 'Bestand is te groot (max 10MB).', 
         errorType: 'file_too_large' 
+      })
+    }
+    
+    // PDF format errors
+    if (error.message?.includes('Illegal character') || 
+        error.message?.includes('FormatError') ||
+        error.message?.includes('Invalid PDF') ||
+        error.message?.includes('PDF parsing failed')) {
+      return res.status(422).json({ 
+        error: 'Dit PDF bestand kan niet worden verwerkt. Probeer een ander bestand of exporteer het PDF opnieuw vanuit je bank.', 
+        errorType: 'pdf_format_error' 
       })
     }
     
