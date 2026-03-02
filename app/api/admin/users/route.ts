@@ -67,13 +67,15 @@ export async function PATCH(request: Request) {
   }
 
   try {
-    const { userId, bedrijfsnaam, beroep, credits } = await request.json();
+    const { userId, bedrijfsnaam, beroep, plan, conversions_count, credits } = await request.json();
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Update profile fields that exist
     const updates: any = {};
     if (bedrijfsnaam !== undefined) updates.bedrijfsnaam = bedrijfsnaam;
     if (beroep !== undefined) updates.beroep = beroep;
+    if (plan !== undefined) updates.plan = plan;
+    if (conversions_count !== undefined) updates.conversions_count = conversions_count;
 
     if (Object.keys(updates).length > 0) {
       const { error: profileError } = await supabase
