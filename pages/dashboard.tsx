@@ -181,31 +181,60 @@ export default function Dashboard() {
   const handleUpload = async () => {
     if (!file) { setError('Selecteer eerst een bestand'); return; }
     
-    const creditUsed = await useCredit();
-    if (!creditUsed) {
-      setError('Geen credits beschikbaar. Upgrade je abonnement om door te gaan.');
-      return;
-    }
-    
-    await completeOnboardingStep('first_upload');
-    
     setScanStatus('uploading');
+    setError('');
+    setWarnings([]);
+    
     try {
+      // STAP 1: Eerst scannen - nog geen credit aftrekken
       const formData = new FormData();
       formData.append('file', file);
-      const response = await fetch('/api/convert', { method: 'POST', body: formData });
+      
+      const session = localStorage.getItem('bscpro_session');
+      const headers: Record<string, string> = {};
+      if (session) {
+        const { access_token } = JSON.parse(session);
+        headers['Authorization'] = `Bearer ${access_token}`;
+      }
+      
       setScanStatus('analyzing');
-      await new Promise(r => setTimeout(r, 500));
-      if (!response.ok) { const data = await response.json(); throw new Error(data.error || 'Upload mislukt'); }
+      const response = await fetch('/api/convert', { 
+        method: 'POST', 
+        body: formData,
+        headers
+      });
+      
       const data = await response.json();
-      const transactions = data.data?.transacties || data.transactions || []
-      if (!data.success || !transactions.length) throw new Error(data.error || 'Geen transacties gevonden')
+      
+      if (!response.ok) {
+        // Scan mislukt - GEEN credit aftrekken
+        throw new Error(data.error || 'Conversie mislukt');
+      }
+      
+      const transactions = data.data?.transacties || data.transactions || [];
+      if (!transactions.length) {
+        // Geen transacties gevonden - GEEN credit aftrekken
+        throw new Error('Geen transacties gevonden in dit document');
+      }
+      
+      // STAP 2: Scan gelukt - nu pas credit aftrekken
       setScanStatus('extracting');
-      await new Promise(r => setTimeout(r, 500));
+      const creditUsed = await useCredit();
+      if (!creditUsed) {
+        setError('Geen credits beschikbaar. Upgrade je abonnement.');
+        setScanStatus('error');
+        return;
+      }
+      
+      // Onboarding step pas na succesvolle scan én credit gebruik
+      await completeOnboardingStep('first_upload');
+      
+      // STAP 3: Sla resultaat op
+      setScanStatus('done');
       setTransactions(transactions);
-      setBank(data.bank || 'Onbekend');
-      setRekeningnummer(data.rekeningnummer || '');
-      setCategorySummary(data.categorySummary || []);
+      setBank(data.data?.bank || data.bank || 'Onbekend');
+      setRekeningnummer(data.data?.rekeningnummer || data.rekeningnummer || '');
+      setCategorySummary(data.data?.categorySummary || data.categorySummary || []);
       
       // Save scanned data for preview
       const scanData = data.data || data;
@@ -215,7 +244,7 @@ export default function Dashboard() {
       const historyItem = {
         id: Date.now(),
         bank: scanData.bank || 'Onbekend',
-        transacties: scanData.transacties?.length || 0,
+        transacties: scanData.transacties?.length || transactions.length,
         datum: new Date().toLocaleDateString('nl-NL'),
         rekeninghouder: scanData.rekeninghouder || 'Onbekend',
         data: scanData
@@ -232,9 +261,8 @@ export default function Dashboard() {
         setWarnings([]);
       }
       
-      setScanStatus('done');
     } catch (err: any) {
-      // Toon gebruiksvriendelijke foutmelding
+      // Scan mislukt - credit is NIET afgetrokken
       const errorMessage = err.message || 'Er is iets misgegaan';
       setError(errorMessage);
       setScanStatus('error');
