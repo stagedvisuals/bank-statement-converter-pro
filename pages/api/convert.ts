@@ -43,6 +43,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
+  // Rate limiting: max 10 requests per uur per IP
+  const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || 'unknown'
+  const rateLimitKey = `convert_${ip}`
+  const now = Date.now()
+
+  // Simple in-memory rate limit (resets bij server restart)
+  if (!global.rateLimitMap) global.rateLimitMap = new Map()
+  const userRequests = global.rateLimitMap.get(rateLimitKey) || []
+  const recentRequests = userRequests.filter((t: number) => now - t < 3600000)
+
+  if (recentRequests.length >= 10) {
+    return res.status(429).json({
+      error: 'Te veel verzoeken. Probeer over een uur opnieuw.',
+      errorType: 'rate_limit'
+    })
+  }
+
+  global.rateLimitMap.set(rateLimitKey, [...recentRequests, now])
+
   const form = formidable({ maxFileSize: 10 * 1024 * 1024 })
   let tempFilePath: string | null = null
 
