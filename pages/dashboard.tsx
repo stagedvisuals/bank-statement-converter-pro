@@ -261,11 +261,51 @@ export default function Dashboard() {
         setWarnings([]);
       }
       
+      // Log successful conversion
+      try {
+        if (session) {
+          const { access_token } = JSON.parse(session);
+          await fetch('/api/conversions/log', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${access_token}`
+            },
+            body: JSON.stringify({
+              bank: scanData.bank || 'unknown',
+              transactie_count: transactions.length,
+              status: 'success'
+            })
+          });
+        }
+      } catch {} // Non-fatal
+      
     } catch (err: any) {
       // Scan mislukt - credit is NIET afgetrokken
       const errorMessage = err.message || 'Er is iets misgegaan';
       setError(errorMessage);
       setScanStatus('error');
+      
+      // Log failed conversion
+      try {
+        const session = localStorage.getItem('bscpro_session');
+        if (session) {
+          const { access_token } = JSON.parse(session);
+          await fetch('/api/conversions/log', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${access_token}`
+            },
+            body: JSON.stringify({
+              bank: 'unknown',
+              transactie_count: 0,
+              status: 'failed',
+              error: err.message
+            })
+          });
+        }
+      } catch {} // Non-fatal
     }
   };
 
