@@ -1,10 +1,24 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+export const dynamic = 'force-dynamic'
+
+// Lazy initialization - only create client when needed
+let supabase: ReturnType<typeof createClient> | null = null
+
+function getSupabase() {
+  if (!supabase) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    
+    if (!url || !key) {
+      throw new Error('Supabase not configured')
+    }
+    
+    supabase = createClient(url, key)
+  }
+  return supabase
+}
 
 export async function GET(request: Request) {
   try {
@@ -14,20 +28,20 @@ export async function GET(request: Request) {
     }
 
     const token = authHeader.replace('Bearer ', '')
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    const client = getSupabase()
+    const { data: { user }, error: authError } = await client.auth.getUser(token)
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('onboarding_status')
       .select('*')
       .eq('user_id', user.id)
       .single()
 
     if (error || !data) {
-      // Geen onboarding status gevonden - gebruiker is nieuw
       return NextResponse.json({
         progress_percentage: 0,
         current_step: 'new',
@@ -37,6 +51,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(data)
   } catch (error: any) {
+    console.error('Onboarding GET error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -49,7 +64,8 @@ export async function POST(request: Request) {
     }
 
     const token = authHeader.replace('Bearer ', '')
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    const client = getSupabase()
+    const { data: { user }, error: authError } = await client.auth.getUser(token)
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
@@ -58,7 +74,7 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { step, progress } = body
 
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('onboarding_status')
       .upsert({
         user_id: user.id,
@@ -72,6 +88,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, data })
   } catch (error: any) {
+    console.error('Onboarding POST error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
