@@ -676,16 +676,20 @@ export default function Dashboard() {
                       <tbody>
                         {scannedData.transacties?.slice(0, 10).map((t: any, i: number) => (
                           <tr key={i} className="border-t border-border hover:bg-muted/20">
-                            <td className="p-3 text-muted-foreground whitespace-nowrap">{t.datum}</td>
-                            <td className="p-3 truncate max-w-[120px] md:max-w-[200px]">{t.omschrijving}</td>
-                            <td className="p-3 hidden md:table-cell">
-                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs bg-muted">
-                                <span>{t.icon || '💼'}</span>
-                                <span>{t.subcategorie || t.categorie || 'Overig'}</span>
+                            <td className="p-2 text-xs text-muted-foreground whitespace-nowrap">
+                              {t.datum}
+                            </td>
+                            <td className="p-2 text-xs truncate max-w-[150px] md:max-w-[250px]">
+                              <span className="mr-1">{t.icon || '📋'}</span>
+                              {t.omschrijving}
+                            </td>
+                            <td className="p-2 text-xs hidden md:table-cell">
+                              <span className="px-2 py-1 bg-muted rounded-lg text-muted-foreground">
+                                {t.categorie || 'Overig'}
                               </span>
                             </td>
-                            <td className={`p-3 text-right font-medium whitespace-nowrap ${t.bedrag >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
-                              {t.bedrag >= 0 ? '+' : ''}€{t.bedrag?.toFixed(2)}
+                            <td className={`p-2 text-xs text-right font-medium whitespace-nowrap ${t.bedrag >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
+                              {t.bedrag >= 0 ? '+' : ''}€{Math.abs(t.bedrag || 0).toFixed(2)}
                             </td>
                           </tr>
                         ))}
@@ -693,6 +697,39 @@ export default function Dashboard() {
                     </table>
                   </div>
                 </div>
+
+                {/* Uitgaven per Categorie */}
+                {scannedData?.transacties && (
+                  <div className="mt-4 p-4 bg-card border border-border rounded-xl">
+                    <h4 className="text-sm font-medium mb-3">📊 Uitgaven per categorie</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {Object.entries(
+                        scannedData.transacties
+                          .filter((t: any) => t.bedrag < 0)
+                          .reduce((acc: any, t: any) => {
+                            const cat = t.categorie || 'Overig'
+                            const icon = t.icon || '📋'
+                            if (!acc[cat]) acc[cat] = { total: 0, icon }
+                            acc[cat].total += Math.abs(t.bedrag)
+                            return acc
+                          }, {})
+                      )
+                        .sort(([,a]: any, [,b]: any) => b.total - a.total)
+                        .slice(0, 6)
+                        .map(([cat, data]: any) => (
+                          <div key={cat} className="flex items-center justify-between p-2 bg-muted rounded-lg">
+                            <span className="text-xs flex items-center gap-1">
+                              <span>{data.icon}</span>
+                              <span className="truncate max-w-[80px]">{cat}</span>
+                            </span>
+                            <span className="text-xs font-medium text-destructive">
+                              -€{data.total.toFixed(0)}
+                            </span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Categorie Stats */}
                 {Object.keys(categoryStats).length > 0 && (
