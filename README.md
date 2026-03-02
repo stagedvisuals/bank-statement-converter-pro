@@ -71,3 +71,4 @@ Zie `.env.example` voor alle benodigde variabelen.
 
 ## 📝 Door Artur Bagdasarjan
 // force deploy Mon Mar  2 11:22:38 AM UTC 2026
+// Deploy trigger 1772454163
