@@ -16,10 +16,26 @@ export default function LoginPage() {
     if (sessionStr) {
       const session = JSON.parse(sessionStr)
       if (session?.access_token) {
-        router.push('/dashboard')
+        checkOnboarding(session.access_token)
       }
     }
   }, [router])
+
+  const checkOnboarding = async (token: string) => {
+    try {
+      const res = await fetch('/api/user/onboarding', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      const data = await res.json()
+      if (data.progress_percentage === 100) {
+        router.push('/dashboard')
+      } else {
+        router.push('/onboarding')
+      }
+    } catch {
+      router.push('/dashboard')
+    }
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,7 +59,7 @@ export default function LoginPage() {
       localStorage.setItem('bscpro_user', JSON.stringify(data.user))
       // Kleine delay voor cookie propagation
       await new Promise(resolve => setTimeout(resolve, 100))
-      router.push('/dashboard')
+      checkOnboarding(data.session.access_token)
 
     } catch (err: any) {
       setError(err.message || 'Ongeldige email of wachtwoord')

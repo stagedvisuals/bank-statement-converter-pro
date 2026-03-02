@@ -310,18 +310,83 @@ export default function Dashboard() {
         <OnboardingTracker />
 
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Beschikbare scans:</span>
-            <span className={`font-bold ${credits > 0 ? 'text-[#00b8d9]' : 'text-destructive'}`}>
-              {credits}
-            </span>
+          <div>
+            <h1 className="text-2xl font-bold">Dashboard</h1>
+            <p className="text-muted-foreground text-sm">
+              Converteer je bankafschriften naar Excel, CSV of MT940
+            </p>
           </div>
-          {credits === 0 && (
-            <Link href="/pricing" className="text-sm text-[#00b8d9] hover:underline">
-              Upgrade voor meer scans →
-            </Link>
-          )}
+          <div className="flex items-center gap-3">
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border ${
+              credits > 0 ? 'bg-[#00b8d9]/10 border-[#00b8d9]/30' : 'bg-destructive/10 border-destructive/30'
+            }`}>
+              <span className="text-lg">{credits > 0 ? '✅' : '❌'}</span>
+              <div>
+                <p className="text-xs text-muted-foreground">Credits</p>
+                <p className={`font-bold text-sm ${credits > 0 ? 'text-[#00b8d9]' : 'text-destructive'}`}>
+                  {credits} beschikbaar
+                </p>
+              </div>
+            </div>
+            {credits === 0 && (
+              <Link href="/#pricing" className="px-4 py-2 bg-[#00b8d9] text-[#080d14] rounded-xl text-sm font-bold hover:bg-[#00a8c9] transition-colors">
+                ⬆️ Upgrade
+              </Link>
+            )}
+          </div>
         </div>
+        {/* Welkomst banner voor nieuwe gebruikers */}
+        {credits > 0 && credits <= 2 && transactions.length === 0 && (
+          <div className="mb-6 p-6 bg-gradient-to-r from-[#00b8d9]/10 to-[#0088aa]/10 border border-[#00b8d9]/30 rounded-2xl">
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="text-xl font-bold mb-2">
+                  👋 Welkom bij BSCPro!
+                </h2>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Je hebt <strong>2 gratis conversies</strong> om BSCPro te proberen. Zo werkt het:
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">📄</span>
+                    <div>
+                      <p className="font-medium text-sm">1. Upload PDF</p>
+                      <p className="text-xs text-muted-foreground">
+                        Sleep je bankafschrift naar het upload veld
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">🤖</span>
+                    <div>
+                      <p className="font-medium text-sm">2. AI verwerkt</p>
+                      <p className="text-xs text-muted-foreground">
+                        Onze AI herkent alle transacties automatisch
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">📊</span>
+                    <div>
+                      <p className="font-medium text-sm">3. Download Excel</p>
+                      <p className="text-xs text-muted-foreground">
+                        Kies je formaat: Excel, CSV, MT940 of CAMT.053
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <a href="#upload" className="px-4 py-2 bg-[#00b8d9] text-[#080d14] rounded-lg text-sm font-bold hover:bg-[#00a8c9] transition-colors">
+                    🚀 Start je eerste conversie
+                  </a>
+                  <a href="/#pricing" className="px-4 py-2 border border-border rounded-lg text-sm hover:bg-accent transition-colors">
+                    Bekijk plannen
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {showEmptyState ? (
           <EmptyState onFileSelect={(selectedFile) => { setFile(selectedFile); setError(''); }} credits={credits} />
