@@ -195,6 +195,37 @@ export const MERCHANT_CATEGORIES: Record<string, MerchantInfo> = {
   'linkedin learning': { categorie: 'Opleiding', subcategorie: 'E-learning', btw: '21%', icon: '📚' },
   'skillshare': { categorie: 'Opleiding', subcategorie: 'E-learning', btw: '21%', icon: '📚' },
   'pluralsight': { categorie: 'Opleiding', subcategorie: 'E-learning', btw: '21%', icon: '📚' },
+  
+  // Parkeren
+  'parking': { categorie: 'Transport', subcategorie: 'Parkeren', btw: '21%', icon: '🅿️' },
+  'q-park': { categorie: 'Transport', subcategorie: 'Parkeren', btw: '21%', icon: '🅿️' },
+  'yellowbrick': { categorie: 'Transport', subcategorie: 'Parkeren', btw: '21%', icon: '🅿️' },
+  
+  // Taxi & Deelmobiliteit
+  'uber': { categorie: 'Transport', subcategorie: 'Taxi', btw: '21%', icon: '🚗' },
+  'bolt': { categorie: 'Transport', subcategorie: 'Taxi', btw: '21%', icon: '🚗' },
+  
+  // Kleding
+  'h&m': { categorie: 'Online Winkelen', subcategorie: 'Mode', btw: '21%', icon: '👕' },
+  'zara': { categorie: 'Online Winkelen', subcategorie: 'Mode', btw: '21%', icon: '👕' },
+  'primark': { categorie: 'Online Winkelen', subcategorie: 'Mode', btw: '21%', icon: '👕' },
+  
+  // Bouwmarkten
+  'hornbach': { categorie: 'Online Winkelen', subcategorie: 'Klussen', btw: '21%', icon: '🔨' },
+  
+  // Gezondheid - Apotheek
+  'apotheek': { categorie: 'Gezondheid', subcategorie: 'Apotheek', btw: '9%', icon: '💊' },
+  
+  // Gezondheid - Drogist
+  'etos': { categorie: 'Gezondheid', subcategorie: 'Drogist', btw: '21%', icon: '🧴' },
+  'kruidvat': { categorie: 'Gezondheid', subcategorie: 'Drogist', btw: '21%', icon: '🧴' },
+  'da': { categorie: 'Gezondheid', subcategorie: 'Drogist', btw: '21%', icon: '🧴' },
+  
+  // Gezondheid - Zorg
+  'huisarts': { categorie: 'Gezondheid', subcategorie: 'Arts', btw: '0%', icon: '🏥' },
+  'tandarts': { categorie: 'Gezondheid', subcategorie: 'Tandarts', btw: '21%', icon: '🦷' },
+  'fysiotherapie': { categorie: 'Gezondheid', subcategorie: 'Fysiotherapie', btw: '21%', icon: '🏃' },
+  'fysio': { categorie: 'Gezondheid', subcategorie: 'Fysiotherapie', btw: '21%', icon: '🏃' },
 }
 
 /**
