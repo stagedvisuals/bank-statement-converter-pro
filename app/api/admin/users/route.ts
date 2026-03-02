@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
     const { data, error } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .select('id, email, plan, created_at, conversions_count')
       .order('created_at', { ascending: false });
 
@@ -42,7 +42,7 @@ export async function PATCH(request: Request) {
 
     // Update plan in profiles
     const { error: profileError } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .update({ plan })
       .eq('id', userId);
 
@@ -108,7 +108,7 @@ export async function DELETE(request: Request) {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Delete from profiles
-    await supabase.from('profiles').delete().eq('id', userId);
+    await supabase.from('user_profiles').delete().eq('id', userId);
 
     // Delete user credits
     await supabase.from('user_credits').delete().eq('user_id', userId);
