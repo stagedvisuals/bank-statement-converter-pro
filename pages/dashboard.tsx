@@ -319,18 +319,40 @@ export default function Dashboard() {
       // QBO is verwijderd - alleen via Enterprise modal beschikbaar
       const endpoints: any = { excel: '/api/export/excel', mt940: '/api/export/mt940', csv: '/api/export/csv', camt: '/api/export/camt' };
       const filenames: any = { excel: `BSC-PRO-${bank}-Export.xlsx`, mt940: `BSC-PRO-${bank}-MT940.sta`, csv: `BSC-PRO-${bank}-Export.csv`, camt: `BSC-PRO-${bank}-CAMT053.xml` };
+      const mimeTypes: any = { excel: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', mt940: 'text/plain', csv: 'text/csv', camt: 'application/xml' };
+      
       const response = await fetch(endpoints[selectedExport], {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ transactions, bank, rekeningnummer, user })
       });
+      
       if (!response.ok) { const err = await response.json(); throw new Error(err.error || 'Export mislukt'); }
+      
       const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
+      
+      // Mobiel-vriendelijke download
+      const url = URL.createObjectURL(new Blob([blob], { type: mimeTypes[selectedExport] }));
       const a = document.createElement('a');
-      a.href = url; a.download = filenames[selectedExport]; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+      a.href = url;
+      a.download = filenames[selectedExport];
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      
+      // iOS Safari fix: gebruik click() met delay
+      setTimeout(() => {
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 100);
+      }, 0);
+      
       await completeOnboardingStep('first_export');
-    } catch (err: any) { setError('Export mislukt: ' + err.message); }
-    finally { setExportLoading(false); }
+    } catch (err: any) { 
+      setError('Export mislukt: ' + err.message); 
+    } finally { 
+      setExportLoading(false); 
+    }
   };
 
   const handleLogout = () => { 
