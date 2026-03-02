@@ -6,59 +6,112 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { transactions } = req.body
+    const { transactions, rekeninghouder, bank, rekeningnummer } = req.body
     
     if (!transactions?.length) {
       return res.status(400).json({ error: 'Geen transacties' })
     }
 
-    // Gebruik ExcelJS voor echte .xlsx
     const ExcelJS = require('exceljs')
     const workbook = new ExcelJS.Workbook()
-    const worksheet = workbook.addWorksheet('Transacties')
+    
+    // Metadata
+    workbook.creator = 'BSCPro'
+    workbook.created = new Date()
+    
+    const worksheet = workbook.addWorksheet('Transacties', {
+      pageSetup: { paperSize: 9, orientation: 'portrait' }
+    })
 
-    // Kolommen
+    // Kolom definities
     worksheet.columns = [
-      { header: 'Datum', key: 'datum', width: 15 },
-      { header: 'Omschrijving', key: 'omschrijving', width: 40 },
-      { header: 'Bedrag', key: 'bedrag', width: 15 },
+      { header: 'Datum', key: 'datum', width: 14 },
+      { header: 'Omschrijving', key: 'omschrijving', width: 45 },
+      { header: 'Bedrag (€)', key: 'bedrag', width: 14 },
       { header: 'Categorie', key: 'categorie', width: 20 },
+      { header: 'Subcategorie', key: 'subcategorie', width: 20 },
+      { header: 'BTW %', key: 'btw', width: 10 },
     ]
 
-    // Stijl header rij
-    worksheet.getRow(1).font = { bold: true }
-    worksheet.getRow(1).fill = { 
-      type: 'pattern', 
-      pattern: 'solid', 
-      fgColor: { argb: 'FF00B8D9' } 
-    }
+    // Header rij stijl
+    const headerRow = worksheet.getRow(1)
+    headerRow.font = { bold: true, color: { argb: 'FF080d14' }, size: 11 }
+    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF00B8D9' } }
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center' }
+    headerRow.height = 22
 
-    // Data toevoegen
-    transactions.forEach((t: any) => {
-      worksheet.addRow({
+    // Data rijen toevoegen
+    transactions.forEach((t: any, index: number) => {
+      const row = worksheet.addRow({
         datum: t.datum || '',
         omschrijving: t.omschrijving || '',
         bedrag: typeof t.bedrag === 'number' ? t.bedrag : parseFloat(t.bedrag) || 0,
-        categorie: t.categorie || ''
+        categorie: t.categorie || 'Overig',
+        subcategorie: t.subcategorie || '',
+        btw: t.btw_percentage || t.btw || '21%',
       })
+
+      // Afwisselende rij kleuren
+      if (index % 2 === 0) {
+        row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FEFF' } }
+      }
+
+      // Bedrag kolom rood/groen
+      const bedragCell = row.getCell('bedrag')
+      const bedragWaarde = typeof t.bedrag === 'number' ? t.bedrag : parseFloat(t.bedrag) || 0
+      bedragCell.numFmt = '€#,##0.00;[Red]-€#,##0.00'
+      bedragCell.font = { color: { argb: bedragWaarde >= 0 ? 'FF10B981' : 'FFEF4444' }, bold: true }
     })
 
-    // Bedrag kolom als getal formatteren
-    worksheet.getColumn('bedrag').numFmt = '€#,##0.00;[Red]-€#,##0.00'
+    // Totaal rij
+    const totaal = transactions.reduce((sum: number, t: any) => {
+      return sum + (typeof t.bedrag === 'number' ? t.bedrag : parseFloat(t.bedrag) || 0)
+    }, 0)
+    
+    const totaalRow = worksheet.addRow({
+      datum: '',
+      omschrijving: 'TOTAAL',
+      bedrag: totaal,
+      categorie: '',
+      subcategorie: '',
+      btw: ''
+    })
+    
+    totaalRow.font = { bold: true }
+    totaalRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE5F9FF' } }
+    totaalRow.getCell('bedrag').numFmt = '€#,##0.00;[Red]-€#,##0.00'
+    totaalRow.getCell('bedrag').font = { bold: true, color: { argb: totaal >= 0 ? 'FF10B981' : 'FFEF4444' } }
+
+    // Info blad toevoegen
+    const infoSheet = workbook.addWorksheet('Info')
+    infoSheet.columns = [
+      { header: 'Gegeven', key: 'key', width: 25 },
+      { header: 'Waarde', key: 'value', width: 40 },
+    ]
+    
+    const infoHeader = infoSheet.getRow(1)
+    infoHeader.font = { bold: true }
+    infoHeader.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF00B8D9' } }
+    
+    infoSheet.addRows([
+      { key: 'Rekeninghouder', value: rekeninghouder || 'Onbekend' },
+      { key: 'Bank', value: bank || 'Onbekend' },
+      { key: 'Rekeningnummer', value: rekeningnummer || 'Onbekend' },
+      { key: 'Export datum', value: new Date().toLocaleDateString('nl-NL') },
+      { key: 'Aantal transacties', value: transactions.length.toString() },
+      { key: 'Totaal bedrag', value: `€${totaal.toFixed(2)}` },
+      { key: 'Geëxporteerd door', value: 'BSCPro.nl' },
+    ])
 
     // Buffer genereren
     const buffer = await workbook.xlsx.writeBuffer()
-
-    // Response met correcte headers voor mobiel
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    res.setHeader('Content-Disposition', 'attachment; filename="transacties.xlsx"')
-    res.setHeader('Content-Length', buffer.byteLength.toString())
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
-    res.setHeader('Pragma', 'no-cache')
-    res.status(200).send(buffer)
     
+    // Response met juiste headers
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    res.setHeader('Content-Disposition', 'attachment; filename="BSCPro-Export.xlsx"')
+    res.send(buffer)
   } catch (error: any) {
     console.error('Excel export error:', error)
-    return res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Export mislukt: ' + error.message })
   }
 }
