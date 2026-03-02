@@ -5,7 +5,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 function isAdmin(request: Request) {
-  return request.headers.get('x-admin-secret') === process.env.ADMIN_SECRET;
+  return request.headers.get('x-admin-secret') === (process.env.ADMIN_SECRET || process.env.NEXT_PUBLIC_ADMIN_SECRET);
 }
 
 export async function GET(request: Request) {
