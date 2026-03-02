@@ -5,7 +5,9 @@ const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 function isAdmin(request: Request) {
-  const secret = request.headers.get('x-admin-secret'); const validSecrets = [process.env.ADMIN_SECRET, process.env.NEXT_PUBLIC_ADMIN_SECRET, 'BSCPro2025!'].filter(Boolean); return secret ? validSecrets.includes(secret) : false;
+  const secret = request.headers.get('x-admin-secret');
+  const validSecrets = [process.env.ADMIN_SECRET, process.env.NEXT_PUBLIC_ADMIN_SECRET, 'BSCPro2025!'].filter(Boolean);
+  return secret ? validSecrets.includes(secret) : false;
 }
 
 export async function GET(request: Request) {
@@ -16,16 +18,44 @@ export async function GET(request: Request) {
   try {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    const { data, error } = await supabase
+    // Get user profiles with auth user data via RPC
+    const { data: profiles, error } = await supabase
       .from('user_profiles')
-      .select('id, email, plan, created_at, conversions_count')
-      .order('created_at', { ascending: false });
+      .select('id, user_id, bedrijfsnaam, beroep, onboarding_voltooid, aangemaakt_op, bijgewerkt_op')
+      .order('aangemaakt_op', { ascending: false });
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json(data || []);
+    // Get auth users to enrich with email
+    const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+    
+    if (authError) {
+      console.error('Auth users fetch error:', authError);
+    }
+
+    // Create email lookup map
+    const emailMap = new Map();
+    if (authUsers?.users) {
+      authUsers.users.forEach((user: any) => {
+        emailMap.set(user.id, user.email);
+      });
+    }
+
+    // Enrich profiles with email
+    const enrichedProfiles = (profiles || []).map((profile: any) => ({
+      id: profile.id,
+      user_id: profile.user_id,
+      email: emailMap.get(profile.user_id) || 'unknown@example.com',
+      bedrijfsnaam: profile.bedrijfsnaam,
+      beroep: profile.beroep,
+      onboarding_voltooid: profile.onboarding_voltooid,
+      created_at: profile.aangemaakt_op,
+      updated_at: profile.bijgewerkt_op
+    }));
+
+    return NextResponse.json(enrichedProfiles);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -37,17 +67,23 @@ export async function PATCH(request: Request) {
   }
 
   try {
-    const { userId, plan, credits } = await request.json();
+    const { userId, bedrijfsnaam, beroep, credits } = await request.json();
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Update plan in profiles
-    const { error: profileError } = await supabase
-      .from('user_profiles')
-      .update({ plan })
-      .eq('id', userId);
+    // Update profile fields that exist
+    const updates: any = {};
+    if (bedrijfsnaam !== undefined) updates.bedrijfsnaam = bedrijfsnaam;
+    if (beroep !== undefined) updates.beroep = beroep;
 
-    if (profileError) {
-      return NextResponse.json({ error: profileError.message }, { status: 500 });
+    if (Object.keys(updates).length > 0) {
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .update(updates)
+        .eq('user_id', userId);
+
+      if (profileError) {
+        return NextResponse.json({ error: profileError.message }, { status: 500 });
+      }
     }
 
     // Add credits if specified
@@ -107,8 +143,8 @@ export async function DELETE(request: Request) {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Delete from profiles
-    await supabase.from('user_profiles').delete().eq('id', userId);
+    // Delete from user_profiles (by user_id)
+    await supabase.from('user_profiles').delete().eq('user_id', userId);
 
     // Delete user credits
     await supabase.from('user_credits').delete().eq('user_id', userId);
