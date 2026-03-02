@@ -94,7 +94,7 @@ export default function AdminPage() {
   };
 
   const handleLogin = () => {
-    if (password === process.env.NEXT_PUBLIC_ADMIN_SECRET || "") {
+    if (password === (process.env.NEXT_PUBLIC_ADMIN_SECRET || "BSCPro2025!")) {
       localStorage.setItem('bscpro_admin', 'true');
       setIsAuthenticated(true);
       logActivity('Admin logged in');
