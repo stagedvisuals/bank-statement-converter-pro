@@ -795,11 +795,48 @@ function SystemTab({ health }: { health: HealthStatus }) {
 }
 
 function HealthCard({ title, status }: { title: string; status: boolean }) {
+  const statusConfig: Record<string, Record<string, { bg: string; text: string; icon: string; label: string; description: string }>> = {
+    'Database': {
+      'true': { bg: 'bg-emerald-500/10 border-emerald-500/30', text: 'text-emerald-500', icon: '✅', label: 'Online', description: 'Supabase verbonden' },
+      'false': { bg: 'bg-destructive/10 border-destructive/30', text: 'text-destructive', icon: '❌', label: 'Offline', description: 'Database niet bereikbaar' }
+    },
+    'API Convert': {
+      'true': { bg: 'bg-emerald-500/10 border-emerald-500/30', text: 'text-emerald-500', icon: '✅', label: 'Actief', description: 'AI conversie werkt' },
+      'false': { bg: 'bg-destructive/10 border-destructive/30', text: 'text-destructive', icon: '❌', label: 'Offline', description: 'Conversie API niet bereikbaar' }
+    },
+    'API Cleanup': {
+      'true': { bg: 'bg-emerald-500/10 border-emerald-500/30', text: 'text-emerald-500', icon: '✅', label: 'Actief', description: 'Cleanup cron draait' },
+      'false': { bg: 'bg-amber-500/10 border-amber-500/30', text: 'text-amber-500', icon: '⚠️', label: 'Gepauzeerd', description: 'Cleanup niet actief' }
+    },
+    'Supabase Auth': {
+      'true': { bg: 'bg-emerald-500/10 border-emerald-500/30', text: 'text-emerald-500', icon: '✅', label: 'Actief', description: 'Authenticatie werkt' },
+      'false': { bg: 'bg-destructive/10 border-destructive/30', text: 'text-destructive', icon: '❌', label: 'Fout', description: 'Auth service problemen' }
+    },
+    'Env Vars': {
+      'true': { bg: 'bg-emerald-500/10 border-emerald-500/30', text: 'text-emerald-500', icon: '✅', label: 'Compleet', description: 'Alle variabelen geladen' },
+      'false': { bg: 'bg-amber-500/10 border-amber-500/30', text: 'text-amber-500', icon: '⚠️', label: 'Incomplete', description: 'Sommige variabelen missen' }
+    }
+  };
+  
+  const config = statusConfig[title]?.[String(status)] || {
+    bg: status ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-destructive/10 border-destructive/30',
+    text: status ? 'text-emerald-500' : 'text-destructive',
+    icon: status ? '✅' : '❌',
+    label: status ? 'Online' : 'Offline',
+    description: status ? 'Systeem operationeel' : 'Probleem gedetecteerd'
+  };
+
   return (
-    <div className={`p-4 rounded-xl border ${status ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-destructive/10 border-destructive/30'}`}>
-      <p className="text-sm font-medium">{title}</p>
-      <p className={`text-lg font-bold ${status ? 'text-emerald-500' : 'text-destructive'}`}>
-        {status ? '✓ Online' : '✗ Offline'}
+    <div className={`p-4 rounded-xl border ${config.bg}`}>
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-sm font-medium">{title}</p>
+        <span className="text-lg">{config.icon}</span>
+      </div>
+      <p className={`text-lg font-bold ${config.text}`}>
+        {config.label}
+      </p>
+      <p className="text-xs text-muted-foreground mt-1">
+        {config.description}
       </p>
     </div>
   );

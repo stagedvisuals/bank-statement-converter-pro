@@ -51,6 +51,9 @@ export default function Dashboard() {
   const [waitlistEmail, setWaitlistEmail] = useState('');
   const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
   const [credits, setCredits] = useState<number>(0);
+  const [userPlan, setUserPlan] = useState<string>('free');
+  const [scannedData, setScannedData] = useState<any>(null);
+  const [scanHistory, setScanHistory] = useState<any[]>([]);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
   
@@ -103,6 +106,12 @@ export default function Dashboard() {
     };
   }, [router]);
 
+  // Load scan history on mount
+  useEffect(() => {
+    const history = JSON.parse(localStorage.getItem('bscpro_history') || '[]');
+    setScanHistory(history);
+  }, []);
+
   const fetchCredits = async () => {
     try {
       const session = localStorage.getItem('bscpro_session');
@@ -115,6 +124,7 @@ export default function Dashboard() {
         const data = await response.json();
         setCredits(data.credits?.remaining_credits || 0);
         setOnboardingComplete(data.onboarding?.progress_percentage === 100);
+        setUserPlan(data.plan || 'free');
       }
     } catch (error) {
       console.error('Error fetching credits:', error);
@@ -195,6 +205,25 @@ export default function Dashboard() {
       setBank(data.bank || 'Onbekend');
       setRekeningnummer(data.rekeningnummer || '');
       setCategorySummary(data.categorySummary || []);
+      
+      // Save scanned data for preview
+      const scanData = data.data || data;
+      setScannedData(scanData);
+      
+      // Save to scan history
+      const historyItem = {
+        id: Date.now(),
+        bank: scanData.bank || 'Onbekend',
+        transacties: scanData.transacties?.length || 0,
+        datum: new Date().toLocaleDateString('nl-NL'),
+        rekeninghouder: scanData.rekeninghouder || 'Onbekend',
+        data: scanData
+      };
+      const history = JSON.parse(localStorage.getItem('bscpro_history') || '[]');
+      history.unshift(historyItem);
+      localStorage.setItem('bscpro_history', JSON.stringify(history.slice(0, 5)));
+      setScanHistory(history.slice(0, 5));
+      
       setScanStatus('done');
     } catch (err: any) {
       // Toon gebruiksvriendelijke foutmelding
@@ -317,6 +346,23 @@ export default function Dashboard() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {/* Plan Badge */}
+            {(() => {
+              const planConfig: Record<string, {label: string, color: string, emoji: string}> = {
+                'free': { label: 'Free', color: 'bg-muted text-muted-foreground border-border', emoji: '🆓' },
+                'starter': { label: 'Starter', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30', emoji: '⭐' },
+                'pro': { label: 'Pro', color: 'bg-[#00b8d9]/20 text-[#00b8d9] border-[#00b8d9]/30', emoji: '🚀' },
+                'business': { label: 'Business', color: 'bg-purple-500/20 text-purple-400 border-purple-500/30', emoji: '💼' },
+                'enterprise': { label: 'Enterprise', color: 'bg-amber-500/20 text-amber-400 border-amber-500/30', emoji: '👑' },
+              };
+              const config = planConfig[userPlan] || planConfig.free;
+              return (
+                <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-medium ${config.color}`}>
+                  <span>{config.emoji}</span>
+                  <span>{config.label}</span>
+                </div>
+              );
+            })()}
             <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border ${
               credits > 0 ? 'bg-[#00b8d9]/10 border-[#00b8d9]/30' : 'bg-destructive/10 border-destructive/30'
             }`}>
@@ -437,13 +483,117 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {error && (
+              {scanStatus === 'done' && scannedData && (
+              <div className="mt-6 space-y-4">
+                {/* Summary Cards */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-card border border-border rounded-xl p-4 text-center">
+                    <p className="text-2xl font-bold text-[#00b8d9]">
+                      {scannedData.transacties?.length || 0}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Transacties</p>
+                  </div>
+                  <div className="bg-card border border-border rounded-xl p-4 text-center">
+                    <p className="text-2xl font-bold text-emerald-500">
+                      €{scannedData.transacties?.filter((t: any) => t.bedrag > 0).reduce((sum: number, t: any) => sum + t.bedrag, 0).toFixed(2) || '0.00'}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Inkomsten</p>
+                  </div>
+                  <div className="bg-card border border-border rounded-xl p-4 text-center">
+                    <p className="text-2xl font-bold text-destructive">
+                      €{Math.abs(scannedData.transacties?.filter((t: any) => t.bedrag < 0).reduce((sum: number, t: any) => sum + t.bedrag, 0) || 0).toFixed(2)}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Uitgaven</p>
+                  </div>
+                </div>
+
+                {/* Bank Info */}
+                <div className="flex items-center gap-4 p-4 bg-card border border-border rounded-xl text-sm flex-wrap">
+                  <span>🏦 <strong>{scannedData.bank}</strong></span>
+                  <span>👤 {scannedData.rekeninghouder}</span>
+                  <span>📅 {scannedData.periode?.van} → {scannedData.periode?.tot}</span>
+                </div>
+
+                {/* Transaction Table */}
+                <div className="bg-card border border-border rounded-xl overflow-hidden">
+                  <div className="p-4 border-b border-border flex items-center justify-between">
+                    <h3 className="font-medium">📋 Transacties</h3>
+                    <span className="text-xs text-muted-foreground">
+                      Eerste 10 van {scannedData.transacties?.length}
+                    </span>
+                  </div>
+                  <div className="max-h-64 overflow-y-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-muted/50 sticky top-0">
+                        <tr>
+                          <th className="text-left p-3">Datum</th>
+                          <th className="text-left p-3">Omschrijving</th>
+                          <th className="text-right p-3">Bedrag</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {scannedData.transacties?.slice(0, 10).map((t: any, i: number) => (
+                          <tr key={i} className="border-t border-border hover:bg-muted/20">
+                            <td className="p-3 text-muted-foreground whitespace-nowrap">{t.datum}</td>
+                            <td className="p-3 truncate max-w-[200px]">{t.omschrijving}</td>
+                            <td className={`p-3 text-right font-medium whitespace-nowrap ${t.bedrag >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
+                              {t.bedrag >= 0 ? '+' : ''}€{t.bedrag?.toFixed(2)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Download Section */}
+                <div className="p-4 bg-[#00b8d9]/10 border border-[#00b8d9]/30 rounded-xl">
+                  <p className="text-sm font-medium mb-3">
+                    ✅ Ziet dit er goed uit? Download je bestand:
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {error && (
                 <div className="mt-4 p-4 bg-destructive/10 border border-destructive/30 rounded-lg flex items-center gap-3">
                   <AlertTriangle className="w-5 h-5 text-destructive" />
                   <p className="text-destructive">{error}</p>
                 </div>
               )}
             </div>
+
+            {/* Scan History */}
+            {scanHistory.length > 0 && scanStatus === 'idle' && (
+              <div className="mb-8">
+                <h3 className="text-sm font-medium text-muted-foreground mb-3">
+                  📂 Recente conversies
+                </h3>
+                <div className="space-y-2">
+                  {scanHistory.map((item) => (
+                    <div 
+                      key={item.id} 
+                      className="flex items-center justify-between p-3 bg-card border border-border rounded-xl hover:bg-muted/20 cursor-pointer transition-colors"
+                      onClick={() => {
+                        setScannedData(item.data);
+                        setBank(item.data.bank || 'Onbekend');
+                        setTransactions(item.data.transacties || []);
+                        setScanStatus('done');
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg">📄</span>
+                        <div>
+                          <p className="text-sm font-medium">{item.bank} - {item.rekeninghouder}</p>
+                          <p className="text-xs text-muted-foreground">{item.datum} · {item.transacties} transacties</p>
+                        </div>
+                      </div>
+                      <span className="text-xs text-[#00b8d9]">Opnieuw bekijken →</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {transactions.length > 0 && (
               <div className="grid gap-6">

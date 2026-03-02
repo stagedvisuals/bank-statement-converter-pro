@@ -47,9 +47,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       throw onboardingError;
     }
 
+    // Get plan from user_profiles
+    const { data: profile, error: profileError } = await supabase
+      .from('user_profiles')
+      .select('plan')
+      .eq('user_id', user.id)
+      .single();
+
+    if (profileError && profileError.code !== 'PGRST116') {
+      console.error('Profile fetch error:', profileError);
+    }
+
     return res.status(200).json({
       credits: credits || { remaining_credits: 0, total_credits: 0, used_credits: 0 },
-      onboarding: onboarding || { progress_percentage: 0 }
+      onboarding: onboarding || { progress_percentage: 0 },
+      plan: profile?.plan || 'free'
     });
 
   } catch (error: any) {
