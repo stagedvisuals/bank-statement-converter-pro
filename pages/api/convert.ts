@@ -43,19 +43,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  // Rate limiting: max 10 requests per uur per IP
+  // Check of dit een preview request is
+  const isPreview = req.headers['x-preview-mode'] === 'true'
+
+  // Rate limiting: max 5 preview requests per uur per IP, 10 voor authenticated
   const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || 'unknown'
-  const rateLimitKey = `convert_${ip}`
+  const rateLimitKey = `convert_${isPreview ? 'preview_' : ''}${ip}`
   const now = Date.now()
+  const limit = isPreview ? 5 : 10
 
   // Simple in-memory rate limit (resets bij server restart)
   if (!global.rateLimitMap) global.rateLimitMap = new Map()
   const userRequests = global.rateLimitMap.get(rateLimitKey) || []
   const recentRequests = userRequests.filter((t: number) => now - t < 3600000)
 
-  if (recentRequests.length >= 10) {
+  if (recentRequests.length >= limit) {
     return res.status(429).json({
-      error: 'Te veel verzoeken. Probeer over een uur opnieuw.',
+      error: isPreview 
+        ? 'Te veel preview verzoeken. Maak een account aan om verder te gaan.' 
+        : 'Te veel verzoeken. Probeer over een uur opnieuw.',
       errorType: 'rate_limit'
     })
   }
@@ -66,8 +72,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   let tempFilePath: string | null = null
 
   try {
-    const [, files] = await form.parse(req)
+    const [fields, files] = await form.parse(req)
     const file = Array.isArray(files.file) ? files.file[0] : files.file
+    
+    // Check preview flag uit form data
+    const previewMode = fields.preview?.[0] === 'true' || isPreview
 
     if (!file) {
       return res.status(400).json({ error: 'Geen bestand ontvangen' })
@@ -127,6 +136,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
 
+    // Voor preview mode: return direct het resultaat zonder extra wrapper
+    if (previewMode) {
+      return res.status(200).json({
+        ...parsed,
+        _preview: true,
+        transactieCount: parsed.transacties.length
+      })
+    }
+
+    // Voor authenticated mode: return met wrapper
     return res.status(200).json({
       success: true,
       data: parsed,
