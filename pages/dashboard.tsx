@@ -6,6 +6,7 @@ import { useTheme } from 'next-themes';
 import { FileText, Upload, Download, Zap, AlertTriangle, LogOut, Loader2, Brain, FileSpreadsheet, Database, FileCode, Table, History, Settings, LayoutDashboard, Calculator, Sun, Moon, Shield, ShieldAlert, ShieldCheck, Lock, Globe, Crown } from 'lucide-react';
 import { Logo } from '../components/Logo';
 import SmartRulesManager from '../components/SmartRulesManager';
+import DemoMode from '../components/DemoMode';
 import DashboardSmartTools from '../components/DashboardSmartTools';
 import OnboardingTracker from '../components/OnboardingTracker';
 import EmptyState from '../components/EmptyState';
@@ -54,6 +55,7 @@ export default function Dashboard() {
   const [userPlan, setUserPlan] = useState<string>('free');
   const [scannedData, setScannedData] = useState<any>(null);
   const [scanHistory, setScanHistory] = useState<any[]>([]);
+  const [warnings, setWarnings] = useState<string[]>([]);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
   
@@ -223,6 +225,13 @@ export default function Dashboard() {
       history.unshift(historyItem);
       localStorage.setItem('bscpro_history', JSON.stringify(history.slice(0, 5)));
       setScanHistory(history.slice(0, 5));
+      
+      // Capture warnings if any
+      if (data.warnings?.length > 0) {
+        setWarnings(data.warnings);
+      } else {
+        setWarnings([]);
+      }
       
       setScanStatus('done');
     } catch (err: any) {
@@ -447,6 +456,11 @@ export default function Dashboard() {
                     <p className="text-lg font-medium text-foreground mb-2">Klik om document te uploaden</p>
                     <p className="text-sm text-muted-foreground">PDF, JPG, of PNG (max 10MB)</p>
                   </label>
+                  <p className="text-xs text-muted-foreground text-center mt-3 flex items-center justify-center gap-1 flex-wrap">
+                    <span>🔒</span>
+                    <span>Je PDF wordt verwerkt en automatisch verwijderd na conversie. GDPR-compliant.</span>
+                    <a href="/privacy" className="underline text-[#00b8d9] hover:text-[#00a8c9]">Meer info</a>
+                  </p>
                 </div>
               ) : (
                 <div className="flex items-center justify-between bg-background border border-border rounded-xl p-4">
@@ -485,6 +499,16 @@ export default function Dashboard() {
 
               {scanStatus === 'done' && scannedData && (
               <div className="mt-6 space-y-4">
+                {/* AI Quality Warnings */}
+                {warnings.length > 0 && (
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1">
+                    <p className="text-sm font-medium text-amber-500">⚠️ Let op:</p>
+                    {warnings.map((w, i) => (
+                      <p key={i} className="text-sm text-amber-400">• {w}</p>
+                    ))}
+                  </div>
+                )}
+                
                 {/* Summary Cards */}
                 <div className="grid grid-cols-3 gap-2 md:gap-4">
                   <div className="bg-card border border-border rounded-xl p-4 text-center">
@@ -562,6 +586,9 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
+
+            {/* Demo Mode for non-logged in preview */}
+            <DemoMode />
 
             {/* Scan History */}
             {scanHistory.length > 0 && scanStatus === 'idle' && (

@@ -136,12 +136,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
 
+    // Kwaliteitschecks
+    const warnings: string[] = []
+    if (parsed.transacties.length < 3) {
+      warnings.push('Weinig transacties gevonden – controleer of de PDF leesbaar is')
+    }
+    if (!parsed.rekeningnummer || parsed.rekeningnummer === '') {
+      warnings.push('Rekeningnummer niet gevonden')
+    }
+    if (parsed.bank === 'Onbekend') {
+      warnings.push('Bank niet herkend – resultaat kan afwijken')
+    }
+
     // Voor preview mode: return direct het resultaat zonder extra wrapper
     if (previewMode) {
       return res.status(200).json({
         ...parsed,
         _preview: true,
-        transactieCount: parsed.transacties.length
+        transactieCount: parsed.transacties.length,
+        warnings: warnings
       })
     }
 
@@ -149,7 +162,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({
       success: true,
       data: parsed,
-      transactieCount: parsed.transacties.length
+      transactieCount: parsed.transacties.length,
+      warnings: warnings
     })
 
   } catch (error: any) {
