@@ -96,11 +96,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     infoSheet.addRows([
       { key: 'Rekeninghouder', value: rekeninghouder || 'Onbekend' },
       { key: 'Bank', value: bank || 'Onbekend' },
-      { key: 'Rekeningnummer', value: rekeningnummer || 'Onbekend' },
-      { key: 'Export datum', value: new Date().toLocaleDateString('nl-NL') },
-      { key: 'Aantal transacties', value: transactions.length.toString() },
+      { key: 'IBAN', value: rekeningnummer || 'Onbekend' },
+      { key: 'Datum export', value: new Date().toLocaleDateString('nl-NL') },
+      { key: 'Aantal transacties', value: transactions.length },
       { key: 'Totaal bedrag', value: `€${totaal.toFixed(2)}` },
-      { key: 'Geëxporteerd door', value: 'BSCPro.nl' },
+      { key: 'Gegenereerd door', value: 'BSCPro - bscpro.nl' },
     ])
 
     // Buffer genereren
@@ -108,7 +108,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     // Response met juiste headers
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    res.setHeader('Content-Disposition', 'attachment; filename="BSCPro-Export.xlsx"')
+    const filename = `BSCPro-Export-${new Date().toISOString().split('T')[0]}.xlsx`
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
+    res.setHeader('Content-Length', buffer.length.toString())
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
     res.send(buffer)
   } catch (error: any) {
     console.error('Excel export error:', error)
