@@ -60,7 +60,7 @@ export default function FAQ() {
     },
     {
       question: "Wat is het verschil tussen de abonnementen?",
-      answer: "Basic (€2/doc) is pay-as-you-go voor incidenteel gebruik. Business (€15/maand) biedt 50 conversies per maand met batch processing en priority support. Enterprise (€30/maand) geeft onbeperkte conversies, whitelabel rapporten, JSON export en een dedicated account manager."
+      answer: "Basic (€2/doc) is pay-as-you-go voor incidenteel gebruik. Business (€15/maand) biedt 50 conversies per maand met batch processing en priority support. Enterprise (€30/maand) geeft 2.000 conversies per maand, whitelabel rapporten, JSON export en een dedicated account manager."
     }
   ]
 

@@ -104,11 +104,11 @@ export default function Pricing() {
               <span className="text-4xl font-bold" style={{ color: '#e8edf5' }}>€30</span>
               <span style={{ color: '#6b7fa3' }}>/maand</span>
             </div>
-            <p className="text-sm mb-6" style={{ color: '#6b7fa3' }}>Onbeperkt. Whitelabel rapporten. Alles in Business plus:</p>
+            <p className="text-sm mb-6" style={{ color: '#6b7fa3' }}>2.000 conversies/maand. Whitelabel rapporten. Alles in Business plus:</p>
             <ul className="space-y-3 mb-8">
               <li className="flex items-center gap-3 text-sm" style={{ color: '#e8edf5' }}>
                 <Check className="w-5 h-5 flex-shrink-0" style={{ color: '#00b8d9' }} />
-                <span className="font-semibold" style={{ color: '#e8edf5' }}>Onbeperkte conversies</span>
+                <span className="font-semibold" style={{ color: '#e8edf5' }}>2.000 conversies/maand</span>
               </li>
               <li className="flex items-center gap-3 text-sm" style={{ color: '#e8edf5' }}>
                 <Check className="w-5 h-5 flex-shrink-0" style={{ color: '#00b8d9' }} />

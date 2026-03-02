@@ -51,7 +51,7 @@ export default function VoorwaardenPage() {
               <ul className="list-none space-y-2 text-muted-foreground">
                 <li><strong>Losse scan:</strong> €2,00 per conversie</li>
                 <li><strong>ZZP Plan:</strong> €15,00/maand (50 scans)</li>
-                <li><strong>Pro Plan:</strong> €30,00/maand (onbeperkt)</li>
+                <li><strong>Pro Plan:</strong> €30,00/maand (2.000 scans/maand)</li>
                 <li><strong>Enterprise:</strong> €99,00/maand</li>
               </ul>
             </div>

@@ -35,7 +35,7 @@ const plans = [
     popular: false,
     badge: 'LIMITED TIME',
     features: [
-      'Onbeperkte conversies',
+      '2.000 conversies/maand',
       'Prioriteit processing',
       'API toegang',
       '24/7 Priority support',

@@ -34,11 +34,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           price_data: {
             currency: 'eur',
             product_data: {
-              name: priceId === 'starter' ? '5 Conversions Pack' : 'Unlimited Monthly',
-              description: priceId === 'starter' ? 'Convert 5 bank statements' : 'Unlimited conversions',
+              name: priceId === 'starter' ? '5 Conversions Pack' : 'Enterprise Monthly',
+              description: priceId === 'starter' ? 'Convert 5 bank statements' : '2.000 conversions per month',
             },
             unit_amount: priceId === 'starter' ? 500 : 2900,
-            recurring: priceId === 'unlimited' ? { interval: 'month' } : undefined,
+            recurring: priceId === 'enterprise' ? { interval: 'month' } : undefined,
           },
           quantity: 1,
         },

@@ -101,7 +101,7 @@ export default function ApiDocsPage() {
                 </tr>
                 <tr>
                   <td className="py-2 font-medium">Enterprise</td>
-                  <td className="py-2 text-muted-foreground">Onbeperkt</td>
+                  <td className="py-2 text-muted-foreground">2.000/maand</td>
                 </tr>
               </tbody>
             </table>

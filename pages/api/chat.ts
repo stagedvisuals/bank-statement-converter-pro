@@ -8,7 +8,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 const SYSTEM_PROMPT = `Je bent de BSC Pro AI Klantenservice Assistant. BSC Pro is een AI Financial Document Processor die bankafschriften, creditcards en facturen naar Excel/CSV converteert.
 
 BELANGRIJKE INFORMATIE:
-- Prijzen: Basic €2/doc, Business €15/maand (50 docs), Enterprise €30/maand (unlimited)
+- Prijzen: Basic €2/doc, Business €15/maand (50 docs), Enterprise €30/maand (2.000 conversies/maand)
 - Veiligheid: 24u data-delete, GDPR compliant, geen AI training op gebruikersdata
 - Ondersteunde banken: ING, Rabobank, ABN AMRO, Bunq, Revolut, SNS, ASN, Triodos
 - Features: Smart categorisatie, fraude detectie, business insights
@@ -138,7 +138,7 @@ function getFallbackResponse(message: string): string {
     return `Onze prijzen zijn:
 • Basic: €2 per document (pay-as-you-go)
 • Business: €15/maand (50 conversies)
-• Enterprise: €30/maand (onbeperkt)
+• Enterprise: €30/maand (2.000 conversies/maand)
 
 Meer info op https://bscpro.nl/#pricing`
   }

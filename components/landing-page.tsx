@@ -133,15 +133,15 @@ export default function LandingPage() {
                   POPULAIR
                 </span>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-2">Unlimited</h3>
+              <h3 className="text-2xl font-bold text-white mb-2">Enterprise</h3>
               <div className="text-5xl font-bold text-white mb-2">€29<span className="text-lg text-[#6b7fa3]">/maand</span></div>
               <ul className="space-y-4 mb-8 text-left">
-                <li className="text-gray-300">✓ Onbeperkte conversies</li>
+                <li className="text-gray-300">✓ 2.000 conversies/maand</li>
                 <li className="text-gray-300">✓ Prioriteit verwerking</li>
                 <li className="text-gray-300">✓ API toegang</li>
               </ul>
-              <button onClick={() => handleCheckout('unlimited')} disabled={loading} className="w-full py-4 rounded-full bg-gradient-to-r from-[var(--neon-blue)] to-[var(--neon-purple)] text-[#e8edf5] font-bold hover:shadow-xl hover:shadow-[var(--neon-blue)]/50 transition-all disabled:opacity-50">
-                {loading ? 'Laden...' : 'Start Unlimited →'}
+              <button onClick={() => handleCheckout('enterprise')} disabled={loading} className="w-full py-4 rounded-full bg-gradient-to-r from-[var(--neon-blue)] to-[var(--neon-purple)] text-[#e8edf5] font-bold hover:shadow-xl hover:shadow-[var(--neon-blue)]/50 transition-all disabled:opacity-50">
+                {loading ? 'Laden...' : 'Start Enterprise →'}
               </button>
             </div>
           </div>

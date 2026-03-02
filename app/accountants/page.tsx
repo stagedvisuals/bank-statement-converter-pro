@@ -230,7 +230,7 @@ export default function AccountantsPage() {
                   'Beveiligde cloud-opslag',
                   'Audit trail voor compliance',
                   'API voor koppeling met je software',
-                  'Onbeperkt aantal gebruikers'
+                  'Tot 25 gebruikers'
                 ].map((feature, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <CheckCircle style={{ width: '20px', height: '20px', color: '#00b8d9', flexShrink: 0 }} />
@@ -247,7 +247,7 @@ export default function AccountantsPage() {
               <div>
                 {[
                   'Whitelabel portal met jouw branding',
-                  'Onbeperkt aantal klanten',
+                  'Tot 25 klanten',
                   'Prioriteit support',
                   'Gratis updates',
                   'Geen opstartkosten'

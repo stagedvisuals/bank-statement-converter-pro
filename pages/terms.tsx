@@ -91,7 +91,7 @@ export default function TermsOfService() {
               <div className="flex items-start gap-4 p-4 bg-navy/5 rounded-xl">
                 <Ban className="w-6 h-6 text-navy flex-shrink-0 mt-0.5" />
                 <p className="text-slate text-sm">
-                  Het Enterprise-abonnement is 'unlimited' binnen de grenzen van normaal zakelijk gebruik. 
+                  Het Enterprise-abonnement (€30/maand) bevat 2.000 conversies per maand, maximaal 50 bestanden per bulk-upload, en is geschikt voor maximaal 25 gebruikers. 
                   Misbruik (zoals het geautomatiseerd scrapen van de API zonder toestemming) 
                   kan leiden tot blokkering.
                 </p>
