@@ -85,12 +85,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         })
       }
 
-      // Extraheer keyword uit omschrijving (eerste 2-3 woorden)
+      // Extraheer keyword uit omschrijving (eerste 3 woorden, zonder stopwoorden)
+      const stopWords = ['van', 'der', 'den', 'de', 'het', 'een', 'en', 'met', 'voor', 'op', 'aan', 'bij', 'te', 'is', 'met', 'vanaf', 'tot', 'per', 'via', 'door', 'naar']
       const words = omschrijving.toLowerCase().split(/\s+/).filter((w: string) => 
-        w.length > 2 && 
-        !['van', 'der', 'den', 'de', 'het', 'een', 'en', 'met', 'voor', 'op'].includes(w)
+        w.length > 2 && !stopWords.includes(w)
       )
-      const keyword = words.slice(0, 2).join(' ') || omschrijving.toLowerCase().substring(0, 30)
+      const keyword = words.slice(0, 3).join(' ') || omschrijving.toLowerCase().substring(0, 40)
 
       // Check of deze keyword al bestaat
       const { data: existing } = await supabase

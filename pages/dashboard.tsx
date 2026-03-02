@@ -52,6 +52,9 @@ export default function Dashboard() {
   const [showEnterpriseModal, setShowEnterpriseModal] = useState(false);
   const [correctingTransaction, setCorrectingTransaction] = useState<any>(null);
   const [showCorrectionModal, setShowCorrectionModal] = useState(false);
+  const [editCategorie, setEditCategorie] = useState('');
+  const [editSubcategorie, setEditSubcategorie] = useState('');
+  const [savingCorrection, setSavingCorrection] = useState(false);
   const [waitlistEmail, setWaitlistEmail] = useState('');
   const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
   const [credits, setCredits] = useState<number>(0);
@@ -381,7 +384,30 @@ export default function Dashboard() {
     }
   };
 
+  const CATEGORIEEN = [
+    { value: 'Inkomen', icon: '📦', btw: '0%' },
+    { value: 'Boodschappen', icon: '🛒', btw: '9%' },
+    { value: 'Eten & Drinken', icon: '🍔', btw: '9%' },
+    { value: 'Vervoer', icon: '🚗', btw: '21%' },
+    { value: 'Telecom', icon: '📱', btw: '21%' },
+    { value: 'Abonnementen', icon: '🔄', btw: '21%' },
+    { value: 'Winkelen', icon: '👕', btw: '21%' },
+    { value: 'Gezondheid', icon: '💊', btw: '0%' },
+    { value: 'Energie', icon: '⚡', btw: '21%' },
+    { value: 'Verzekeringen', icon: '🛡️', btw: '0%' },
+    { value: 'Belasting', icon: '🏛️', btw: '0%' },
+    { value: 'Software', icon: '💻', btw: '21%' },
+    { value: 'Wonen', icon: '🏠', btw: '21%' },
+    { value: 'Sport & Fitness', icon: '💪', btw: '21%' },
+    { value: 'Onderwijs', icon: '📚', btw: '0%' },
+    { value: 'Contant', icon: '💵', btw: '0%' },
+    { value: 'Overboekingen', icon: '↔️', btw: '0%' },
+    { value: 'Financieel', icon: '💰', btw: '0%' },
+    { value: 'Overig', icon: '📋', btw: '21%' },
+  ];
+
   const handleCorrectCategory = async (transaction: any, newCategory: string) => {
+    setSavingCorrection(true);
     try {
       const session = localStorage.getItem('bscpro_session')
       const headers: Record<string, string> = { 'Content-Type': 'application/json' }
@@ -390,26 +416,44 @@ export default function Dashboard() {
         headers['Authorization'] = `Bearer ${access_token}`
       }
       
+      // Zoek de juiste icon en btw voor de categorie
+      const catInfo = CATEGORIEEN.find(c => c.value === newCategory);
+      const icon = catInfo?.icon || '📋';
+      const btw = catInfo?.btw || '21%';
+      
       const response = await fetch('/api/categorize', {
         method: 'POST',
         headers,
         body: JSON.stringify({
           omschrijving: transaction.omschrijving,
           categorie: newCategory,
-          subcategorie: transaction.subcategorie || newCategory,
-          btw: transaction.btw_percentage || '21%',
-          icon: transaction.icon || '📋'
+          subcategorie: editSubcategorie || newCategory,
+          btw: btw,
+          icon: icon
         })
       })
       
       if (response.ok) {
+        const catInfo = CATEGORIEEN.find(c => c.value === newCategory);
+        const icon = catInfo?.icon || '📋';
+        
         // Update lokale state
         const updated = transactions.map((t: any) => 
           t.omschrijving === transaction.omschrijving 
-            ? { ...t, categorie: newCategory }
+            ? { ...t, categorie: newCategory, icon, subcategorie: editSubcategorie || newCategory }
             : t
         )
         setTransactions(updated)
+        
+        // Update scannedData
+        if (scannedData) {
+          const updatedTransacties = scannedData.transacties.map((t: any) => 
+            t.omschrijving === transaction.omschrijving 
+              ? { ...t, categorie: newCategory, icon, subcategorie: editSubcategorie || newCategory }
+              : t
+          )
+          setScannedData({ ...scannedData, transacties: updatedTransacties })
+        }
         
         // Recalculate stats
         const { calculateCategoryStats } = await import('@/lib/merchantCategories')
@@ -419,8 +463,11 @@ export default function Dashboard() {
       }
     } catch (e) {
       console.error('Correction error:', e)
+    } finally {
+      setSavingCorrection(false);
+      setShowCorrectionModal(false);
+      setEditSubcategorie('');
     }
-    setShowCorrectionModal(false)
   }
 
   const handleLogout = () => { 
@@ -724,6 +771,8 @@ export default function Dashboard() {
                             className="border-t border-border hover:bg-muted/20 cursor-pointer"
                             onClick={() => {
                               setCorrectingTransaction(t)
+                              setEditCategorie(t.categorie || 'Overig')
+                              setEditSubcategorie(t.subcategorie || '')
                               setShowCorrectionModal(true)
                             }}
                             title="Klik om categorie te wijzigen"
@@ -1147,56 +1196,78 @@ export default function Dashboard() {
       {/* Category Correction Modal */}
       {showCorrectionModal && correctingTransaction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-card border border-border rounded-2xl max-w-md w-full p-6 shadow-2xl">
+          <div className="bg-card border border-border rounded-2xl max-w-md w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-foreground">✏️ Categorie wijzigen</h3>
               <button 
-                onClick={() => setShowCorrectionModal(false)}
+                onClick={() => {
+                  setShowCorrectionModal(false);
+                  setEditSubcategorie('');
+                }}
                 className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
               >
                 ✕
               </button>
             </div>
             
-            <p className="text-sm text-muted-foreground mb-4">
-              "{correctingTransaction.omschrijving?.substring(0, 50)}..."
-            </p>
-            
-            <div className="grid grid-cols-2 gap-2 mb-4">
-              {[
-                { cat: 'Boodschappen', icon: '🛒' },
-                { cat: 'Eten & Drinken', icon: '🍔' },
-                { cat: 'Vervoer', icon: '🚗' },
-                { cat: 'Telecom', icon: '📱' },
-                { cat: 'Abonnementen', icon: '🎬' },
-                { cat: 'Winkelen', icon: '🛍️' },
-                { cat: 'Gezondheid', icon: '🏥' },
-                { cat: 'Energie', icon: '⚡' },
-                { cat: 'Verzekeringen', icon: '🛡️' },
-                { cat: 'Belasting', icon: '🏛️' },
-                { cat: 'Financieel', icon: '💰' },
-                { cat: 'Software', icon: '💻' },
-                { cat: 'Wonen', icon: '🏠' },
-                { cat: 'Sport', icon: '💪' },
-                { cat: 'Onderwijs', icon: '📚' },
-                { cat: 'Overig', icon: '📋' },
-              ].map(({ cat, icon }) => (
-                <button
-                  key={cat}
-                  onClick={() => handleCorrectCategory(correctingTransaction, cat)}
-                  className={`p-3 rounded-lg border text-sm transition-all ${
-                    correctingTransaction.categorie === cat
-                      ? 'bg-[#00b8d9] border-[#00b8d9] text-[#080d14]'
-                      : 'bg-muted border-border hover:border-[#00b8d9]/50'
-                  }`}
-                >
-                  <span className="mr-1">{icon}</span>
-                  {cat}
-                </button>
-              ))}
+            <div className="mb-4 p-3 bg-muted rounded-lg">
+              <p className="text-xs text-muted-foreground mb-1">Transactie:</p>
+              <p className="text-sm font-medium">{correctingTransaction.omschrijving}</p>
+              <p className={`text-sm font-semibold mt-1 ${correctingTransaction.bedrag >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
+                {correctingTransaction.bedrag >= 0 ? '+' : ''}€{Math.abs(correctingTransaction.bedrag || 0).toFixed(2)}
+              </p>
             </div>
             
-            <p className="text-xs text-muted-foreground text-center">
+            <div className="mb-4">
+              <label className="text-xs text-muted-foreground mb-2 block">Kies categorie:</label>
+              <div className="grid grid-cols-2 gap-2">
+                {CATEGORIEEN.map(({ value, icon }) => (
+                  <button
+                    key={value}
+                    onClick={() => setEditCategorie(value)}
+                    className={`p-2.5 rounded-lg border text-sm transition-all flex items-center gap-2 ${
+                      editCategorie === value || correctingTransaction.categorie === value
+                        ? 'bg-[#00b8d9] border-[#00b8d9] text-[#080d14]'
+                        : 'bg-muted border-border hover:border-[#00b8d9]/50'
+                    }`}
+                  >
+                    <span>{icon}</span>
+                    <span className="truncate">{value}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            <div className="mb-4">
+              <label className="text-xs text-muted-foreground mb-2 block">Subcategorie (optioneel):</label>
+              <input
+                type="text"
+                placeholder="Bijv: Supermarkt, Restaurant, Benzine..."
+                value={editSubcategorie}
+                onChange={(e) => setEditSubcategorie(e.target.value)}
+                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:border-[#00b8d9]"
+              />
+            </div>
+            
+            <button
+              onClick={() => handleCorrectCategory(correctingTransaction, editCategorie || correctingTransaction.categorie)}
+              disabled={savingCorrection || (!editCategorie && correctingTransaction.categorie === editCategorie)}
+              className={`w-full py-3 rounded-lg font-semibold transition-all ${
+                savingCorrection
+                  ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                  : 'bg-[#00b8d9] text-[#080d14] hover:shadow-[0_0_20px_rgba(0,184,217,0.4)]'
+              }`}
+            >
+              {savingCorrection ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="animate-spin">⏳</span> Opslaan...
+                </span>
+              ) : (
+                '💾 Categorie opslaan'
+              )}
+            </button>
+            
+            <p className="text-xs text-muted-foreground text-center mt-3">
               💡 Jouw correctie helpt alle gebruikers!
             </p>
           </div>
