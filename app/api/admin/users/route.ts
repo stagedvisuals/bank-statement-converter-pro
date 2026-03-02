@@ -81,7 +81,7 @@ export async function PATCH(request: Request) {
       const { error: profileError } = await supabase
         .from('user_profiles')
         .update(updates)
-        .eq('user_id', userId);
+        .eq('id', userId);
 
       if (profileError) {
         return NextResponse.json({ error: profileError.message }, { status: 500 });
@@ -93,7 +93,7 @@ export async function PATCH(request: Request) {
       const { data: currentCredits } = await supabase
         .from('user_credits')
         .select('remaining_credits, total_credits')
-        .eq('user_id', userId)
+        .eq('id', userId)
         .single();
 
       if (currentCredits) {
@@ -103,7 +103,7 @@ export async function PATCH(request: Request) {
             remaining_credits: (currentCredits.remaining_credits || 0) + credits,
             total_credits: (currentCredits.total_credits || 0) + credits
           })
-          .eq('user_id', userId);
+          .eq('id', userId);
       } else {
         await supabase
           .from('user_credits')
@@ -146,10 +146,10 @@ export async function DELETE(request: Request) {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Delete from user_profiles (by user_id)
-    await supabase.from('user_profiles').delete().eq('user_id', userId);
+    await supabase.from('user_profiles').delete().eq('id', userId);
 
     // Delete user credits
-    await supabase.from('user_credits').delete().eq('user_id', userId);
+    await supabase.from('user_credits').delete().eq('id', userId);
 
     // Delete from Supabase Auth
     const { error } = await supabase.auth.admin.deleteUser(userId);
