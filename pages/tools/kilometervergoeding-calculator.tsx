@@ -304,7 +304,7 @@ export default function KilometervergoedingCalculator() {
         {/* Footer */}
         <footer className="py-6 text-center border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#080d14]">
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            © 2026 BSC Pro. Alle rechten voorbehouden.
+            {new Date().getFullYear()} BSC Pro. Alle rechten voorbehouden.
           </p>
         </footer>
       </div>

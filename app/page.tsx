@@ -21,6 +21,7 @@ import {
   Calculator
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import DemoMode from '@/components/DemoMode';
 import DemoSection from './sections/DemoSection';
 
 export default function Home() {
@@ -157,6 +158,15 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* Demo Mode Preview */}
+      <section className="py-12 px-4 bg-background">
+        <div className="max-w-2xl mx-auto text-center mb-6">
+          <h2 className="text-2xl font-bold mb-2">Zie het zelf</h2>
+          <p className="text-muted-foreground">Bekijk hoe BSCPro een bankafschrift verwerkt</p>
+        </div>
+        <DemoMode />
       </section>
 
       {/* Demo Section */}
@@ -536,7 +546,7 @@ export default function Home() {
             </div>
           </div>
           <div className="text-center pt-8 border-t border-border">
-            <p className="text-sm text-muted-foreground mb-2">© 2026 BSC Pro. Alle rechten voorbehouden.</p>
+            <p className="text-sm text-muted-foreground mb-2">{new Date().getFullYear()} BSC Pro. Alle rechten voorbehouden.</p>
             <p className="text-xs text-slate-500 max-w-md mx-auto">
               BSC PRO is een ondersteunend hulpmiddel. Controleer alle uitgelezen data altijd zelf. 
               Wij zijn geen boekhoudkantoor en geven geen fiscaal advies.

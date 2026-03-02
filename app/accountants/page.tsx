@@ -357,7 +357,7 @@ export default function AccountantsPage() {
           
           <div className="mt-8 pt-8 border-t border-slate-800">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm" style={{ color: '#475569' }}>
-              <p>© 2026 BSC Pro. Alle rechten voorbehouden.</p>
+              <p>{new Date().getFullYear()} BSC Pro. Alle rechten voorbehouden.</p>
               <p>Data opgeslagen in Nederland 🇳🇱</p>
             </div>
           </div>

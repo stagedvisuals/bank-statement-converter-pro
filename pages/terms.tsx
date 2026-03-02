@@ -127,7 +127,7 @@ export default function TermsOfService() {
 
       {/* Footer */}
       <footer className="py-8 text-center text-slate text-sm border-t border-fintech-border">
-        <p>© 2026 BSC Pro. Alle rechten voorbehouden.</p>
+        <p>{new Date().getFullYear()} BSC Pro. Alle rechten voorbehouden.</p>
       </footer>
     </div>
   )

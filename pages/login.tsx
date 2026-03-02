@@ -151,7 +151,7 @@ export default function LoginPage() {
 
         <footer className="py-6 text-center border-t border-border bg-background">
           <p className="text-sm text-muted-foreground">
-            © 2026 BSC Pro. Alle rechten voorbehouden.
+            {new Date().getFullYear()} BSC Pro. Alle rechten voorbehouden.
           </p>
         </footer>
       </div>

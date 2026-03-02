@@ -6,7 +6,6 @@ import { useTheme } from 'next-themes';
 import { FileText, Upload, Download, Zap, AlertTriangle, LogOut, Loader2, Brain, FileSpreadsheet, Database, FileCode, Table, History, Settings, LayoutDashboard, Calculator, Sun, Moon, Shield, ShieldAlert, ShieldCheck, Lock, Globe, Crown } from 'lucide-react';
 import { Logo } from '../components/Logo';
 import SmartRulesManager from '../components/SmartRulesManager';
-import DemoMode from '../components/DemoMode';
 import DashboardSmartTools from '../components/DashboardSmartTools';
 import OnboardingTracker from '../components/OnboardingTracker';
 import EmptyState from '../components/EmptyState';
@@ -586,9 +585,6 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
-
-            {/* Demo Mode for non-logged in preview */}
-            <DemoMode />
 
             {/* Scan History */}
             {scanHistory.length > 0 && scanStatus === 'idle' && (

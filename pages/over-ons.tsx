@@ -216,7 +216,7 @@ export default function OverOnsPage() {
               BSC<span className="text-[#00b8d9]">PRO</span>
             </div>
             <p className="text-muted-foreground text-sm">
-              © 2026 BSC Pro. Alle rechten voorbehouden.
+              {new Date().getFullYear()} BSC Pro. Alle rechten voorbehouden.
             </p>
           </div>
         </div>
