@@ -129,25 +129,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log('[Register] Profile error (non-fatal):', profileError.message)
       } else {
         console.log('[Register] Profile created with IP:', ipAddress)
-
-        // Geef 2 gratis credits aan nieuwe gebruiker
-        try {
-          await supabase.from("user_credits").upsert({
-            user_id: data.user.id,
-            remaining_credits: 2,
-            total_credits: 2,
-            used_credits: 0
-          }, { onConflict: "user_id" })
-          await supabase.from("credit_transactions").insert({
-            user_id: data.user.id,
-            amount: 2,
-            type: "welcome_bonus",
-            description: "Welkom bij BSCPro - 2 gratis conversies"
-          })
-          console.log("[Register] Welcome credits assigned:", data.user.id)
-        } catch (e) {
-          console.error("[Register] Credits toewijzen mislukt:", e)
-        }
       }
 
       // Log successful registration in security_logs
