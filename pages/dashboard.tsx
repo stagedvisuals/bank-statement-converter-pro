@@ -338,14 +338,14 @@ export default function Dashboard() {
 
         <OnboardingTracker />
 
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col gap-3 mb-6 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Dashboard</h1>
-            <p className="text-muted-foreground text-sm">
+            <h1 className="text-xl font-bold md:text-2xl">Dashboard</h1>
+            <p className="text-muted-foreground text-xs md:text-sm">
               Converteer je bankafschriften naar Excel, CSV of MT940
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 flex-wrap">
             {/* Plan Badge */}
             {(() => {
               const planConfig: Record<string, {label: string, color: string, emoji: string}> = {
@@ -459,8 +459,8 @@ export default function Dashboard() {
                   </div>
                   {scanStatus === 'idle' && (
                     <div className="flex gap-2">
-                      <button onClick={() => setFile(null)} className="px-4 py-2 text-muted-foreground border border-border rounded-md hover:text-foreground">Annuleren</button>
-                      <button onClick={handleUpload} className="px-6 py-2 bg-[#00b8d9] text-[#080d14] rounded-md font-semibold flex items-center gap-2 hover:shadow-[0_0_20px_rgba(0,184,217,0.4)]">
+                      <button onClick={() => setFile(null)} className="px-4 py-3 text-muted-foreground border border-border rounded-md hover:text-foreground min-h-[44px]">Annuleren</button>
+                      <button onClick={handleUpload} className="px-6 py-3 bg-[#00b8d9] text-[#080d14] rounded-md font-semibold flex items-center gap-2 hover:shadow-[0_0_20px_rgba(0,184,217,0.4)] min-h-[44px]">
                         <Zap className="w-4 h-4" />Start AI Scan
                       </button>
                     </div>
@@ -486,9 +486,9 @@ export default function Dashboard() {
               {scanStatus === 'done' && scannedData && (
               <div className="mt-6 space-y-4">
                 {/* Summary Cards */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-2 md:gap-4">
                   <div className="bg-card border border-border rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-[#00b8d9]">
+                    <p className="text-xl md:text-2xl font-bold text-[#00b8d9]">
                       {scannedData.transacties?.length || 0}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">Transacties</p>
@@ -535,7 +535,7 @@ export default function Dashboard() {
                         {scannedData.transacties?.slice(0, 10).map((t: any, i: number) => (
                           <tr key={i} className="border-t border-border hover:bg-muted/20">
                             <td className="p-3 text-muted-foreground whitespace-nowrap">{t.datum}</td>
-                            <td className="p-3 truncate max-w-[200px]">{t.omschrijving}</td>
+                            <td className="p-3 truncate max-w-[120px] md:max-w-[200px]">{t.omschrijving}</td>
                             <td className={`p-3 text-right font-medium whitespace-nowrap ${t.bedrag >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
                               {t.bedrag >= 0 ? '+' : ''}€{t.bedrag?.toFixed(2)}
                             </td>
@@ -584,7 +584,7 @@ export default function Dashboard() {
                       <div className="flex items-center gap-3">
                         <span className="text-lg">📄</span>
                         <div>
-                          <p className="text-sm font-medium">{item.bank} - {item.rekeninghouder}</p>
+                          <p className="text-sm font-medium truncate max-w-[200px] md:max-w-none">{item.bank} - {item.rekeninghouder}</p>
                           <p className="text-xs text-muted-foreground">{item.datum} · {item.transacties} transacties</p>
                         </div>
                       </div>
@@ -602,7 +602,7 @@ export default function Dashboard() {
                     <Download className="w-5 h-5 text-[#00b8d9]" />Exporteer je data
                   </h3>
                   {/* Standaard exports - NL Boekhoudpakketten */}
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3 mb-4">
                     {/* Excel - Universeel */}
                     <button 
                       onClick={() => setSelectedExport('excel')} 
@@ -639,7 +639,7 @@ export default function Dashboard() {
                   </div>
                   
                   {/* Legacy formaten */}
-                  <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="grid grid-cols-2 md:grid-cols-2 gap-2 md:gap-3 mb-4">
                     <button 
                       onClick={() => setSelectedExport('mt940')} 
                       className={`flex flex-col items-center gap-2 p-3 rounded-lg cursor-pointer transition-all ${selectedExport === 'mt940' ? 'bg-cyan-500/15 border-2 border-[#00b8d9]' : 'bg-background border border-border hover:border-[#00b8d9]/50'}`}
