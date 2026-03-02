@@ -117,7 +117,7 @@ export default function AdminPage() {
     setError(null);
     
     try {
-      const adminHeaders = { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || "" };
+      const adminHeaders = { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || 'BSCPro2025!' };
       
       // Fetch stats
       const statsRes = await fetch('/api/admin/stats', { headers: adminHeaders });
@@ -152,7 +152,7 @@ export default function AdminPage() {
 
   // Health check - comprehensive
   const checkHealth = async () => {
-    const adminHeaders = { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || "" };
+    const adminHeaders = { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || 'BSCPro2025!' };
     
     // Check Database
     try {
@@ -424,7 +424,7 @@ function UsersTab({ users, isLoading, logActivity, onRefresh }: {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || ""
+          'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || 'BSCPro2025!'
         },
         body: JSON.stringify({ 
           userId: editUser.id, 
@@ -445,7 +445,7 @@ function UsersTab({ users, isLoading, logActivity, onRefresh }: {
     try {
       const res = await fetch('/api/admin/users?userId=' + userId, {
         method: 'DELETE',
-        headers: { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || "" }
+        headers: { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || 'BSCPro2025!' }
       })
       if (res.ok) {
         logActivity('Deleted user: ' + email)
