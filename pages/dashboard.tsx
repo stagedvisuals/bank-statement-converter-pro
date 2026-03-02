@@ -50,6 +50,8 @@ export default function Dashboard() {
   const [selectedExport, setSelectedExport] = useState<'excel' | 'mt940' | 'csv' | 'camt'>('excel');
   const [exportLoading, setExportLoading] = useState(false);
   const [showEnterpriseModal, setShowEnterpriseModal] = useState(false);
+  const [correctingTransaction, setCorrectingTransaction] = useState<any>(null);
+  const [showCorrectionModal, setShowCorrectionModal] = useState(false);
   const [waitlistEmail, setWaitlistEmail] = useState('');
   const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
   const [credits, setCredits] = useState<number>(0);
@@ -379,6 +381,48 @@ export default function Dashboard() {
     }
   };
 
+  const handleCorrectCategory = async (transaction: any, newCategory: string) => {
+    try {
+      const session = localStorage.getItem('bscpro_session')
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (session) {
+        const { access_token } = JSON.parse(session)
+        headers['Authorization'] = `Bearer ${access_token}`
+      }
+      
+      const response = await fetch('/api/categorize', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          omschrijving: transaction.omschrijving,
+          categorie: newCategory,
+          subcategorie: transaction.subcategorie || newCategory,
+          btw: transaction.btw_percentage || '21%',
+          icon: transaction.icon || '📋'
+        })
+      })
+      
+      if (response.ok) {
+        // Update lokale state
+        const updated = transactions.map((t: any) => 
+          t.omschrijving === transaction.omschrijving 
+            ? { ...t, categorie: newCategory }
+            : t
+        )
+        setTransactions(updated)
+        
+        // Recalculate stats
+        const { calculateCategoryStats } = await import('@/lib/merchantCategories')
+        setCategoryStats(calculateCategoryStats(updated))
+        
+        alert('✅ Categorie aangepast! Dit helpt alle gebruikers.')
+      }
+    } catch (e) {
+      console.error('Correction error:', e)
+    }
+    setShowCorrectionModal(false)
+  }
+
   const handleLogout = () => { 
     localStorage.removeItem('bscpro_session'); 
     localStorage.removeItem('bscpro_user'); 
@@ -675,7 +719,15 @@ export default function Dashboard() {
                       </thead>
                       <tbody>
                         {scannedData.transacties?.slice(0, 10).map((t: any, i: number) => (
-                          <tr key={i} className="border-t border-border hover:bg-muted/20">
+                          <tr 
+                            key={i} 
+                            className="border-t border-border hover:bg-muted/20 cursor-pointer"
+                            onClick={() => {
+                              setCorrectingTransaction(t)
+                              setShowCorrectionModal(true)
+                            }}
+                            title="Klik om categorie te wijzigen"
+                          >
                             <td className="p-2 text-xs text-muted-foreground whitespace-nowrap">
                               {t.datum}
                             </td>
@@ -684,8 +736,8 @@ export default function Dashboard() {
                               {t.omschrijving}
                             </td>
                             <td className="p-2 text-xs hidden md:table-cell">
-                              <span className="px-2 py-1 bg-muted rounded-lg text-muted-foreground">
-                                {t.categorie || 'Overig'}
+                              <span className="px-2 py-1 bg-muted rounded-lg text-muted-foreground hover:bg-cyan-500/20 transition-colors">
+                                {t.categorie || 'Overig'} ✏️
                               </span>
                             </td>
                             <td className={`p-2 text-xs text-right font-medium whitespace-nowrap ${t.bedrag >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
@@ -1088,6 +1140,65 @@ export default function Dashboard() {
                 Verwachte lancering: Q2 2025
               </p>
             </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Category Correction Modal */}
+      {showCorrectionModal && correctingTransaction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-card border border-border rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-foreground">✏️ Categorie wijzigen</h3>
+              <button 
+                onClick={() => setShowCorrectionModal(false)}
+                className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <p className="text-sm text-muted-foreground mb-4">
+              "{correctingTransaction.omschrijving?.substring(0, 50)}..."
+            </p>
+            
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              {[
+                { cat: 'Boodschappen', icon: '🛒' },
+                { cat: 'Eten & Drinken', icon: '🍔' },
+                { cat: 'Vervoer', icon: '🚗' },
+                { cat: 'Telecom', icon: '📱' },
+                { cat: 'Abonnementen', icon: '🎬' },
+                { cat: 'Winkelen', icon: '🛍️' },
+                { cat: 'Gezondheid', icon: '🏥' },
+                { cat: 'Energie', icon: '⚡' },
+                { cat: 'Verzekeringen', icon: '🛡️' },
+                { cat: 'Belasting', icon: '🏛️' },
+                { cat: 'Financieel', icon: '💰' },
+                { cat: 'Software', icon: '💻' },
+                { cat: 'Wonen', icon: '🏠' },
+                { cat: 'Sport', icon: '💪' },
+                { cat: 'Onderwijs', icon: '📚' },
+                { cat: 'Overig', icon: '📋' },
+              ].map(({ cat, icon }) => (
+                <button
+                  key={cat}
+                  onClick={() => handleCorrectCategory(correctingTransaction, cat)}
+                  className={`p-3 rounded-lg border text-sm transition-all ${
+                    correctingTransaction.categorie === cat
+                      ? 'bg-[#00b8d9] border-[#00b8d9] text-[#080d14]'
+                      : 'bg-muted border-border hover:border-[#00b8d9]/50'
+                  }`}
+                >
+                  <span className="mr-1">{icon}</span>
+                  {cat}
+                </button>
+              ))}
+            </div>
+            
+            <p className="text-xs text-muted-foreground text-center">
+              💡 Jouw correctie helpt alle gebruikers!
+            </p>
           </div>
         </div>
       )}

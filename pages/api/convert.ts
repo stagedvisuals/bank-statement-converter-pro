@@ -64,7 +64,6 @@ const extractTextFromPDF = async (buffer: Buffer): Promise<string> => {
   }
 }
 
-import { categorizeTransaction } from '@/lib/merchantCategories'
 
 const PROMPT = `Je bent een expert in het lezen van Nederlandse bankafschriften. Analyseer de tekst hieronder en extraheer ALLE transacties.
 
@@ -103,6 +102,16 @@ Regels:
 - omschrijving opschonen zonder SEPA/BETALING prefixes
 - Kies de meest specifieke categorie die past bij de transactie
 - return ALLEEN geldige JSON, geen uitleg`
+
+// Helper functie om te categoriseren via API of local
+const categorizeViaAPI = async (omschrijving: string) => {
+  try {
+    const { categorizeTransaction } = await import('@/lib/merchantCategories')
+    return categorizeTransaction(omschrijving)
+  } catch (e) {
+    return { categorie: 'Overig', subcategorie: 'Overig', btw: '21%', icon: '📋' }
+  }
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -217,22 +226,24 @@ ${pdfText.substring(0, 12000)}` }
     }
 
     // Verrijk transacties met merchant categorisering
-    parsed.transacties = parsed.transacties.map((t: any) => {
-      // Als de AI al een categorie heeft toegekend, gebruik die
-      if (t.categorie && t.categorie !== 'Overig') {
-        return t
+    for (let i = 0; i < parsed.transacties.length; i++) {
+      const t = parsed.transacties[i]
+      
+      // Als de AI al een specifieke categorie heeft toegekend, gebruik die
+      if (t.categorie && t.categorie !== 'Overig' && t.categorie !== '') {
+        continue
       }
       
       // Anders gebruik de merchant database
-      const cat = categorizeTransaction(t.omschrijving || '')
-      return {
+      const cat = await categorizeViaAPI(t.omschrijving || '')
+      parsed.transacties[i] = {
         ...t,
         categorie: cat.categorie,
-        subcategorie: cat.subcategorie,
-        btw_percentage: cat.btw,
+        subcategorie: cat.subcategorie || t.subcategorie,
+        btw_percentage: cat.btw || t.btw_percentage,
         icon: cat.icon
       }
-    })
+    }
 
     // Kwaliteitschecks
     const warnings: string[] = []
