@@ -94,7 +94,7 @@ export default function AdminPage() {
   };
 
   const handleLogin = () => {
-    if (password === 'BSCPro2025!') {
+    if (password === process.env.ADMIN_SECRET as string) {
       localStorage.setItem('bscpro_admin', 'true');
       setIsAuthenticated(true);
       logActivity('Admin logged in');
@@ -117,7 +117,7 @@ export default function AdminPage() {
     setError(null);
     
     try {
-      const adminHeaders = { 'x-admin-secret': 'BSCPro2025!' };
+      const adminHeaders = { 'x-admin-secret': process.env.ADMIN_SECRET as string };
       
       // Fetch stats
       const statsRes = await fetch('/api/admin/stats', { headers: adminHeaders });
@@ -152,7 +152,7 @@ export default function AdminPage() {
 
   // Health check - comprehensive
   const checkHealth = async () => {
-    const adminHeaders = { 'x-admin-secret': 'BSCPro2025!' };
+    const adminHeaders = { 'x-admin-secret': process.env.ADMIN_SECRET as string };
     
     // Check Database
     try {
@@ -424,7 +424,7 @@ function UsersTab({ users, isLoading, logActivity, onRefresh }: {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'x-admin-secret': 'BSCPro2025!'
+          'x-admin-secret': process.env.ADMIN_SECRET as string
         },
         body: JSON.stringify({ 
           userId: editUser.id, 
@@ -445,7 +445,7 @@ function UsersTab({ users, isLoading, logActivity, onRefresh }: {
     try {
       const res = await fetch('/api/admin/users?userId=' + userId, {
         method: 'DELETE',
-        headers: { 'x-admin-secret': 'BSCPro2025!' }
+        headers: { 'x-admin-secret': process.env.ADMIN_SECRET as string }
       })
       if (res.ok) {
         logActivity('Deleted user: ' + email)

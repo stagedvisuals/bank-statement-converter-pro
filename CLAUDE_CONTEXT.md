@@ -315,6 +315,8 @@ User onboarding progress
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
+# Admin
+ADMIN_SECRET=
 
 # Groq AI
 GROQ_API_KEY=
@@ -483,7 +485,7 @@ export async function GET() {
 
 **Check admin auth:**
 ```typescript
-const isAdmin = request.headers.get('x-admin-secret') === 'BSCPro2025!'
+const isAdmin = request.headers.get('x-admin-secret') === process.env.ADMIN_SECRET
 ```
 
 **Get Supabase client:**
@@ -502,7 +504,7 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
 ## 11. SECURITY NOTES
 
-- Admin secret: `BSCPro2025!` (hardcoded, should be env var)
+- Admin secret: `process.env.ADMIN_SECRET` (set in Vercel env vars)
 - Service role key has full database access
 - No rate limiting implemented yet
 - File uploads limited to 10MB

@@ -7,7 +7,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 // Admin check
 function isAdmin(request: Request) {
   const adminSecret = request.headers.get('x-admin-secret');
-  return adminSecret === 'BSCPro2025!';
+  return adminSecret === process.env.ADMIN_SECRET;
 }
 
 export async function GET(request: Request) {

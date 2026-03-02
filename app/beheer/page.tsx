@@ -18,7 +18,7 @@ export default function AdminPage() {
   }, []);
 
   const handleLogin = () => {
-    if (password === 'BSCPro2025!') {
+    if (password === process.env.ADMIN_SECRET as string) {
       localStorage.setItem('bscpro_admin', 'true');
       setIsAuthenticated(true);
     } else {
@@ -37,7 +37,7 @@ export default function AdminPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Admin-Secret': 'BSCPro2025!'
+          'X-Admin-Secret': process.env.ADMIN_SECRET as string
         },
         body: JSON.stringify({
           transactions: [
