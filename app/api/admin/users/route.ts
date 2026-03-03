@@ -21,26 +21,39 @@ export async function GET(request: Request) {
 
     const supabase = getSupabase()
 
-    const { data: users, error } = await supabase
+    // Haal gebruikers op
+    const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
-      .select(`
-        *,
-        user_credits (
-          remaining_credits,
-          total_credits,
-          used_credits
-        )
-      `)
+      .select('*')
       .order('created_at', { ascending: false })
 
-    if (error) {
-      console.error('Supabase error:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+    if (profilesError) {
+      console.error('Profiles error:', profilesError)
+      return NextResponse.json({ error: profilesError.message }, { status: 500 })
     }
 
-    return NextResponse.json({ users: users || [] })
+    // Haal credits op
+    const { data: credits } = await supabase
+      .from('user_credits')
+      .select('*')
+
+    // Combineer data
+    const users = (profiles || []).map(profile => {
+      const userCredits = (credits || []).find(c => c.user_id === profile.user_id)
+      return {
+        ...profile,
+        credits: userCredits || {
+          remaining_credits: 0,
+          total_credits: 0,
+          used_credits: 0
+        }
+      }
+    })
+
+    console.log(`Admin: ${users.length} gebruikers geladen`)
+    return NextResponse.json({ users })
   } catch (error: any) {
-    console.error('Admin users error:', error)
+    console.error('Admin GET error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -51,22 +64,35 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { userId, plan, credits } = await request.json()
+    const body = await request.json()
+    const { userId, plan, credits } = body
+
     if (!userId) {
-      return NextResponse.json({ error: 'userId required' }, { status: 400 })
+      return NextResponse.json({ error: 'userId is verplicht' }, { status: 400 })
     }
 
     const supabase = getSupabase()
+    const results: any = {}
 
+    // Update plan
     if (plan !== undefined) {
       const { error } = await supabase
         .from('profiles')
-        .update({ plan })
+        .update({ plan, updated_at: new Date().toISOString() })
         .eq('user_id', userId)
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+      if (error) {
+        console.error('Plan update error:', error)
+        return NextResponse.json({ error: 'Plan update mislukt: ' + error.message }, { status: 500 })
+      }
+      results.plan = plan
+      console.log(`Plan updated voor ${userId}: ${plan}`)
     }
 
+    // Update credits
     if (credits !== undefined) {
+      const creditsNum = parseInt(String(credits))
+      
       const { data: existing } = await supabase
         .from('user_credits')
         .select('id')
@@ -74,24 +100,40 @@ export async function PATCH(request: Request) {
         .single()
 
       if (existing) {
-        await supabase
+        const { error } = await supabase
           .from('user_credits')
-          .update({ remaining_credits: parseInt(credits) })
+          .update({
+            remaining_credits: creditsNum,
+            updated_at: new Date().toISOString()
+          })
           .eq('user_id', userId)
+
+        if (error) {
+          console.error('Credits update error:', error)
+          return NextResponse.json({ error: 'Credits update mislukt: ' + error.message }, { status: 500 })
+        }
       } else {
-        await supabase
+        const { error } = await supabase
           .from('user_credits')
           .insert({
             user_id: userId,
-            remaining_credits: parseInt(credits),
-            total_credits: parseInt(credits),
+            remaining_credits: creditsNum,
+            total_credits: creditsNum,
             used_credits: 0
           })
+
+        if (error) {
+          console.error('Credits insert error:', error)
+          return NextResponse.json({ error: 'Credits aanmaken mislukt: ' + error.message }, { status: 500 })
+        }
       }
+      results.credits = creditsNum
+      console.log(`Credits updated voor ${userId}: ${creditsNum}`)
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, updated: results })
   } catch (error: any) {
+    console.error('Admin PATCH error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -102,22 +144,18 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
-
+    const { userId } = await request.json()
     if (!userId) {
-      return NextResponse.json({ error: 'userId required' }, { status: 400 })
+      return NextResponse.json({ error: 'userId is verplicht' }, { status: 400 })
     }
 
     const supabase = getSupabase()
-
-    // Delete from profiles
+    
+    // Verwijder eerst credits, dan profile
+    await supabase.from('user_credits').delete().eq('user_id', userId)
     await supabase.from('profiles').delete().eq('user_id', userId)
 
-    // Delete user credits
-    await supabase.from('user_credits').delete().eq('user_id', userId)
-
-    // Delete from Supabase Auth
+    // Probeer ook uit auth te verwijderen (niet kritiek)
     try {
       const { error } = await supabase.auth.admin.deleteUser(userId)
       if (error) console.log('Auth delete error (non-fatal):', error.message)
@@ -127,6 +165,7 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true, message: 'User deleted' })
   } catch (error: any) {
+    console.error('Admin DELETE error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
