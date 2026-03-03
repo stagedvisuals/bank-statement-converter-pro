@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log('[API Login] Request received:', req.method)
+  console.log('[API Login] Request received:', req.method, req.body)
 
   if (req.method !== 'POST') {
     console.log('[API Login] Method not allowed:', req.method)
@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   // Get environment variables inside handler to ensure they're available
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 
   console.log('[API Login] Supabase URL exists:', !!supabaseUrl)
