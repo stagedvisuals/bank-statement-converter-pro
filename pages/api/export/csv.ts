@@ -6,7 +6,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { transactions, rekeninghouder, bank } = req.body
+    const { transactions, rekeninghouder, bank, rekeningnummer } = req.body
     
     if (!transactions?.length) {
       return res.status(400).json({ error: 'Geen transacties' })
@@ -15,27 +15,46 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // BOM voor Excel compatibiliteit
     const BOM = '\uFEFF'
     
-    // Header
-    const headers = ['Datum', 'Omschrijving', 'Bedrag', 'Categorie', 'Bank', 'Rekeninghouder']
-    
-    // Rows
-    const rows = transactions.map((t: any) => [
-      t.datum || '',
-      `"${(t.omschrijving || '').replace(/"/g, '""')}"`,
-      typeof t.bedrag === 'number' ? t.bedrag.toFixed(2) : t.bedrag || '0',
-      t.categorie || '',
-      bank || '',
-      rekeninghouder || ''
-    ].join(','))
+    const headers = [
+      'Datum',
+      'Omschrijving',
+      'Categorie',
+      'Subcategorie',
+      'Type',
+      'Bedrag',
+      'BTW %',
+      'Bank',
+      'Rekeninghouder'
+    ].join(',')
 
-    const csv = BOM + [headers.join(','), ...rows].join('\n')
+    const rows = transactions.map((t: any) => {
+      const bedrag = typeof t.bedrag === 'number' ? t.bedrag : parseFloat(t.bedrag) || 0
+      const type = bedrag >= 0 ? 'Inkomst' : 'Uitgave'
+      // Verwijder emoji uit categorieën voor CSV compatibiliteit
+      const categorie = (t.categorie || 'Overig').replace(/[☀-➿⭐⭕　-〿㊗㊙ἀ4ἌF἗0-ἥ1ἰ0-ὟFὠ0-ὤFὨ0-ὯF὾0-὿Fᾀ-ᾏFᾐ0-ᾟFᾠ0-ᾦFᾧ0-ᾯF]/g, '').trim()
+      const subcategorie = (t.subcategorie || '').replace(/[☀-➿⭐⭕　-〿㊗㊙ἀ4ἌF἗0-ἥ1ἰ0-ὟFὠ0-ὤFὨ0-ὯF὾0-὿Fᾀ-ᾏFᾐ0-ᾟFᾠ0-ᾦFᾧ0-ᾯF]/g, '').trim()
+      
+      return [
+        t.datum || '',
+        `"${(t.omschrijving || '').replace(/"/g, '""')}"`,
+        `"${categorie}"`,
+        `"${subcategorie}"`,
+        type,
+        bedrag.toFixed(2),
+        t.btw_percentage || t.btw || '21%',
+        bank || '',
+        rekeninghouder || ''
+      ].join(',')
+    })
+
+    const csv = BOM + [headers, ...rows].join('\n')
 
     res.setHeader('Content-Type', 'text/csv; charset=utf-8')
-    res.setHeader('Content-Disposition', 'attachment; filename="transacties.csv"')
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+    res.setHeader('Content-Disposition', `attachment; filename="BSCPro-${new Date().toISOString().split('T')[0]}.csv"`)
+    res.setHeader('Cache-Control', 'no-cache')
     res.status(200).send(csv)
     
   } catch (error: any) {
-    return res.status(500).json({ error: error.message })
+    res.status(500).json({ error: error.message })
   }
 }

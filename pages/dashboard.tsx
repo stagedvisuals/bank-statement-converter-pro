@@ -385,25 +385,25 @@ export default function Dashboard() {
   };
 
   const CATEGORIEEN = [
-    { value: 'Inkomen', icon: '📦', btw: '0%' },
-    { value: 'Boodschappen', icon: '🛒', btw: '9%' },
-    { value: 'Eten & Drinken', icon: '🍔', btw: '9%' },
-    { value: 'Vervoer', icon: '🚗', btw: '21%' },
-    { value: 'Telecom', icon: '📱', btw: '21%' },
-    { value: 'Abonnementen', icon: '🔄', btw: '21%' },
-    { value: 'Winkelen', icon: '👕', btw: '21%' },
-    { value: 'Gezondheid', icon: '💊', btw: '0%' },
-    { value: 'Energie', icon: '⚡', btw: '21%' },
-    { value: 'Verzekeringen', icon: '🛡️', btw: '0%' },
-    { value: 'Belasting', icon: '🏛️', btw: '0%' },
-    { value: 'Software', icon: '💻', btw: '21%' },
-    { value: 'Wonen', icon: '🏠', btw: '21%' },
-    { value: 'Sport & Fitness', icon: '💪', btw: '21%' },
-    { value: 'Onderwijs', icon: '📚', btw: '0%' },
-    { value: 'Contant', icon: '💵', btw: '0%' },
-    { value: 'Overboekingen', icon: '↔️', btw: '0%' },
-    { value: 'Financieel', icon: '💰', btw: '0%' },
-    { value: 'Overig', icon: '📋', btw: '21%' },
+    { value: 'Inkomen', btw: '0%' },
+    { value: 'Boodschappen', btw: '9%' },
+    { value: 'Eten & Drinken', btw: '9%' },
+    { value: 'Vervoer', btw: '21%' },
+    { value: 'Telecom', btw: '21%' },
+    { value: 'Abonnementen', btw: '21%' },
+    { value: 'Winkelen', btw: '21%' },
+    { value: 'Gezondheid', btw: '0%' },
+    { value: 'Energie', btw: '21%' },
+    { value: 'Verzekeringen', btw: '0%' },
+    { value: 'Belasting', btw: '0%' },
+    { value: 'Software', btw: '21%' },
+    { value: 'Wonen', btw: '21%' },
+    { value: 'Sport & Fitness', btw: '21%' },
+    { value: 'Onderwijs', btw: '0%' },
+    { value: 'Contant', btw: '0%' },
+    { value: 'Overboekingen', btw: '0%' },
+    { value: 'Financieel', btw: '0%' },
+    { value: 'Overig', btw: '21%' },
   ];
 
   const handleCorrectCategory = async (transaction: any, newCategory: string) => {
@@ -418,7 +418,7 @@ export default function Dashboard() {
       
       // Zoek de juiste icon en btw voor de categorie
       const catInfo = CATEGORIEEN.find(c => c.value === newCategory);
-      const icon = catInfo?.icon || '📋';
+      const icon = '';
       const btw = catInfo?.btw || '21%';
       
       const response = await fetch('/api/categorize', {
@@ -435,7 +435,7 @@ export default function Dashboard() {
       
       if (response.ok) {
         const catInfo = CATEGORIEEN.find(c => c.value === newCategory);
-        const icon = catInfo?.icon || '📋';
+        const icon = '';
         
         // Update lokale state
         const updated = transactions.map((t: any) => 
@@ -1221,18 +1221,17 @@ export default function Dashboard() {
             <div className="mb-4">
               <label className="text-xs text-muted-foreground mb-2 block">Kies categorie:</label>
               <div className="grid grid-cols-2 gap-2">
-                {CATEGORIEEN.map(({ value, icon }) => (
+                {CATEGORIEEN.map(({ value }) => (
                   <button
                     key={value}
                     onClick={() => setEditCategorie(value)}
-                    className={`p-2.5 rounded-lg border text-sm transition-all flex items-center gap-2 ${
+                    className={`p-2.5 rounded-lg border text-sm transition-all text-left ${
                       editCategorie === value || correctingTransaction.categorie === value
                         ? 'bg-[#00b8d9] border-[#00b8d9] text-[#080d14]'
                         : 'bg-muted border-border hover:border-[#00b8d9]/50'
                     }`}
                   >
-                    <span>{icon}</span>
-                    <span className="truncate">{value}</span>
+                    {value}
                   </button>
                 ))}
               </div>
