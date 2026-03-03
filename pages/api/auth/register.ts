@@ -130,21 +130,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       } else {
         console.log('[Register] Profile created with IP:', ipAddress)
 
-        // Geef 2 gratis credits aan nieuwe gebruiker
+        // Geef 2 gratis credits aan nieuwe gebruiker (alleen als ze nog geen credits hebben)
         try {
-          await supabase.from("user_credits").upsert({
-            user_id: data.user.id,
-            remaining_credits: 2,
-            total_credits: 2,
-            used_credits: 0
-          }, { onConflict: "user_id" })
-          await supabase.from("credit_transactions").insert({
-            user_id: data.user.id,
-            amount: 2,
-            type: "welcome_bonus",
-            description: "Welkom bij BSCPro - 2 gratis conversies"
-          })
-          console.log("[Register] Welcome credits assigned:", data.user.id)
+          // Check eerst of gebruiker al credits heeft
+          const { data: existingCredits } = await supabase
+            .from("user_credits")
+            .select("user_id")
+            .eq("user_id", data.user.id)
+            .single()
+          
+          if (!existingCredits) {
+            // Alleen toewijzen als er nog geen credits zijn
+            await supabase.from("user_credits").insert({
+              user_id: data.user.id,
+              remaining_credits: 2,
+              total_credits: 2,
+              used_credits: 0
+            })
+            await supabase.from("credit_transactions").insert({
+              user_id: data.user.id,
+              amount: 2,
+              type: "welcome_bonus",
+              description: "Welkom bij BSCPro - 2 gratis conversies"
+            })
+            console.log("[Register] Welcome credits assigned:", data.user.id)
+          } else {
+            console.log("[Register] User already has credits, skipping:", data.user.id)
+          }
         } catch (e) {
           console.error("[Register] Credits toewijzen mislukt:", e)
         }
