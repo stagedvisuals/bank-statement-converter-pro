@@ -4,7 +4,10 @@ import { createClient } from '@supabase/supabase-js'
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !key) throw new Error('Missing Supabase credentials')
+  if (!url || !key) {
+    console.error('[Admin API] Missing Supabase credentials')
+    throw new Error(JSON.stringify({ error: "Service unavailable", code: "SERVICE_UNAVAILABLE" }))
+  }
   return createClient(url, key)
 }
 
@@ -53,6 +56,33 @@ export async function GET(request: Request) {
     console.log(`Admin: ${users.length} gebruikers geladen`)
     return NextResponse.json({ users })
   } catch (error: any) {
+    console.error('[Admin API DELETE] Error:', error)
+    // Try to parse JSON error message
+    try {
+      const parsedError = JSON.parse(error.message)
+      return NextResponse.json(parsedError, { status: 503 })
+    } catch (parseError) {
+      // Not a JSON error, return generic error
+      return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
+    }
+    console.error('[Admin API PATCH] Error:', error)
+    // Try to parse JSON error message
+    try {
+      const parsedError = JSON.parse(error.message)
+      return NextResponse.json(parsedError, { status: 503 })
+    } catch (parseError) {
+      // Not a JSON error, return generic error
+      return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
+    }
+    console.error('[Admin API GET] Error:', error)
+    // Try to parse JSON error message
+    try {
+      const parsedError = JSON.parse(error.message)
+      return NextResponse.json(parsedError, { status: 503 })
+    } catch (parseError) {
+      // Not a JSON error, return generic error
+      return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
+    }
     console.error('Admin GET error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
@@ -133,6 +163,24 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ success: true, updated: results })
   } catch (error: any) {
+    console.error('[Admin API PATCH] Error:', error)
+    // Try to parse JSON error message
+    try {
+      const parsedError = JSON.parse(error.message)
+      return NextResponse.json(parsedError, { status: 503 })
+    } catch (parseError) {
+      // Not a JSON error, return generic error
+      return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
+    }
+    console.error('[Admin API GET] Error:', error)
+    // Try to parse JSON error message
+    try {
+      const parsedError = JSON.parse(error.message)
+      return NextResponse.json(parsedError, { status: 503 })
+    } catch (parseError) {
+      // Not a JSON error, return generic error
+      return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
+    }
     console.error('Admin PATCH error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
@@ -164,6 +212,24 @@ export async function DELETE(request: Request) {
     console.log(`Gebruiker verwijderd: ${userId}`)
     return NextResponse.json({ success: true })
   } catch (error: any) {
+    console.error('[Admin API PATCH] Error:', error)
+    // Try to parse JSON error message
+    try {
+      const parsedError = JSON.parse(error.message)
+      return NextResponse.json(parsedError, { status: 503 })
+    } catch (parseError) {
+      // Not a JSON error, return generic error
+      return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
+    }
+    console.error('[Admin API GET] Error:', error)
+    // Try to parse JSON error message
+    try {
+      const parsedError = JSON.parse(error.message)
+      return NextResponse.json(parsedError, { status: 503 })
+    } catch (parseError) {
+      // Not a JSON error, return generic error
+      return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
+    }
     console.error('Admin DELETE error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
