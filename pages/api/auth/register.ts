@@ -47,7 +47,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // STAP 1B: Check max 2 accounts per IP
     const { data: existingAccounts, error: ipCheckError } = await supabase
-      .from('user_profiles')
+      .from('profiles')
       .select('user_id')
       .eq('registration_ip', ipAddress)
 
@@ -114,7 +114,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Try to create profile with security data
     if (data.user) {
       const { error: profileError } = await supabase
-        .from('user_profiles')
+        .from('profiles')
         .upsert({
           user_id: data.user.id,
           email: data.user.email,
