@@ -436,6 +436,9 @@ function UsersTab({ users, isLoading, logActivity, onRefresh }: {
         })
       })
       if (res.ok) {
+        const data = await res.json()
+        alert(data.message || "Gebruiker succesvol bijgewerkt")
+
         logActivity('Updated user ' + editUser.email + ': plan=' + editPlan + (editCredits > 0 ? ', added ' + editCredits + ' credits' : ''))
         setEditUser(null)
         onRefresh()
@@ -451,6 +454,8 @@ function UsersTab({ users, isLoading, logActivity, onRefresh }: {
         headers: { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || 'BSCPro2025!' }
       })
       if (res.ok) {
+        alert("Gebruiker succesvol verwijderd")
+
         logActivity('Deleted user: ' + email)
         setConfirmDelete(null)
         onRefresh()
