@@ -115,7 +115,7 @@ Algemene Voorwaarden: https://www.bscpro.nl/voorwaarden
 Door gebruik te maken van de BSC PRO API gaat u akkoord met:
 
 • Resultaten zijn AI-gegenereerd en vereisen menselijke controle
-• BSC PRO garandeert geen 100% uptime of nauwkeurigheid
+• BSC PRO garandeert geen maximale beschikbaarheid of nauwkeurigheid
 • Rate limits zijn van toepassing
 • Gebruik alleen voor legale doeleinden
 • Geen reverse engineering of misbruik

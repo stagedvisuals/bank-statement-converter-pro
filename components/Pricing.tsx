@@ -120,7 +120,7 @@ export default function Pricing() {
               </li>
               <li className="flex items-center gap-3 text-sm" style={{ color: '#e8edf5' }}>
                 <Check className="w-5 h-5 flex-shrink-0" style={{ color: '#00b8d9' }} />
-                <span>Dedicated account manager</span>
+                <span>Persoonlijke onboarding</span>
               </li>
               <li className="flex items-center gap-3 text-sm" style={{ color: '#e8edf5' }}>
                 <Check className="w-5 h-5 flex-shrink-0" style={{ color: '#00b8d9' }} />

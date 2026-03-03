@@ -43,7 +43,7 @@ export default function VoorwaardenPage() {
               <li>Ondersteunde formaten: MT940, CAMT.053, Excel, CSV, QBO</li>
               <li>Ondersteunde banken: ING, Rabobank, ABN AMRO, SNS, Bunq, Triodos en meer</li>
               <li>Nauwkeurigheid: Hoge nauwkeurigheid, geen garantie op 100%. Controleer altijd zelf.</li>
-              <li>Beschikbaarheid: gestreefd naar 99.9% uptime</li>
+              <li>Beschikbaarheid: gestreefd naar Prioriteit support via email</li>
             </ul>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">4. Abonnementen en Betaling</h2>
