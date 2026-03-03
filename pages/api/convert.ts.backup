@@ -7,13 +7,88 @@ import Groq from 'groq-sdk'
 
 export const config = { api: { bodyParser: false } }
 
+async function extractTextFromPDF(buffer: Buffer): Promise<string> {
+  // Probeer pdf2json eerst
+  try {
+    const PDFParser = require("pdf2json").default || require("pdf2json")
+    const pdfParser = new PDFParser(null, 1)
+    
+    return await new Promise((resolve, reject) => {
+      pdfParser.on("pdfParser_dataReady", (pdfData: any) => {
+        try {
+          let text = ""
+          if (pdfData?.Pages) {
+            for (const page of pdfData.Pages) {
+              if (page.Texts) {
+                for (const textItem of page.Texts) {
+                  if (textItem.R) {
+                    for (const r of textItem.R) {
+                      if (r.T) {
+                        text += decodeURIComponent(r.T) + " "
+                      }
+                    }
+                  }
+                }
+                text += "\n"
+              }
+            }
+          }
+          if (!text.trim() || text.trim().length < 30) {
+            reject(new Error("Geen tekst gevonden in PDF"))
+            return
+          }
+          resolve(text)
+        } catch (err: any) {
+          reject(new Error("PDF verwerking mislukt: " + err.message))
+        }
+      })
+      
+      pdfParser.on("pdfParser_dataError", (err: any) => {
+        console.log("pdf2json failed, trying pdf-parse fallback:", err.message)
+        // Ga door naar fallback
+        try {
+          const pdfParse = require("pdf-parse")
+          pdfParse(buffer).then((data: any) => {
+            if (data.text && data.text.trim().length >= 30) {
+              resolve(data.text)
+            } else {
+              reject(new Error("pdf-parse: Geen tekst gevonden"))
+            }
+          }).catch((e: any) => {
+            reject(new Error("pdf-parse fallback failed: " + e.message))
+          })
+        } catch (fallbackErr: any) {
+          reject(new Error("pdf-parse not available: " + fallbackErr.message))
+        }
+      })
+      
+      pdfParser.parseBuffer(buffer)
+    })
+  } catch (e: any) {
+    console.log("pdf2json initialization failed, trying pdf-parse:", e.message)
+    // Direct fallback naar pdf-parse
+    try {
+      const pdfParse = require("pdf-parse")
+      const data = await pdfParse(buffer)
+      if (data.text && data.text.trim().length >= 30) {
+        return data.text
+      } else {
+        throw new Error("pdf-parse: Geen tekst gevonden")
+      }
+    } catch (fallbackErr: any) {
+      console.log("pdf-parse fallback failed:", fallbackErr.message)
+      throw new Error("Kon PDF niet verwerken. Probeer een ander PDF bestand.")
+    }
+  }
+}
+
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
 /**
  * Extract text from PDF using pdf2json
  * Vercel serverless compatible
  */
-const extractTextFromPDF = async (buffer: Buffer): Promise<string> => {
+async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   return new Promise((resolve, reject) => {
     try {
       const PDFParser = require('pdf2json')
@@ -58,7 +133,6 @@ const extractTextFromPDF = async (buffer: Buffer): Promise<string> => {
     }
   })
 }
-
 
 const PROMPT = `Je bent een expert in het lezen van Nederlandse bankafschriften. Analyseer de tekst hieronder en extraheer ALLE transacties.
 
@@ -252,13 +326,87 @@ ${pdfText.substring(0, 12000)}` }
       warnings.push('Bank niet herkend – resultaat kan afwijken')
     }
 
+    // Check voor authenticated user en credits
+    const authHeader = req.headers.authorization
+    let userId: string | null = null
+    let creditsRemaining = null
+
+    if (authHeader?.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.replace('Bearer ', '')
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+        
+        if (supabaseUrl && supabaseKey) {
+          const supabase = createClient(supabaseUrl, supabaseKey)
+          const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+          
+          if (!authError && user) {
+            userId = user.id
+            
+            // Check user credits
+            const { data: credits } = await supabase
+              .from('user_credits')
+              .select('remaining_credits, total_credits, used_credits')
+              .eq('user_id', user.id)
+              .single()
+            
+            if (credits && credits.remaining_credits > 0) {
+              // Credit aftrekken
+              const newRemaining = credits.remaining_credits - 1
+              const newUsed = (credits.used_credits || 0) + 1
+              
+              await supabase
+                .from('user_credits')
+                .update({
+                  remaining_credits: newRemaining,
+                  used_credits: newUsed
+                })
+                .eq('user_id', user.id)
+              
+              creditsRemaining = newRemaining
+              
+              // Log conversion
+              await supabase.from('conversions').insert({
+                user_id: user.id,
+                file_path: tempFilePath,
+                bank: parsed.bank,
+                format: 'pdf',
+                transaction_count: parsed.transacties.length,
+                status: 'completed'
+              })
+              
+              // Trigger webhooks
+              if (userId) {
+                await triggerWebhooks(userId, 'conversion.completed', {
+                  transactions_count: parsed.transacties.length,
+                  bank: parsed.bank,
+                  timestamp: new Date().toISOString()
+                })
+              }
+            } else {
+              // Geen credits beschikbaar
+              return res.status(402).json({
+                error: 'Geen credits beschikbaar. Koop credits of upgrade je abonnement.',
+                errorType: 'no_credits'
+              })
+            }
+          }
+        }
+      } catch (authErr) {
+        console.error('Auth error:', authErr)
+        // Ga door zonder credits voor unauthenticated
+      }
+    }
+
     // Voor preview mode: return direct het resultaat zonder extra wrapper
     if (previewMode) {
       return res.status(200).json({
         ...parsed,
         _preview: true,
         transactieCount: parsed.transacties.length,
-        warnings: warnings
+        warnings: warnings,
+        credits_remaining: creditsRemaining
       })
     }
 
@@ -267,7 +415,8 @@ ${pdfText.substring(0, 12000)}` }
       success: true,
       data: parsed,
       transactieCount: parsed.transacties.length,
-      warnings: warnings
+      warnings: warnings,
+      credits_remaining: creditsRemaining
     })
 
   } catch (error: any) {
@@ -299,16 +448,27 @@ ${pdfText.substring(0, 12000)}` }
       })
     }
     
+    // Groq API errors
+    if (error.message?.includes('Groq') || error.message?.includes('API key') || error.message?.includes('quota')) {
+      return res.status(503).json({ 
+        error: 'AI service tijdelijk niet beschikbaar. Probeer het later opnieuw.', 
+        errorType: 'ai_service_unavailable' 
+      })
+    }
+    
+    // Default error
     return res.status(500).json({ 
-      error: 'Er is iets misgegaan. Probeer het opnieuw.', 
-      errorType: 'unknown',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: 'Er ging iets mis. Probeer opnieuw of neem contact op met support.', 
+      errorType: 'internal_error' 
     })
   } finally {
-    // Verwijder temp bestand altijd (AVG compliance)
+    // Cleanup temp file
     if (tempFilePath && fs.existsSync(tempFilePath)) {
-      fs.unlinkSync(tempFilePath)
-      console.log('Temp file cleaned up:', tempFilePath)
+      try {
+        fs.unlinkSync(tempFilePath)
+      } catch (e) {
+        console.error('Error deleting temp file:', e)
+      }
     }
   }
 }

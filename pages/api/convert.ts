@@ -7,21 +7,16 @@ import Groq from 'groq-sdk'
 
 export const config = { api: { bodyParser: false } }
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
-
-/**
- * Extract text from PDF using pdf2json
- * Vercel serverless compatible
- */
-const extractTextFromPDF = async (buffer: Buffer): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    try {
-      const PDFParser = require('pdf2json')
-      const pdfParser = new PDFParser(null, 1)
-      
-      pdfParser.on('pdfParser_dataReady', (pdfData: any) => {
+async function extractTextFromPDF(buffer: Buffer): Promise<string> {
+  // Try pdf2json first
+  try {
+    const PDFParser = require("pdf2json")
+    const pdfParser = new PDFParser(null, 1)
+    
+    return await new Promise((resolve, reject) => {
+      pdfParser.on("pdfParser_dataReady", (pdfData: any) => {
         try {
-          let text = ''
+          let text = ""
           if (pdfData?.Pages) {
             for (const page of pdfData.Pages) {
               if (page.Texts) {
@@ -29,35 +24,71 @@ const extractTextFromPDF = async (buffer: Buffer): Promise<string> => {
                   if (textItem.R) {
                     for (const r of textItem.R) {
                       if (r.T) {
-                        text += decodeURIComponent(r.T) + ' '
+                        text += decodeURIComponent(r.T) + " "
                       }
                     }
                   }
                 }
-                text += '\n'
+                text += "\n"
               }
             }
           }
           if (!text.trim() || text.trim().length < 30) {
-            reject(new Error('Geen tekst gevonden in PDF'))
+            reject(new Error("Geen tekst gevonden in PDF"))
             return
           }
           resolve(text)
         } catch (err: any) {
-          reject(new Error('PDF verwerking mislukt: ' + err.message))
+          reject(new Error("PDF verwerking mislukt: " + err.message))
         }
       })
       
-      pdfParser.on('pdfParser_dataError', (err: any) => {
-        reject(new Error('PDF parse error: ' + (err.parserError || err.message || 'Onbekende fout')))
+      pdfParser.on("pdfParser_dataError", (err: any) => {
+        console.log("pdf2json failed, trying pdf-parse fallback:", err.message)
+        // Fallback to pdf-parse
+        try {
+          const pdfParse = require("pdf-parse")
+          pdfParse(buffer).then((data: any) => {
+            if (data.text && data.text.trim().length >= 30) {
+              resolve(data.text)
+            } else {
+              reject(new Error("pdf-parse: Geen tekst gevonden"))
+            }
+          }).catch((e: any) => {
+            reject(new Error("pdf-parse fallback failed: " + e.message))
+          })
+        } catch (fallbackErr: any) {
+          reject(new Error("pdf-parse not available: " + fallbackErr.message))
+        }
       })
       
       pdfParser.parseBuffer(buffer)
-    } catch (err: any) {
-      reject(new Error('PDF initialisatie mislukt: ' + err.message))
+    })
+  } catch (e: any) {
+    console.log("pdf2json initialization failed, trying pdf-parse:", e.message)
+    // Direct fallback to pdf-parse
+    try {
+      const pdfParse = require("pdf-parse")
+      const data = await pdfParse(buffer)
+      if (data.text && data.text.trim().length >= 30) {
+        return data.text
+      } else {
+        throw new Error("pdf-parse: Geen tekst gevonden")
+      }
+    } catch (fallbackErr: any) {
+      console.log("pdf-parse fallback failed:", fallbackErr.message)
+      throw new Error("Kon PDF niet verwerken. Probeer een ander PDF bestand.")
     }
-  })
+  }
 }
+
+
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+
+/**
+ * Extract text from PDF using pdf2json
+ * Vercel serverless compatible
+ */
 
 const PROMPT = `Je bent een expert in het lezen van Nederlandse bankafschriften. Analyseer de tekst hieronder en extraheer ALLE transacties.
 
