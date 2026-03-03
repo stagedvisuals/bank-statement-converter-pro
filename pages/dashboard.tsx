@@ -4,6 +4,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import { FileText, Upload, Download, Zap, AlertTriangle, LogOut, Loader2, Brain, FileSpreadsheet, Database, FileCode, Table, History, Settings, LayoutDashboard, Calculator, Sun, Moon, Shield, ShieldAlert, ShieldCheck, Lock, Globe, Crown } from 'lucide-react';
+import { Code } from "lucide-react";
 import { Logo } from '../components/Logo';
 import SmartRulesManager from '../components/SmartRulesManager';
 import DashboardSmartTools from '../components/DashboardSmartTools';
@@ -530,6 +531,7 @@ export default function Dashboard() {
                   <History className="w-4 h-4" />Geschiedenis
                 </Link>
                 <Link href="/onboarding" className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground text-sm">
+                <Link href="/developer" className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground text-sm">                  <Code className="w-4 h-4" />Developer                </Link>
                   <Settings className="w-4 h-4" />Instellingen
                 </Link>
               </div>
