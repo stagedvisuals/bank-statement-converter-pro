@@ -15,21 +15,42 @@ const extractTextFromPDF = async (buffer: Buffer): Promise<string> => {
   try {
     console.log('Extracting PDF text with pdfjs-dist...')
     
-    // Dynamic import voor ES module compatibiliteit
-    const pdfjs = await import('pdfjs-dist')
-    const pdfjsLib = pdfjs.default || pdfjs
+    // Polyfills voor browser APIs die ontbreken in Node.js
+    if (typeof (globalThis as any).DOMMatrix === 'undefined') {
+      (globalThis as any).DOMMatrix = class DOMMatrix {
+        constructor() {}
+        static fromMatrix() { return new (globalThis as any).DOMMatrix() }
+      }
+    }
+    if (typeof (globalThis as any).Path2D === 'undefined') {
+      (globalThis as any).Path2D = class Path2D {}
+    }
+    if (typeof (globalThis as any).ImageData === 'undefined') {
+      (globalThis as any).ImageData = class ImageData {
+        constructor(public width: number, public height: number) {}
+      }
+    }
+    if (typeof (globalThis as any).HTMLCanvasElement === 'undefined') {
+      (globalThis as any).HTMLCanvasElement = class HTMLCanvasElement {}
+    }
     
-    // Verwijder worker requirement voor serverless
+    // Gebruik legacy build met require (niet dynamic import)
+    const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js')
     pdfjsLib.GlobalWorkerOptions.workerSrc = ''
     
-    const uint8Array = new Uint8Array(buffer)
-    const loadingTask = pdfjsLib.getDocument({ 
-      data: uint8Array,
+    const loadingTask = pdfjsLib.getDocument({
+      data: new Uint8Array(buffer),
       useWorkerFetch: false,
       isEvalSupported: false,
-      useSystemFonts: true,
       disableFontFace: true,
-      verbosity: 0
+      useSystemFonts: true,
+      verbosity: 0,
+      // Disable canvas rendering
+      canvasFactory: {
+        create: () => ({ canvas: null, context: null }),
+        reset: () => {},
+        destroy: () => {},
+      },
     })
     
     const pdf = await loadingTask.promise
@@ -37,16 +58,16 @@ const extractTextFromPDF = async (buffer: Buffer): Promise<string> => {
     
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
       const page = await pdf.getPage(pageNum)
-      const textContent = await page.getTextContent()
+      const textContent = await page.getTextContent({
+        normalizeWhitespace: true,
+        disableCombineTextItems: false
+      })
       
-      // Bewaar positie informatie voor betere tekst reconstructie
-      const items = textContent.items as any[]
       let lastY = -1
       let pageText = ''
       
-      for (const item of items) {
+      for (const item of textContent.items as any[]) {
         if (item.str) {
-          // Nieuwe regel detectie op basis van Y positie
           if (lastY !== -1 && Math.abs(item.transform[5] - lastY) > 5) {
             pageText += '\n'
           }
@@ -58,8 +79,8 @@ const extractTextFromPDF = async (buffer: Buffer): Promise<string> => {
       fullText += pageText + '\n\n'
     }
     
-    if (!fullText.trim()) {
-      throw new Error('Geen tekst gevonden in PDF')
+    if (!fullText.trim() || fullText.trim().length < 50) {
+      throw new Error('Te weinig tekst gevonden in PDF')
     }
     
     console.log('PDF parsed successfully, length:', fullText.length)
