@@ -385,25 +385,25 @@ export default function Dashboard() {
   };
 
   const CATEGORIEEN = [
-    { value: 'Inkomen', btw: '0%' },
-    { value: 'Boodschappen', btw: '9%' },
-    { value: 'Eten & Drinken', btw: '9%' },
-    { value: 'Vervoer', btw: '21%' },
-    { value: 'Telecom', btw: '21%' },
-    { value: 'Abonnementen', btw: '21%' },
-    { value: 'Winkelen', btw: '21%' },
-    { value: 'Gezondheid', btw: '0%' },
-    { value: 'Energie', btw: '21%' },
-    { value: 'Verzekeringen', btw: '0%' },
-    { value: 'Belasting', btw: '0%' },
-    { value: 'Software', btw: '21%' },
-    { value: 'Wonen', btw: '21%' },
-    { value: 'Sport & Fitness', btw: '21%' },
-    { value: 'Onderwijs', btw: '0%' },
-    { value: 'Contant', btw: '0%' },
-    { value: 'Overboekingen', btw: '0%' },
-    { value: 'Financieel', btw: '0%' },
-    { value: 'Overig', btw: '21%' },
+    { label: 'Inkomen', value: 'Inkomen' },
+    { label: 'Boodschappen', value: 'Boodschappen' },
+    { label: 'Eten & Drinken', value: 'Eten & Drinken' },
+    { label: 'Vervoer', value: 'Vervoer' },
+    { label: 'Telecom', value: 'Telecom' },
+    { label: 'Abonnementen', value: 'Abonnementen' },
+    { label: 'Winkelen', value: 'Winkelen' },
+    { label: 'Gezondheid', value: 'Gezondheid' },
+    { label: 'Energie', value: 'Energie' },
+    { label: 'Verzekeringen', value: 'Verzekeringen' },
+    { label: 'Belasting', value: 'Belasting' },
+    { label: 'Software', value: 'Software' },
+    { label: 'Wonen', value: 'Wonen' },
+    { label: 'Sport & Fitness', value: 'Sport & Fitness' },
+    { label: 'Onderwijs', value: 'Onderwijs' },
+    { label: 'Contant', value: 'Contant' },
+    { label: 'Overboekingen', value: 'Overboekingen' },
+    { label: 'Financieel', value: 'Financieel' },
+    { label: 'Overig', value: 'Overig' },
   ];
 
   const handleCorrectCategory = async (transaction: any, newCategory: string) => {
@@ -417,9 +417,8 @@ export default function Dashboard() {
       }
       
       // Zoek de juiste icon en btw voor de categorie
-      const catInfo = CATEGORIEEN.find(c => c.value === newCategory);
       const icon = '';
-      const btw = catInfo?.btw || '21%';
+      const btw = '21%'; // Default BTW percentage
       
       const response = await fetch('/api/categorize', {
         method: 'POST',
@@ -434,7 +433,6 @@ export default function Dashboard() {
       })
       
       if (response.ok) {
-        const catInfo = CATEGORIEEN.find(c => c.value === newCategory);
         const icon = '';
         
         // Update lokale state

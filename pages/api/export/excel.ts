@@ -42,12 +42,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Data rijen toevoegen
     transactions.forEach((t: any, index: number) => {
+      // Verwijder emoji uit categorieën voor Excel compatibiliteit
+      const categorie = (t.categorie || 'Overig').replace(/[\u2600-\u27BF\u2B50\u2B55\u3000-\u303F\u3297\u3299\u1F004\u1F0CF\u1F170-\u1F251\u1F300-\u1F5FF\u1F600-\u1F64F\u1F680-\u1F6FF\u1F7E0-\u1F7FF\u1F80-\u1F8FF\u1F900-\u1F9FF\u1FA00-\u1FA6F\u1FA70-\u1FAFF]/g, '').trim()
+      const subcategorie = (t.subcategorie || '').replace(/[\u2600-\u27BF\u2B50\u2B55\u3000-\u303F\u3297\u3299\u1F004\u1F0CF\u1F170-\u1F251\u1F300-\u1F5FF\u1F600-\u1F64F\u1F680-\u1F6FF\u1F7E0-\u1F7FF\u1F80-\u1F8FF\u1F900-\u1F9FF\u1FA00-\u1FA6F\u1FA70-\u1FAFF]/g, '').trim()
+      
       const row = worksheet.addRow({
         datum: t.datum || '',
         omschrijving: t.omschrijving || '',
         bedrag: typeof t.bedrag === 'number' ? t.bedrag : parseFloat(t.bedrag) || 0,
-        categorie: t.categorie || 'Overig',
-        subcategorie: t.subcategorie || '',
+        categorie: categorie,
+        subcategorie: subcategorie,
         btw: t.btw_percentage || t.btw || '21%',
       })
 
