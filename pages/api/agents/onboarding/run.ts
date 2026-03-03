@@ -30,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const { data: stuckUsers, error: fetchError } = await supabase
       .from('onboarding_status')
-      .select('user_id, progress_percentage, started_at, user_profiles(email)')
+      .select('user_id, progress_percentage, started_at, profiles(email)')
       .eq('progress_percentage', 20)
       .lt('started_at', oneDayAgo.toISOString())
       .is('completed_at', null);
@@ -59,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
 
         // Send retention email via API
-        const userProfile = user.user_profiles as any;
+        const userProfile = user.profiles as any;
         await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/agents/onboarding/send-retention-email`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

@@ -155,15 +155,14 @@ export async function DELETE(request: Request) {
     await supabase.from('user_credits').delete().eq('user_id', userId)
     await supabase.from('profiles').delete().eq('user_id', userId)
 
-    // Probeer ook uit auth te verwijderen (niet kritiek)
-    try {
-      const { error } = await supabase.auth.admin.deleteUser(userId)
-      if (error) console.log('Auth delete error (non-fatal):', error.message)
-    } catch (authError) {
-      console.log('Auth delete failed (non-fatal):', authError)
+    // Verwijder uit auth
+    const { error } = await supabase.auth.admin.deleteUser(userId)
+    if (error) {
+      return NextResponse.json({ error: 'Gebruiker verwijderen mislukt: ' + error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true, message: 'User deleted' })
+    console.log(`Gebruiker verwijderd: ${userId}`)
+    return NextResponse.json({ success: true })
   } catch (error: any) {
     console.error('Admin DELETE error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })

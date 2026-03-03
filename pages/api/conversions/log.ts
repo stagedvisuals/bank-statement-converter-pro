@@ -38,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       created_at: new Date().toISOString()
     })
 
-    // Update conversions_count in user_profiles on success
+    // Update conversions_count in profiles on success
     if (status === 'success') {
       const { data: profile } = await supabase
         .from('profiles')

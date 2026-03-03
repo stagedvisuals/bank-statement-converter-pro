@@ -99,7 +99,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const { data: day7Users, error: day7Error } = await supabase
       .from('onboarding_status')
-      .select('user_id, user_profiles!inner(email)')
+      .select('user_id, profiles!inner(email)')
       .gte('started_at', sevenDaysAgo.toISOString())
       .lt('started_at', new Date(threeDaysAgo.getTime() + 86400000).toISOString())
       .lt('progress_percentage', 100);
@@ -109,7 +109,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Send day 7 emails
     for (const user of day7Users || []) {
       try {
-        const userProfile = user.user_profiles as any;
+        const userProfile = user.profiles as any;
         const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user/email-workflow`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
