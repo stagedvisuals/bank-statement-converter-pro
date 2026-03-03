@@ -41,13 +41,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Update conversions_count in user_profiles on success
     if (status === 'success') {
       const { data: profile } = await supabase
-        .from('user_profiles')
+        .from('profiles')
         .select('conversions_count')
         .eq('user_id', user.id)
         .single()
 
       await supabase
-        .from('user_profiles')
+        .from('profiles')
         .update({ 
           conversions_count: (profile?.conversions_count || 0) + 1 
         })

@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 
     // Haal profiel op
     const { data: profile, error } = await supabase
-      .from('user_profiles')
+      .from('profiles')
       .select('onboarding_voltooid')
       .eq('user_id', session.user.id)
       .single()
