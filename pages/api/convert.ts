@@ -8,59 +8,66 @@ export const config = { api: { bodyParser: false } }
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
 /**
- * Extract text from PDF with fallback methods
- * Method 1: pdf-parse (faster, works for most PDFs)
- * Method 2: pdfjs-dist (more robust, handles complex PDFs)
+ * Extract text from PDF using pdfjs-dist
+ * Vercel serverless compatible (geen pdf-parse)
  */
 const extractTextFromPDF = async (buffer: Buffer): Promise<string> => {
-  // Method 1: Try pdf-parse first
   try {
-    const pdfParse = require('pdf-parse')
-    const data = await pdfParse(buffer, { max: 0 })
-    if (data.text && data.text.trim().length > 50) {
-      console.log('PDF parsed with pdf-parse, length:', data.text.length)
-      return data.text
-    }
-    throw new Error('Insufficient text with pdf-parse')
-  } catch (e1: any) {
-    console.log('pdf-parse failed:', e1.message)
+    console.log('Extracting PDF text with pdfjs-dist...')
     
-    // Method 2: Fallback to pdfjs-dist
-    try {
-      console.log('Trying pdfjs-dist fallback...')
-      const pdfjsLib = await import('pdfjs-dist').then(m => m.default || m)
+    // Dynamic import voor ES module compatibiliteit
+    const pdfjs = await import('pdfjs-dist')
+    const pdfjsLib = pdfjs.default || pdfjs
+    
+    // Verwijder worker requirement voor serverless
+    pdfjsLib.GlobalWorkerOptions.workerSrc = ''
+    
+    const uint8Array = new Uint8Array(buffer)
+    const loadingTask = pdfjsLib.getDocument({ 
+      data: uint8Array,
+      useWorkerFetch: false,
+      isEvalSupported: false,
+      useSystemFonts: true,
+      disableFontFace: true,
+      verbosity: 0
+    })
+    
+    const pdf = await loadingTask.promise
+    let fullText = ''
+    
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum)
+      const textContent = await page.getTextContent()
       
-      // Disable worker for serverless environment
-      pdfjsLib.GlobalWorkerOptions.workerSrc = ''
+      // Bewaar positie informatie voor betere tekst reconstructie
+      const items = textContent.items as any[]
+      let lastY = -1
+      let pageText = ''
       
-      const loadingTask = pdfjsLib.getDocument({ 
-        data: new Uint8Array(buffer),
-        useWorkerFetch: false,
-        isEvalSupported: false,
-        useSystemFonts: true
-      })
-      
-      const pdf = await loadingTask.promise
-      let fullText = ''
-      
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i)
-        const textContent = await page.getTextContent()
-        const pageText = textContent.items
-          .map((item: any) => item.str)
-          .join(' ')
-        fullText += pageText + '\n'
+      for (const item of items) {
+        if (item.str) {
+          // Nieuwe regel detectie op basis van Y positie
+          if (lastY !== -1 && Math.abs(item.transform[5] - lastY) > 5) {
+            pageText += '\n'
+          }
+          pageText += item.str + ' '
+          lastY = item.transform[5]
+        }
       }
       
-      if (fullText.trim().length > 50) {
-        console.log('PDF parsed with pdfjs-dist, length:', fullText.length)
-        return fullText
-      }
-      throw new Error('No text extracted with pdfjs-dist')
-    } catch (e2: any) {
-      console.error('pdfjs-dist also failed:', e2.message)
-      throw new Error(`PDF parsing failed: ${e2.message}`)
+      fullText += pageText + '\n\n'
     }
+    
+    if (!fullText.trim()) {
+      throw new Error('Geen tekst gevonden in PDF')
+    }
+    
+    console.log('PDF parsed successfully, length:', fullText.length)
+    return fullText
+    
+  } catch (error: any) {
+    console.error('PDF extraction failed:', error.message)
+    throw new Error(`PDF verwerking mislukt: ${error.message}`)
   }
 }
 
