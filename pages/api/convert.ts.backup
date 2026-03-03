@@ -59,6 +59,7 @@ const extractTextFromPDF = async (buffer: Buffer): Promise<string> => {
   })
 }
 
+
 const PROMPT = `Je bent een expert in het lezen van Nederlandse bankafschriften. Analyseer de tekst hieronder en extraheer ALLE transacties.
 
 Return ALLEEN dit JSON formaat, niets anders:
@@ -251,87 +252,13 @@ ${pdfText.substring(0, 12000)}` }
       warnings.push('Bank niet herkend – resultaat kan afwijken')
     }
 
-    // Check voor authenticated user en credits
-    const authHeader = req.headers.authorization
-    let userId: string | null = null
-    let creditsRemaining = null
-
-    if (authHeader?.startsWith('Bearer ')) {
-      try {
-        const token = authHeader.replace('Bearer ', '')
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-        
-        if (supabaseUrl && supabaseKey) {
-          const supabase = createClient(supabaseUrl, supabaseKey)
-          const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-          
-          if (!authError && user) {
-            userId = user.id
-            
-            // Check user credits
-            const { data: credits } = await supabase
-              .from('user_credits')
-              .select('remaining_credits, total_credits, used_credits')
-              .eq('user_id', user.id)
-              .single()
-            
-            if (credits && credits.remaining_credits > 0) {
-              // Credit aftrekken
-              const newRemaining = credits.remaining_credits - 1
-              const newUsed = (credits.used_credits || 0) + 1
-              
-              await supabase
-                .from('user_credits')
-                .update({
-                  remaining_credits: newRemaining,
-                  used_credits: newUsed
-                })
-                .eq('user_id', user.id)
-              
-              creditsRemaining = newRemaining
-              
-              // Log conversion
-              await supabase.from('conversions').insert({
-                user_id: user.id,
-                file_path: tempFilePath,
-                bank: parsed.bank,
-                format: 'pdf',
-                transaction_count: parsed.transacties.length,
-                status: 'completed'
-              })
-              
-              // Trigger webhooks
-              if (userId) {
-                await triggerWebhooks(userId, 'conversion.completed', {
-                  transactions_count: parsed.transacties.length,
-                  bank: parsed.bank,
-                  timestamp: new Date().toISOString()
-                })
-              }
-            } else {
-              // Geen credits beschikbaar
-              return res.status(402).json({
-                error: 'Geen credits beschikbaar. Koop credits of upgrade je abonnement.',
-                errorType: 'no_credits'
-              })
-            }
-          }
-        }
-      } catch (authErr) {
-        console.error('Auth error:', authErr)
-        // Ga door zonder credits voor unauthenticated
-      }
-    }
-
     // Voor preview mode: return direct het resultaat zonder extra wrapper
     if (previewMode) {
       return res.status(200).json({
         ...parsed,
         _preview: true,
         transactieCount: parsed.transacties.length,
-        warnings: warnings,
-        credits_remaining: creditsRemaining
+        warnings: warnings
       })
     }
 
@@ -340,8 +267,7 @@ ${pdfText.substring(0, 12000)}` }
       success: true,
       data: parsed,
       transactieCount: parsed.transacties.length,
-      warnings: warnings,
-      credits_remaining: creditsRemaining
+      warnings: warnings
     })
 
   } catch (error: any) {
@@ -373,27 +299,16 @@ ${pdfText.substring(0, 12000)}` }
       })
     }
     
-    // Groq API errors
-    if (error.message?.includes('Groq') || error.message?.includes('API key') || error.message?.includes('quota')) {
-      return res.status(503).json({ 
-        error: 'AI service tijdelijk niet beschikbaar. Probeer het later opnieuw.', 
-        errorType: 'ai_service_unavailable' 
-      })
-    }
-    
-    // Default error
     return res.status(500).json({ 
-      error: 'Er ging iets mis. Probeer opnieuw of neem contact op met support.', 
-      errorType: 'internal_error' 
+      error: 'Er is iets misgegaan. Probeer het opnieuw.', 
+      errorType: 'unknown',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
   } finally {
-    // Cleanup temp file
+    // Verwijder temp bestand altijd (AVG compliance)
     if (tempFilePath && fs.existsSync(tempFilePath)) {
-      try {
-        fs.unlinkSync(tempFilePath)
-      } catch (e) {
-        console.error('Error deleting temp file:', e)
-      }
+      fs.unlinkSync(tempFilePath)
+      console.log('Temp file cleaned up:', tempFilePath)
     }
   }
 }
