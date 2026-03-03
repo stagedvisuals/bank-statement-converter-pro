@@ -17,6 +17,9 @@ function checkAdmin(request: Request) {
 }
 
 export async function GET(request: Request) {
+  console.log('[Admin Users API] DB URL:', process.env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 30))
+  console.log('[Admin Users API] Service key exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
+  console.log('[Admin Users API] Admin secret:', !!process.env.ADMIN_SECRET)
   try {
     if (!checkAdmin(request)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

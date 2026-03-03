@@ -11,6 +11,8 @@ function isAdmin(request: Request) {
 }
 
 export async function GET(request: Request) {
+  console.log('[Admin Stats API] DB URL:', process.env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 30))
+  console.log('[Admin Stats API] Service key exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
   if (!isAdmin(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }

@@ -133,7 +133,7 @@ export default function AdminPage() {
       // Fetch users
       const usersRes = await fetch('/api/admin/users', { headers: adminHeaders });
       if (usersRes.ok) {
-        const data = await usersRes.json(); setUsers(data.users || []);
+        const data = await usersRes.json(); setUsers(Array.isArray(data.users) ? data.users : []);
       }
 
       // Fetch conversions
