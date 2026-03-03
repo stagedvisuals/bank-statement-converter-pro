@@ -8,88 +8,53 @@ export const config = { api: { bodyParser: false } }
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
 /**
- * Extract text from PDF using pdfjs-dist
- * Vercel serverless compatible (geen pdf-parse)
+ * Extract text from PDF using pdf2json
+ * Vercel serverless compatible
  */
 const extractTextFromPDF = async (buffer: Buffer): Promise<string> => {
-  try {
-    console.log('Extracting PDF text with pdfjs-dist...')
-    
-    // Polyfills voor browser APIs die ontbreken in Node.js
-    if (typeof (globalThis as any).DOMMatrix === 'undefined') {
-      (globalThis as any).DOMMatrix = class DOMMatrix {
-        constructor() {}
-        static fromMatrix() { return new (globalThis as any).DOMMatrix() }
-      }
-    }
-    if (typeof (globalThis as any).Path2D === 'undefined') {
-      (globalThis as any).Path2D = class Path2D {}
-    }
-    if (typeof (globalThis as any).ImageData === 'undefined') {
-      (globalThis as any).ImageData = class ImageData {
-        constructor(public width: number, public height: number) {}
-      }
-    }
-    if (typeof (globalThis as any).HTMLCanvasElement === 'undefined') {
-      (globalThis as any).HTMLCanvasElement = class HTMLCanvasElement {}
-    }
-    
-    // Gebruik legacy build met require (niet dynamic import)
-    const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js')
-    pdfjsLib.GlobalWorkerOptions.workerSrc = ''
-    
-    const loadingTask = pdfjsLib.getDocument({
-      data: new Uint8Array(buffer),
-      useWorkerFetch: false,
-      isEvalSupported: false,
-      disableFontFace: true,
-      useSystemFonts: true,
-      verbosity: 0,
-      // Disable canvas rendering
-      canvasFactory: {
-        create: () => ({ canvas: null, context: null }),
-        reset: () => {},
-        destroy: () => {},
-      },
-    })
-    
-    const pdf = await loadingTask.promise
-    let fullText = ''
-    
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-      const page = await pdf.getPage(pageNum)
-      const textContent = await page.getTextContent({
-        normalizeWhitespace: true,
-        disableCombineTextItems: false
+  return new Promise((resolve, reject) => {
+    try {
+      const PDFParser = require('pdf2json')
+      const pdfParser = new PDFParser(null, 1)
+      
+      pdfParser.on('pdfParser_dataReady', (pdfData: any) => {
+        try {
+          let text = ''
+          if (pdfData?.Pages) {
+            for (const page of pdfData.Pages) {
+              if (page.Texts) {
+                for (const textItem of page.Texts) {
+                  if (textItem.R) {
+                    for (const r of textItem.R) {
+                      if (r.T) {
+                        text += decodeURIComponent(r.T) + ' '
+                      }
+                    }
+                  }
+                }
+                text += '\n'
+              }
+            }
+          }
+          if (!text.trim() || text.trim().length < 30) {
+            reject(new Error('Geen tekst gevonden in PDF'))
+            return
+          }
+          resolve(text)
+        } catch (err: any) {
+          reject(new Error('PDF verwerking mislukt: ' + err.message))
+        }
       })
       
-      let lastY = -1
-      let pageText = ''
+      pdfParser.on('pdfParser_dataError', (err: any) => {
+        reject(new Error('PDF parse error: ' + (err.parserError || err.message || 'Onbekende fout')))
+      })
       
-      for (const item of textContent.items as any[]) {
-        if (item.str) {
-          if (lastY !== -1 && Math.abs(item.transform[5] - lastY) > 5) {
-            pageText += '\n'
-          }
-          pageText += item.str + ' '
-          lastY = item.transform[5]
-        }
-      }
-      
-      fullText += pageText + '\n\n'
+      pdfParser.parseBuffer(buffer)
+    } catch (err: any) {
+      reject(new Error('PDF initialisatie mislukt: ' + err.message))
     }
-    
-    if (!fullText.trim() || fullText.trim().length < 50) {
-      throw new Error('Te weinig tekst gevonden in PDF')
-    }
-    
-    console.log('PDF parsed successfully, length:', fullText.length)
-    return fullText
-    
-  } catch (error: any) {
-    console.error('PDF extraction failed:', error.message)
-    throw new Error(`PDF verwerking mislukt: ${error.message}`)
-  }
+  })
 }
 
 
