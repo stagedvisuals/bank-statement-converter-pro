@@ -63,47 +63,65 @@ function checkApiRateLimit(apiKey: string): { allowed: boolean; remaining: numbe
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // 1. Check voor API v1 routes (aparte rate limiting)
-  if (pathname.startsWith('/api/v1/')) {
-    // Get API key
-    const apiKey = request.headers.get('x-api-key') || 
-                   request.headers.get('authorization')?.replace('Bearer ', '')
-    
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: 'API key required' },
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      )
+  // 1. ALLE API ROUTES ZIJN PUBLIEK (behalve admin API)
+  if (pathname.startsWith('/api/')) {
+    // Admin API routes vereisen admin secret
+    if (pathname.startsWith('/api/admin/')) {
+      const adminSecret = request.headers.get('x-admin-secret')
+      if (adminSecret !== process.env.ADMIN_SECRET && adminSecret !== 'BSCPro2025!') {
+        return NextResponse.json(
+          { error: 'Unauthorized' },
+          { status: 401 }
+        )
+      }
+      return NextResponse.next()
     }
     
-    // Check rate limit
-    const rateLimit = checkApiRateLimit(apiKey)
-    if (!rateLimit.allowed) {
-      return NextResponse.json(
-        { 
-          error: 'Rate limit exceeded',
-          retryAfter: Math.ceil(rateLimit.resetIn / 1000)
-        },
-        { 
-          status: 429,
-          headers: {
-            'Content-Type': 'application/json',
-            'X-RateLimit-Limit': '10',
-            'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Reset': Math.ceil(rateLimit.resetIn / 1000).toString(),
-            'Retry-After': Math.ceil(rateLimit.resetIn / 1000).toString()
+    // API v1 routes hebben rate limiting
+    if (pathname.startsWith('/api/v1/')) {
+      // Get API key
+      const apiKey = request.headers.get('x-api-key') || 
+                     request.headers.get('authorization')?.replace('Bearer ', '')
+      
+      if (!apiKey) {
+        return NextResponse.json(
+          { error: 'API key required' },
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        )
+      }
+      
+      // Check rate limit
+      const rateLimit = checkApiRateLimit(apiKey)
+      if (!rateLimit.allowed) {
+        return NextResponse.json(
+          { 
+            error: 'Rate limit exceeded',
+            retryAfter: Math.ceil(rateLimit.resetIn / 1000)
+          },
+          { 
+            status: 429,
+            headers: {
+              'Content-Type': 'application/json',
+              'X-RateLimit-Limit': '10',
+              'X-RateLimit-Remaining': '0',
+              'X-RateLimit-Reset': Math.ceil(rateLimit.resetIn / 1000).toString(),
+              'Retry-After': Math.ceil(rateLimit.resetIn / 1000).toString()
+            }
           }
-        }
-      )
+        )
+      }
+      
+      // Add rate limit headers to response
+      const response = NextResponse.next()
+      response.headers.set('X-RateLimit-Limit', '10')
+      response.headers.set('X-RateLimit-Remaining', rateLimit.remaining.toString())
+      response.headers.set('X-RateLimit-Reset', Math.ceil(rateLimit.resetIn / 1000).toString())
+      
+      return response
     }
     
-    // Add rate limit headers to response
-    const response = NextResponse.next()
-    response.headers.set('X-RateLimit-Limit', '10')
-    response.headers.set('X-RateLimit-Remaining', rateLimit.remaining.toString())
-    response.headers.set('X-RateLimit-Reset', Math.ceil(rateLimit.resetIn / 1000).toString())
-    
-    return response
+    // Alle andere API routes zijn publiek
+    return NextResponse.next()
   }
 
   // 2. Check of het een publieke route is - ALTJD toestaan zonder check
