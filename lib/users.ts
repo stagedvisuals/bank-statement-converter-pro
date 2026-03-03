@@ -49,7 +49,7 @@ export async function deductCredit(clerkId: string) {
 
   await supabase
     .from('users')
-    .update({ credits: (user.credits || 0) - 1 })
+    .update({ credits: (user?.credits || 0) - 1 })
     .eq('clerk_id', clerkId)
 
   return true
