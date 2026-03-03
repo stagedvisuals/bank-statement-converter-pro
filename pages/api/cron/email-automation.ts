@@ -26,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     yesterday.setDate(yesterday.getDate() - 1);
     
     const { data: day1Users, error: day1Error } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .select('user_id, email')
       .gte('created_at', yesterday.toISOString().split('T')[0])
       .lt('created_at', new Date().toISOString().split('T')[0]);
@@ -59,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
     const { data: day3Users, error: day3Error } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .select('user_id, email')
       .gte('created_at', threeDaysAgo.toISOString().split('T')[0])
       .lt('created_at', new Date(yesterday).toISOString().split('T')[0])

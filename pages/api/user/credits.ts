@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (authError || !user) return res.status(401).json({ error: 'Ongeldige token' })
 
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .select('plan')
       .eq('user_id', user.id)
       .single()

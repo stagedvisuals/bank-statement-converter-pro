@@ -14,7 +14,7 @@ async function isAdmin(token: string): Promise<boolean> {
   if (error || !user) return false
   
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('user_profiles')
     .select('role')
     .eq('id', user.id)
     .single()
@@ -70,7 +70,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Get stats
     const { count: totalUsers } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .select('*', { count: 'exact', head: true })
 
     const { count: totalConversations } = await supabase

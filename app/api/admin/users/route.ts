@@ -23,7 +23,7 @@ export async function GET(request: Request) {
 
     // Haal gebruikers op
     const { data: profiles, error: profilesError } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .select('*')
       .order('created_at', { ascending: false })
 
@@ -77,7 +77,7 @@ export async function PATCH(request: Request) {
     // Update plan
     if (plan !== undefined) {
       const { error } = await supabase
-        .from('profiles')
+        .from('user_profiles')
         .update({ plan, updated_at: new Date().toISOString() })
         .eq('user_id', userId)
 
@@ -153,7 +153,7 @@ export async function DELETE(request: Request) {
     
     // Verwijder eerst credits, dan profile
     await supabase.from('user_credits').delete().eq('user_id', userId)
-    await supabase.from('profiles').delete().eq('user_id', userId)
+    await supabase.from('user_profiles').delete().eq('user_id', userId)
 
     // Verwijder uit auth
     const { error } = await supabase.auth.admin.deleteUser(userId)

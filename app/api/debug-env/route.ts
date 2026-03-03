@@ -13,7 +13,7 @@ export async function GET() {
   if (url !== 'MISSING' && key !== 'MISSING') {
     try {
       const supabase = createClient(url, key)
-      const { data, error } = await supabase.from('profiles').select('count').limit(1)
+      const { data, error } = await supabase.from('user_profiles').select('count').limit(1)
       dbTest = error ? 'FOUT: ' + error.message : 'OK - verbinding werkt'
     } catch (e: any) {
       dbTest = 'EXCEPTION: ' + e.message

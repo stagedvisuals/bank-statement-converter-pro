@@ -25,7 +25,7 @@ export async function GET() {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
-    const { data, error } = await supabase.from('profiles').select('count').limit(1)
+    const { data, error } = await supabase.from('user_profiles').select('count').limit(1)
     results.database = {
       status: error ? 'error' : 'ok',
       message: error ? error.message : 'Database bereikbaar'

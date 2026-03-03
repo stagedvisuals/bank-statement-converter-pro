@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 
     // Get user stats
     const { data: users, error: usersError } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .select('id, created_at, last_active');
 
     if (usersError) {

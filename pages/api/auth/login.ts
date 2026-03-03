@@ -74,7 +74,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let profileError = null
     try {
       const result = await supabase
-        .from('profiles')
+        .from('user_profiles')
         .select('*')
         .eq('user_id', data.user?.id)
         .single()
@@ -91,7 +91,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Update login info (non-blocking)
       try {
         await supabase
-          .from('profiles')
+          .from('user_profiles')
           .update({
             last_login_ip: ipAddress,
             last_login_at: now,

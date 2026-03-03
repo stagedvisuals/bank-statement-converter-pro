@@ -81,7 +81,7 @@ export async function POST(request: Request) {
 
     // Check plan
     const { data: profile, error: profileError } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .select('plan, api_access')
       .eq('user_id', user.id)
       .single()

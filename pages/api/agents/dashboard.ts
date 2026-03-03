@@ -27,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Check if admin
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .select('role')
       .eq('user_id', user.id)
       .single();
