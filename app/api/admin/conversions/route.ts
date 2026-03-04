@@ -1,17 +1,14 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
+import { checkAdmin, unauthorizedResponse } from '@/lib/admin-auth'
 
 export async function GET(request: Request) {
-  try {
-    const adminSecret = request.headers.get('x-admin-secret')
-    if (adminSecret !== process.env.ADMIN_SECRET && adminSecret !== 'BSCPro2025!') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  if (!checkAdmin(request)) {
+    return unauthorizedResponse()
+  }
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+  try {
+    const supabase = getSupabaseAdmin()
 
     const { data, error } = await supabase
       .from('conversions')

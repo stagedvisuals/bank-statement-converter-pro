@@ -1,31 +1,14 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-function getSupabase() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !key) {
-    console.error('[Admin API] Missing Supabase credentials')
-    throw new Error(JSON.stringify({ error: "Service unavailable", code: "SERVICE_UNAVAILABLE" }))
-  }
-  return createClient(url, key)
-}
-
-function checkAdmin(request: Request) {
-  const secret = request.headers.get('x-admin-secret')
-  return secret === process.env.ADMIN_SECRET || secret === 'BSCPro2025!'
-}
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
+import { checkAdmin, unauthorizedResponse } from '@/lib/admin-auth'
 
 export async function GET(request: Request) {
-  console.log('[Admin Users API] DB URL:', process.env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 30))
-  console.log('[Admin Users API] Service key exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
-  console.log('[Admin Users API] Admin secret:', !!process.env.ADMIN_SECRET)
-  try {
-    if (!checkAdmin(request)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  if (!checkAdmin(request)) {
+    return unauthorizedResponse()
+  }
 
-    const supabase = getSupabase()
+  try {
+    const supabase = getSupabaseAdmin()
 
     // Haal gebruikers op
     const { data: profiles, error: profilesError } = await supabase
@@ -59,44 +42,17 @@ export async function GET(request: Request) {
     console.log(`Admin: ${users.length} gebruikers geladen`)
     return NextResponse.json({ users })
   } catch (error: any) {
-    console.error('[Admin API DELETE] Error:', error)
-    // Try to parse JSON error message
-    try {
-      const parsedError = JSON.parse(error.message)
-      return NextResponse.json(parsedError, { status: 503 })
-    } catch (parseError) {
-      // Not a JSON error, return generic error
-      return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
-    }
-    console.error('[Admin API PATCH] Error:', error)
-    // Try to parse JSON error message
-    try {
-      const parsedError = JSON.parse(error.message)
-      return NextResponse.json(parsedError, { status: 503 })
-    } catch (parseError) {
-      // Not a JSON error, return generic error
-      return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
-    }
     console.error('[Admin API GET] Error:', error)
-    // Try to parse JSON error message
-    try {
-      const parsedError = JSON.parse(error.message)
-      return NextResponse.json(parsedError, { status: 503 })
-    } catch (parseError) {
-      // Not a JSON error, return generic error
-      return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
-    }
-    console.error('Admin GET error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }
 
 export async function PATCH(request: Request) {
-  try {
-    if (!checkAdmin(request)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  if (!checkAdmin(request)) {
+    return unauthorizedResponse()
+  }
 
+  try {
     const body = await request.json()
     const { userId, plan, credits } = body
 
@@ -104,7 +60,7 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'userId is verplicht' }, { status: 400 })
     }
 
-    const supabase = getSupabase()
+    const supabase = getSupabaseAdmin()
     const results: any = {}
 
     // Update plan
@@ -167,73 +123,43 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ success: true, updated: results })
   } catch (error: any) {
     console.error('[Admin API PATCH] Error:', error)
-    // Try to parse JSON error message
-    try {
-      const parsedError = JSON.parse(error.message)
-      return NextResponse.json(parsedError, { status: 503 })
-    } catch (parseError) {
-      // Not a JSON error, return generic error
-      return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
-    }
-    console.error('[Admin API GET] Error:', error)
-    // Try to parse JSON error message
-    try {
-      const parsedError = JSON.parse(error.message)
-      return NextResponse.json(parsedError, { status: 503 })
-    } catch (parseError) {
-      // Not a JSON error, return generic error
-      return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
-    }
-    console.error('Admin PATCH error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }
 
 export async function DELETE(request: Request) {
-  try {
-    if (!checkAdmin(request)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  if (!checkAdmin(request)) {
+    return unauthorizedResponse()
+  }
 
-    const { userId } = await request.json()
+  try {
+    const { searchParams } = new URL(request.url)
+    const userId = searchParams.get('userId')
+
     if (!userId) {
       return NextResponse.json({ error: 'userId is verplicht' }, { status: 400 })
     }
 
-    const supabase = getSupabase()
-    
-    // Verwijder eerst credits, dan profile
-    await supabase.from('user_credits').delete().eq('user_id', userId)
-    await supabase.from('user_profiles').delete().eq('user_id', userId)
+    const supabase = getSupabaseAdmin()
 
-    // Verwijder uit auth
-    const { error } = await supabase.auth.admin.deleteUser(userId)
+    // Soft delete: markeer als verwijderd
+    const { error } = await supabase
+      .from('user_profiles')
+      .update({ 
+        deleted_at: new Date().toISOString(),
+        is_active: false 
+      })
+      .eq('user_id', userId)
+
     if (error) {
-      return NextResponse.json({ error: 'Gebruiker verwijderen mislukt: ' + error.message }, { status: 500 })
+      console.error('Delete error:', error)
+      return NextResponse.json({ error: 'Delete mislukt: ' + error.message }, { status: 500 })
     }
 
-    console.log(`Gebruiker verwijderd: ${userId}`)
+    console.log(`User ${userId} soft-deleted`)
     return NextResponse.json({ success: true })
   } catch (error: any) {
-    console.error('[Admin API PATCH] Error:', error)
-    // Try to parse JSON error message
-    try {
-      const parsedError = JSON.parse(error.message)
-      return NextResponse.json(parsedError, { status: 503 })
-    } catch (parseError) {
-      // Not a JSON error, return generic error
-      return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
-    }
-    console.error('[Admin API GET] Error:', error)
-    // Try to parse JSON error message
-    try {
-      const parsedError = JSON.parse(error.message)
-      return NextResponse.json(parsedError, { status: 503 })
-    } catch (parseError) {
-      // Not a JSON error, return generic error
-      return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
-    }
-    console.error('Admin DELETE error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('[Admin API DELETE] Error:', error)
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }
