@@ -3,9 +3,7 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { checkAdmin, unauthorizedResponse } from '@/lib/admin-auth'
 
 export async function GET(request: Request) {
-  if (!checkAdmin(request)) {
-    return unauthorizedResponse()
-  }
+  if (!checkAdmin(request)) return unauthorizedResponse()
 
   try {
     const supabase = getSupabaseAdmin()
