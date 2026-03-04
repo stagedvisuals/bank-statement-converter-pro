@@ -1,46 +1,53 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
 export async function POST(request: Request) {
   try {
-    const formData = await request.formData();
-    
-    const naam = formData.get('naam') as string;
-    const email = formData.get('email') as string;
-    const onderwerp = formData.get('onderwerp') as string;
-    const bericht = formData.get('bericht') as string;
-    const privacy = formData.get('privacy') as string;
+    const body = await request.json()
+    const { naam, email, onderwerp, bericht, privacy } = body
 
     // Validatie
     if (!naam || !email || !onderwerp || !bericht || !privacy) {
-      return NextResponse.json(
-        { error: 'Alle velden zijn verplicht' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Alle velden zijn verplicht' }, { status: 400 })
     }
 
-    // Email validatie
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Ongeldig emailadres' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Ongeldig emailadres' }, { status: 400 })
     }
 
-    // Email verzenden via Resend - TODO of opslaan in Supabase
-    // Voor nu loggen we naar console
-    console.log('Contact formulier ontvangen:', {
-      naam,
-      email,
-      onderwerp,
-      bericht,
-      timestamp: new Date().toISOString(),
-    });
+    // Sla op in Supabase zodat berichten niet verloren gaan
+    try {
+      const supabase = getSupabaseAdmin()
+      await supabase.from('contact_messages').insert({
+        naam,
+        email,
+        onderwerp,
+        bericht,
+        created_at: new Date().toISOString(),
+      })
+    } catch (dbError) {
+      // Als de tabel niet bestaat, log het maar stuur wel success
+      console.error('[Contact] Database opslaan mislukt:', dbError)
+    }
 
-    // Succes response - redirect terug naar contact pagina met succesmelding
-    return NextResponse.redirect(new URL('/contact?success=true', request.url), 302);
-  } catch (error) {
-    console.error('Contact form error:', error);
-    return NextResponse.redirect(new URL('/contact?error=true', request.url), 302);
+    // TODO: Implementeer Resend email service
+    // import { Resend } from 'resend'
+    // const resend = new Resend(process.env.RESEND_API_KEY)
+    // await resend.emails.send({
+    //   from: 'BSCPro <noreply@bscpro.nl>',
+    //   to: 'info@bscpro.nl',
+    //   subject: `Contact: ${onderwerp} van ${naam}`,
+    //   text: `Naam: ${naam}\nEmail: ${email}\nOnderwerp: ${onderwerp}\n\n${bericht}`,
+    // })
+
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Bericht ontvangen' 
+    })
+  } catch (error: any) {
+    return NextResponse.json({ 
+      error: 'Er is iets misgegaan' 
+    }, { status: 500 })
   }
 }

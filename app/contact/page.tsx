@@ -1,133 +1,208 @@
-import Link from 'next/link';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+'use client'
 
-export const metadata = {
-  title: 'Neem contact op | BSCPro',
-  description: 'Neem contact op met BSCPro. We reageren binnen 2 werkdagen.',
-};
+import { useState } from 'react'
+import Link from 'next/link'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
 
 export default function ContactPage() {
+  const [formData, setFormData] = useState({
+    naam: '',
+    email: '',
+    onderwerp: '',
+    bericht: '',
+    privacy: false
+  })
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setStatus('loading')
+    
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+
+      if (res.ok) {
+        setStatus('success')
+        setFormData({ 
+          naam: '', 
+          email: '', 
+          onderwerp: '', 
+          bericht: '', 
+          privacy: false 
+        })
+      } else {
+        setStatus('error')
+      }
+    } catch {
+      setStatus('error')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
       <main className="flex-grow">
         <div className="max-w-4xl mx-auto px-6 py-12">
           <h1 className="text-4xl font-bold mb-4">Neem contact op</h1>
-          <p className="text-lg text-muted-foreground mb-8">We reageren binnen 2 werkdagen</p>
+          <p className="text-lg text-muted-foreground mb-8">
+            We reageren binnen 2 werkdagen
+          </p>
 
           <div className="grid md:grid-cols-2 gap-8">
-            {/* Contact Form */}
             <div className="bg-card border border-border rounded-xl p-6">
-              <form action="/api/contact" method="POST" className="space-y-4">
-                <div>
-                  <label htmlFor="naam" className="block text-sm font-medium text-foreground mb-1">Naam *</label>
-                  <input
-                    type="text"
-                    id="naam"
-                    name="naam"
-                    required
-                    className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00b8d9]"
-                    placeholder="Jouw naam"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1">Email *</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    required
-                    className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00b8d9]"
-                    placeholder="jouw@email.nl"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="onderwerp" className="block text-sm font-medium text-foreground mb-1">Onderwerp *</label>
-                  <select
-                    id="onderwerp"
-                    name="onderwerp"
-                    required
-                    className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00b8d9]"
+              {status === 'success' ? (
+                <div className="text-center py-8">
+                  <p className="text-2xl mb-2">✅</p>
+                  <p className="text-lg font-semibold mb-2">Bericht verzonden!</p>
+                  <p className="text-muted-foreground">
+                    We reageren binnen 2 werkdagen.
+                  </p>
+                  <button
+                    onClick={() => setStatus('idle')}
+                    className="mt-4 text-[#00b8d9] hover:underline text-sm"
                   >
-                    <option value="">Kies een onderwerp</option>
-                    <option value="algemeen">Algemene vraag</option>
-                    <option value="technisch">Technisch probleem</option>
-                    <option value="factuur">Factuur of betaling</option>
-                    <option value="partnership">Partnership / samenwerking</option>
-                    <option value="enterprise">Enterprise aanvraag</option>
-                    <option value="anders">Anders</option>
-                  </select>
+                    Nieuw bericht sturen
+                  </button>
                 </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <label htmlFor="naam" className="block text-sm font-medium text-foreground mb-1">
+                      Naam *
+                    </label>
+                    <input
+                      type="text"
+                      id="naam"
+                      value={formData.naam}
+                      onChange={(e) => setFormData({ ...formData, naam: e.target.value })}
+                      className="w-full px-4 py-2 bg-input border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#00b8d9]"
+                      required
+                      disabled={status === 'loading'}
+                    />
+                  </div>
 
-                <div>
-                  <label htmlFor="bericht" className="block text-sm font-medium text-foreground mb-1">Bericht *</label>
-                  <textarea
-                    id="bericht"
-                    name="bericht"
-                    required
-                    rows={5}
-                    className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00b8d9]"
-                    placeholder="Vertel ons waarmee we je kunnen helpen..."
-                  />
-                </div>
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1">
+                      Email *
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full px-4 py-2 bg-input border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#00b8d9]"
+                      required
+                      disabled={status === 'loading'}
+                    />
+                  </div>
 
-                <div className="flex items-start gap-2">
-                  <input
-                    type="checkbox"
-                    id="privacy"
-                    name="privacy"
-                    required
-                    className="mt-1 w-4 h-4 rounded border-border text-[#00b8d9] focus:ring-[#00b8d9]"
-                  />
-                  <label htmlFor="privacy" className="text-sm text-muted-foreground">
-                    Ik ga akkoord met de <Link href="/privacy" className="text-[#00b8d9] hover:underline">privacyverklaring</Link> *
-                  </label>
-                </div>
+                  <div>
+                    <label htmlFor="onderwerp" className="block text-sm font-medium text-foreground mb-1">
+                      Onderwerp *
+                    </label>
+                    <input
+                      type="text"
+                      id="onderwerp"
+                      value={formData.onderwerp}
+                      onChange={(e) => setFormData({ ...formData, onderwerp: e.target.value })}
+                      className="w-full px-4 py-2 bg-input border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#00b8d9]"
+                      required
+                      disabled={status === 'loading'}
+                    />
+                  </div>
 
-                <button
-                  type="submit"
-                  className="w-full px-6 py-3 bg-[#00b8d9] text-[#080d14] rounded-lg font-semibold hover:shadow-lg transition-all"
-                >
-                  Verstuur bericht
-                </button>
-              </form>
+                  <div>
+                    <label htmlFor="bericht" className="block text-sm font-medium text-foreground mb-1">
+                      Bericht *
+                    </label>
+                    <textarea
+                      id="bericht"
+                      value={formData.bericht}
+                      onChange={(e) => setFormData({ ...formData, bericht: e.target.value })}
+                      rows={4}
+                      className="w-full px-4 py-2 bg-input border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#00b8d9]"
+                      required
+                      disabled={status === 'loading'}
+                    />
+                  </div>
+
+                  <div className="flex items-start">
+                    <input
+                      type="checkbox"
+                      id="privacy"
+                      checked={formData.privacy}
+                      onChange={(e) => setFormData({ ...formData, privacy: e.target.checked })}
+                      className="mt-1 mr-2"
+                      required
+                      disabled={status === 'loading'}
+                    />
+                    <label htmlFor="privacy" className="text-sm text-foreground">
+                      Ik ga akkoord met het{' '}
+                      <Link href="/privacy" className="text-[#00b8d9] hover:underline">
+                        privacybeleid
+                      </Link>
+                      . *
+                    </label>
+                  </div>
+
+                  {status === 'error' && (
+                    <div className="text-red-500 text-sm">
+                      Er is iets misgegaan. Probeer het opnieuw.
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={status === 'loading'}
+                    className="w-full py-3 bg-[#00b8d9] text-[#080d14] font-semibold rounded-lg hover:bg-[#00a8c9] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {status === 'loading' ? 'Verzenden...' : 'Verstuur bericht'}
+                  </button>
+                </form>
+              )}
             </div>
 
-            {/* Contact Info */}
             <div className="space-y-6">
               <div className="bg-card border border-border rounded-xl p-6">
-                <h2 className="text-xl font-semibold mb-4">Direct contact</h2>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">📧</span>
-                    <div>
-                      <p className="font-medium">Email</p>
-                      <a href="mailto:info@bscpro.nl" className="text-[#00b8d9] hover:underline">info@bscpro.nl</a>
-                    </div>
+                <h3 className="text-xl font-semibold mb-4">Contactgegevens</h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Email</p>
+                    <p className="font-medium">info@bscpro.nl</p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🕐</span>
-                    <div>
-                      <p className="font-medium">Reactietijd</p>
-                      <p className="text-muted-foreground">Binnen 2 werkdagen</p>
-                    </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">KVK</p>
+                    <p className="font-medium">12345678</p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">📍</span>
-                    <div>
-                      <p className="font-medium">Locatie</p>
-                      <p className="text-muted-foreground">Nederland</p>
-                    </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">BTW</p>
+                    <p className="font-medium">NL123456789B01</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-                <p className="text-sm text-amber-800 dark:text-amber-200">
-                  ⚠️ <strong>Let op:</strong> Dit contactformulier is voor algemene vragen. Voor dringende technische problemen, gebruik de live chat in je dashboard.
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="text-xl font-semibold mb-4">Veelgestelde vragen</h3>
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Bekijk onze{' '}
+                    <Link href="/faq" className="text-[#00b8d9] hover:underline">
+                      FAQ pagina
+                    </Link>{' '}
+                    voor veelgestelde vragen over BSCPro.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="text-xl font-semibold mb-4">Support</h3>
+                <p className="text-sm text-muted-foreground">
+                  Voor technische support, log in op je account en gebruik het support formulier.
                 </p>
               </div>
             </div>
@@ -136,5 +211,5 @@ export default function ContactPage() {
       </main>
       <Footer />
     </div>
-  );
+  )
 }
