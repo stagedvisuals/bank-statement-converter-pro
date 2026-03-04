@@ -18,6 +18,9 @@ interface User {
   plan: string;
   created_at: string;
   conversions_count?: number;
+  credits?: {
+    remaining_credits: number;
+  };
 }
 
 interface Conversion {
@@ -426,9 +429,9 @@ function UsersTab({ users, isLoading, logActivity, onRefresh }: {
     if (!editUser) return
     setSaving(true)
     try {
-      // Bereken nieuwe credits (huidige + extra)
-      const currentCredits = editUser.conversions_count || 0
-      const newCredits = editCredits > 0 ? currentCredits + editCredits : currentCredits
+      // Gebruik admin input als nieuwe credit waarde
+      // Admin vult gewenste credits in - geen optelling
+      const newCredits = editCredits
       
       const res = await fetch('/api/admin/users', {
         method: 'PATCH',
@@ -545,7 +548,7 @@ function UsersTab({ users, isLoading, logActivity, onRefresh }: {
                       onClick={() => {
                         setEditUser(user)
                         setEditPlan(user.plan || 'free')
-                        setEditCredits(user.conversions_count || 0)
+                        setEditCredits(user.credits?.remaining_credits || 0)
                       }}
                       className="p-2 text-muted-foreground hover:text-[#00b8d9] transition-colors"
                       title="Bewerken"

@@ -86,7 +86,7 @@ function getIntuBid(bank: string): string {
 // Admin check - alleen admin mag QBO exporteren (tot Enterprise live gaat)
 function isAdmin(req: NextApiRequest): boolean {
   const adminHeader = req.headers['x-admin-secret'];
-  return adminHeader === process.env.ADMIN_SECRET || adminHeader === 'BSCPro2025!';
+  return adminHeader === process.env.ADMIN_SECRET;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

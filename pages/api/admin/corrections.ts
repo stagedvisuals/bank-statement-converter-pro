@@ -10,7 +10,7 @@ function isAdmin(request: NextApiRequest) {
   const secret = request.headers['x-admin-secret']
   return secret === process.env.ADMIN_SECRET || 
          secret === process.env.NEXT_PUBLIC_ADMIN_SECRET || 
-         secret === 'BSCPro2025!'
+         false
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
