@@ -59,7 +59,8 @@ export default function Dashboard() {
   const [waitlistEmail, setWaitlistEmail] = useState('');
   const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
   const [credits, setCredits] = useState<number>(0);
-  const [userPlan, setUserPlan] = useState<string>('free');
+  const [loading, setLoading] = useState(true);
+  const [userPlan, setUserPlan] = useState<string>('');
   const [scannedData, setScannedData] = useState<any>(null);
   const [scanHistory, setScanHistory] = useState<any[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
@@ -122,9 +123,13 @@ export default function Dashboard() {
   }, []);
 
   const fetchCredits = async () => {
+    setLoading(true);
     try {
       const session = localStorage.getItem('bscpro_session');
-      if (!session) return;
+      if (!session) {
+        setLoading(false);
+        return;
+      }
       const { access_token } = JSON.parse(session);
       const response = await fetch('/api/user/credits', {
         headers: { 'Authorization': `Bearer ${access_token}` }
@@ -133,10 +138,12 @@ export default function Dashboard() {
         const data = await response.json();
         setCredits(data.credits?.remaining_credits || 0);
         setOnboardingComplete(data.onboarding?.progress_percentage === 100);
-        setUserPlan(data.plan || 'free');
+        setUserPlan(data.plan || '');
       }
     } catch (error) {
       console.error('Error fetching credits:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -509,6 +516,31 @@ export default function Dashboard() {
 
   const showEmptyState = transactions.length === 0 && scanStatus === 'idle' && !file;
 
+  // Loading state - toon spinner totdat data geladen is
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <div className="border-b border-border bg-card">
+          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="hidden md:block">
+                <h1 className="text-lg font-bold">BSC Pro</h1>
+                <p className="text-xs text-muted-foreground">Bank Statement Converter</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <main className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00b8d9] mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Dashboard laden...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+
   return (
     <div className="min-h-screen bg-background">
       <Head><title>Dashboard - BSC Pro</title></Head>
@@ -556,7 +588,7 @@ export default function Dashboard() {
         <OnboardingTracker />
 
         <div className="flex flex-col gap-3 mb-6 md:flex-row md:items-center md:justify-between">
-          <div className="min-w-0">
+          <div>
             <h1 className="text-xl font-bold md:text-2xl">Dashboard</h1>
             <p className="text-muted-foreground text-xs md:text-sm">
               Converteer je bankafschriften naar Excel, CSV of MT940
@@ -565,6 +597,9 @@ export default function Dashboard() {
           <div className="flex items-center gap-2 flex-wrap">
             {/* Plan Badge */}
             {(() => {
+              // Toon niets als plan nog niet geladen is
+              if (!userPlan) return null;
+              
               const planConfig: Record<string, {label: string, color: string, emoji: string}> = {
                 'free': { label: 'Free', color: 'bg-muted text-muted-foreground border-border', emoji: '🆓' },
                 'starter': { label: 'Starter', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30', emoji: '⭐' },
@@ -580,18 +615,20 @@ export default function Dashboard() {
                 </div>
               );
             })()}
+            {credits !== null && (
             <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border ${
               credits > 0 ? 'bg-[#00b8d9]/10 border-[#00b8d9]/30' : 'bg-destructive/10 border-destructive/30'
             }`}>
               <span className="text-lg">{credits > 0 ? '✅' : '❌'}</span>
-              <div className="min-w-0">
+              <div>
                 <p className="text-xs text-muted-foreground">Credits</p>
                 <p className={`font-bold text-sm ${credits > 0 ? 'text-[#00b8d9]' : 'text-destructive'}`}>
                   {credits} beschikbaar
                 </p>
               </div>
             </div>
-            {credits === 0 && (
+            )}
+            {credits === 0 && credits !== null && (
               <Link href="/#pricing" className="px-4 py-2 bg-[#00b8d9] text-[#080d14] rounded-xl text-sm font-bold hover:bg-[#00a8c9] transition-colors">
                 ⬆️ Upgrade
               </Link>
@@ -602,7 +639,7 @@ export default function Dashboard() {
         {credits > 0 && credits <= 2 && transactions.length === 0 && (
           <div className="mb-6 p-6 bg-gradient-to-r from-[#00b8d9]/10 to-[#0088aa]/10 border border-[#00b8d9]/30 rounded-2xl">
             <div className="flex items-start justify-between">
-              <div className="min-w-0">
+              <div>
                 <h2 className="text-xl font-bold mb-2">
                   👋 Welkom bij BSCPro!
                 </h2>
@@ -612,7 +649,7 @@ export default function Dashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   <div className="flex items-start gap-3">
                     <span className="text-2xl">📄</span>
-                    <div className="min-w-0">
+                    <div>
                       <p className="font-medium text-sm">1. Upload PDF</p>
                       <p className="text-xs text-muted-foreground">
                         Sleep je bankafschrift naar het upload veld
@@ -621,7 +658,7 @@ export default function Dashboard() {
                   </div>
                   <div className="flex items-start gap-3">
                     <span className="text-2xl">🤖</span>
-                    <div className="min-w-0">
+                    <div>
                       <p className="font-medium text-sm">2. AI verwerkt</p>
                       <p className="text-xs text-muted-foreground">
                         Onze AI herkent alle transacties automatisch
@@ -630,7 +667,7 @@ export default function Dashboard() {
                   </div>
                   <div className="flex items-start gap-3">
                     <span className="text-2xl">📊</span>
-                    <div className="min-w-0">
+                    <div>
                       <p className="font-medium text-sm">3. Download Excel</p>
                       <p className="text-xs text-muted-foreground">
                         Kies je formaat: Excel, CSV, MT940 of CAMT.053
@@ -672,10 +709,10 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="flex items-center justify-between bg-background border border-border rounded-xl p-4">
-                  <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-3">
                     <FileText className="w-8 h-8 text-[#00b8d9]" />
-                    <div className="min-w-0">
-                      <p className="font-medium text-foreground truncate max-w-full">{file.name}</p>
+                    <div>
+                      <p className="font-medium text-foreground">{file.name}</p>
                       <p className="text-sm text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                     </div>
                   </div>
@@ -718,21 +755,21 @@ export default function Dashboard() {
                 )}
                 
                 {/* Summary Cards */}
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="min-w-0 overflow-hidden bg-card border border-border rounded-xl p-3 sm:p-4 text-center">
-                    <p className="text-base sm:text-xl md:text-2xl font-bold text-[#00b8d9] truncate">
+                <div className="grid grid-cols-3 gap-2 md:gap-4">
+                  <div className="bg-card border border-border rounded-xl p-4 text-center">
+                    <p className="text-xl md:text-2xl font-bold text-[#00b8d9]">
                       {scannedData.transacties?.length || 0}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">Transacties</p>
                   </div>
-                  <div className="min-w-0 overflow-hidden bg-card border border-border rounded-xl p-3 sm:p-4 text-center">
-                    <p className="text-base sm:text-xl md:text-2xl font-bold text-emerald-500 truncate">
+                  <div className="bg-card border border-border rounded-xl p-4 text-center">
+                    <p className="text-2xl font-bold text-emerald-500">
                       €{scannedData.transacties?.filter((t: any) => t.bedrag > 0).reduce((sum: number, t: any) => sum + t.bedrag, 0).toFixed(2) || '0.00'}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">Inkomsten</p>
                   </div>
-                  <div className="min-w-0 overflow-hidden bg-card border border-border rounded-xl p-3 sm:p-4 text-center">
-                    <p className="text-base sm:text-xl md:text-2xl font-bold text-destructive truncate">
+                  <div className="bg-card border border-border rounded-xl p-4 text-center">
+                    <p className="text-2xl font-bold text-destructive">
                       €{Math.abs(scannedData.transacties?.filter((t: any) => t.bedrag < 0).reduce((sum: number, t: any) => sum + t.bedrag, 0) || 0).toFixed(2)}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">Uitgaven</p>
@@ -780,7 +817,7 @@ export default function Dashboard() {
                             <td className="p-2 text-xs text-muted-foreground whitespace-nowrap">
                               {t.datum}
                             </td>
-                            <td className="p-2 text-xs truncate min-w-0 max-w-[150px] md:max-w-[250px]">
+                            <td className="p-2 text-xs truncate max-w-[150px] md:max-w-[250px]">
                               <span className="mr-1">{t.icon || '📋'}</span>
                               {t.omschrijving}
                             </td>
@@ -891,9 +928,9 @@ export default function Dashboard() {
                         setScanStatus('done');
                       }}
                     >
-                      <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex items-center gap-3">
                         <span className="text-lg">📄</span>
-                        <div className="min-w-0">
+                        <div>
                           <p className="text-sm font-medium truncate max-w-[200px] md:max-w-none">{item.bank} - {item.rekeninghouder}</p>
                           <p className="text-xs text-muted-foreground">{item.datum} · {item.transacties} transacties</p>
                         </div>
@@ -976,7 +1013,7 @@ export default function Dashboard() {
                       onClick={() => setShowEnterpriseModal(true)} 
                       className="w-full flex items-center justify-between p-4 rounded-lg border border-amber-500/30 bg-gradient-to-r from-amber-500/5 to-purple-500/5 hover:from-amber-500/10 hover:to-purple-500/10 transition-all group"
                     >
-                      <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-purple-500 flex items-center justify-center">
                           <Globe className="w-5 h-5 text-white" />
                         </div>
@@ -1041,21 +1078,21 @@ export default function Dashboard() {
                     <div className="grid grid-cols-3 gap-3">
                       <div className="flex items-center gap-2 p-2 bg-emerald-500/10 rounded-lg">
                         <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                        <div className="min-w-0">
+                        <div>
                           <p className="text-xs text-muted-foreground">Zeker</p>
                           <p className="text-lg font-semibold text-emerald-600">{highTrustCount}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 p-2 bg-amber-500/10 rounded-lg">
                         <Shield className="w-4 h-4 text-amber-500" />
-                        <div className="min-w-0">
+                        <div>
                           <p className="text-xs text-muted-foreground">Check</p>
                           <p className="text-lg font-semibold text-amber-600">{mediumTrustCount}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 p-2 bg-red-500/10 rounded-lg">
                         <ShieldAlert className="w-4 h-4 text-red-500" />
-                        <div className="min-w-0">
+                        <div>
                           <p className="text-xs text-muted-foreground">Controle</p>
                           <p className="text-lg font-semibold text-red-600">{lowTrustCount}</p>
                         </div>
@@ -1064,23 +1101,23 @@ export default function Dashboard() {
                   </div>
                   
                   {/* BTW Overzicht */}
-                  <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-5">
-                    <div className="bg-background border border-border rounded-lg p-3 sm:p-4 text-center min-w-0">
+                  <div className="grid grid-cols-3 gap-4 mb-5">
+                    <div className="bg-background border border-border rounded-lg p-4">
                       <p className="text-sm text-muted-foreground mb-1">Rubriek 1a (21%)</p>
-                      <p className="text-base sm:text-xl font-semibold text-foreground truncate">€{btw21.toFixed(2)}</p>
+                      <p className="text-xl font-semibold text-foreground">€{btw21.toFixed(2)}</p>
                     </div>
-                    <div className="bg-background border border-border rounded-lg p-3 sm:p-4 text-center min-w-0">
+                    <div className="bg-background border border-border rounded-lg p-4">
                       <p className="text-sm text-muted-foreground mb-1">Rubriek 1b (9%)</p>
-                      <p className="text-base sm:text-xl font-semibold text-foreground truncate">€{btw9.toFixed(2)}</p>
+                      <p className="text-xl font-semibold text-foreground">€{btw9.toFixed(2)}</p>
                     </div>
-                    <div className="bg-background border border-border rounded-lg p-3 sm:p-4 text-center min-w-0">
+                    <div className="bg-background border border-border rounded-lg p-4">
                       <p className="text-sm text-muted-foreground mb-1">Rubriek 1d (0%)</p>
-                      <p className="text-base sm:text-xl font-semibold text-foreground truncate">€{btw0.toFixed(2)}</p>
+                      <p className="text-xl font-semibold text-foreground">€{btw0.toFixed(2)}</p>
                     </div>
                   </div>
                   
                   <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-4 flex items-center justify-between">
-                    <div className="min-w-0">
+                    <div>
                       <p className="text-sm text-muted-foreground mb-1">Te betalen BTW</p>
                       <p className="text-3xl font-bold text-[#00b8d9]">€{totalBtw.toFixed(2)}</p>
                     </div>
@@ -1106,11 +1143,11 @@ export default function Dashboard() {
           <div className="bg-card border border-border rounded-2xl max-w-md w-full p-6 shadow-2xl">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3 min-w-0">
+              <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-purple-500 flex items-center justify-center">
                   <Crown className="w-6 h-6 text-white" />
                 </div>
-                <div className="min-w-0">
+                <div>
                   <h3 className="text-lg font-semibold text-foreground">Internationale Export (QBO)</h3>
                   <p className="text-xs text-amber-500 font-medium">Enterprise Feature</p>
                 </div>
@@ -1281,7 +1318,7 @@ export default function Dashboard() {
               <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
                 <AlertTriangle className="w-5 h-5 text-destructive" />
               </div>
-              <div className="min-w-0">
+              <div>
                 <h3 className="font-semibold text-foreground">Sessie verloopt bijna</h3>
                 <p className="text-xs text-muted-foreground">Veiligheidstimeout</p>
               </div>
