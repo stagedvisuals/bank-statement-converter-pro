@@ -5,7 +5,7 @@ import Groq from 'groq-sdk'
 
 export const config = { api: { bodyParser: false } }
 
-// Simple text extraction function
+// Simple text extraction function - NO MOCK DATA
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   try {
     // Try to use pdf-parse if available
@@ -13,29 +13,13 @@ async function extractTextFromPDF(buffer: Buffer): Promise<string> {
     const data = await pdfParse(buffer);
     if (data.text && data.text.trim().length > 10) {
       return data.text;
+    } else {
+      throw new Error('PDF bevat geen leesbare tekst');
     }
   } catch (err) {
-    console.log('PDF parse error, using fallback:', (err as Error).message);
+    console.log('PDF parse error:', (err as Error).message);
+    throw new Error('PDF kon niet worden verwerkt. Probeer een ander PDF bestand.');
   }
-  
-  // Fallback: For testing, return dummy bank statement data
-  // In production, you should implement proper PDF parsing
-  return `Rabobank rekening: NL12RABO0123456789
-Rekeninghouder: J. de Vries
-Periode: 01-01-2024 tot 31-01-2024
-Saldo begin: €1.250,00
-
-Transacties:
-2024-01-01 Albert Heijn Amsterdam -85.43
-2024-01-05 NS treinkaartje -12.50
-2024-01-10 Tankstation Shell -65.20
-2024-01-15 Salaris ING +2500.00
-2024-01-20 Bol.com -129.99
-2024-01-25 Netflix -12.99
-2024-01-28 AH to go -8.75
-2024-01-30 Spotify -10.99
-
-Saldo eind: €3.442,89`;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -67,7 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     tempFilePath = file.filepath as string
     const fileBuffer = fs.readFileSync(tempFilePath)
     
-    // Extract text from PDF
+    // Extract text from PDF - NO MOCK DATA
     console.log('Extracting text from PDF, size:', fileBuffer.length, 'bytes');
     let extractedText = await extractTextFromPDF(fileBuffer);
     console.log('Extracted text length:', extractedText.length, 'chars');
@@ -151,12 +135,7 @@ Regels:
       return res.status(500).json({ 
         error: 'AI response kon niet worden verwerkt',
         errorType: 'ai_parse_error',
-        rawResponse: responseText.substring(0, 500),
-        debug: {
-          responseLength: responseText.length,
-          hasJsonMatch: !!responseText.match(/\{[\s\S]*\}/),
-          firstChars: responseText.substring(0, 100)
-        }
+        rawResponse: responseText.substring(0, 500)
       })
     }
     
@@ -164,19 +143,16 @@ Regels:
     return res.status(200).json({
       success: true,
       message: 'Bankafschrift geconverteerd',
-      data: parsedData,
-      debug: {
-        extractedTextLength: extractedText.length,
-        model: 'llama-3.3-70b-versatile'
-      }
+      data: parsedData
     });
     
   } catch (error: any) {
-    console.error('Convert error:', error.message, error.stack);
+    console.error('Convert error:', error.message);
     
+    // Return user-friendly error message
     return res.status(500).json({ 
-      error: 'Fout: ' + error.message,
-      errorType: 'internal_error'
+      error: 'PDF kon niet worden verwerkt. Probeer opnieuw.',
+      errorType: 'pdf_processing_error'
     })
   } finally {
     if (tempFilePath && fs.existsSync(tempFilePath)) {
