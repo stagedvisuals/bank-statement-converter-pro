@@ -107,6 +107,7 @@ export async function PATCH(request: Request) {
   }
 }
 
+
 export async function DELETE(request: Request) {
   if (!checkAdmin(request)) return unauthorizedResponse()
 
@@ -114,26 +115,34 @@ export async function DELETE(request: Request) {
     // Lees userId uit query params (frontend stuurt het als query param)
     const { searchParams } = new URL(request.url)
     let userId = searchParams.get('userId')
+
+    // Fallback: probeer ook JSON body
+    if (!userId) {
+      try {
+        const body = await request.json()
+        userId = body.userId
+      } catch {}
+    }
+
     if (!userId) {
       return NextResponse.json({ error: 'userId is verplicht' }, { status: 400 })
     }
 
     const supabase = getSupabaseAdmin()
     
-    // Verwijder eerst credits
-    await supabase
-      .from('user_credits')
-      .delete()
-      .eq('user_id', userId)
-
-    // Verwijder dan profile
-    const { error } = await supabase
-      .from('user_profiles')
-      .delete()
-      .eq('user_id', userId)
-
+    // Verwijder eerst gerelateerde data, dan profile, dan auth user
+    await supabase.from('user_credits').delete().eq('user_id', userId)
+    await supabase.from('conversions').delete().eq('user_id', userId)
+    await supabase.from('api_keys').delete().eq('user_id', userId)
+    await supabase.from('webhooks').delete().eq('user_id', userId)
+    await supabase.from('onboarding_status').delete().eq('user_id', userId)
+    await supabase.from('user_profiles').delete().eq('user_id', userId)
+    
+    const { error } = await supabase.auth.admin.deleteUser(userId)
     if (error) {
-      return NextResponse.json({ error: 'Verwijderen mislukt: ' + error.message }, { status: 500 })
+      return NextResponse.json({ 
+        error: 'Auth user verwijderen mislukt: ' + error.message 
+      }, { status: 500 })
     }
 
     return NextResponse.json({ 
