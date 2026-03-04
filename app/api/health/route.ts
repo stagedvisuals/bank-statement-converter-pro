@@ -7,12 +7,9 @@ export async function GET() {
   // 1. Check env vars
   const requiredEnvs = [
     'NEXT_PUBLIC_SUPABASE_URL',
-    'SUPABASE_SERVICE_ROLE_KEY',
-    'ADMIN_SECRET',
-    'GROQ_API_KEY'
+    'SUPABASE_SERVICE_ROLE_KEY'
   ]
   const missingEnvs = requiredEnvs.filter(e => !process.env[e])
-  
   results.env_vars = {
     status: missingEnvs.length === 0 ? 'ok' : 'warning',
     missing: missingEnvs,

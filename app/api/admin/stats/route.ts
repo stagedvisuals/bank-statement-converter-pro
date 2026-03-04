@@ -23,7 +23,7 @@ export async function GET(request: Request) {
     // Get user stats
     const { data: users, error: usersError } = await supabase
       .from('user_profiles')
-      .select('id, created_at, last_active');
+      .select('id, created_at, last_login_at');
 
     if (usersError) {
       return NextResponse.json({ 
@@ -59,8 +59,8 @@ export async function GET(request: Request) {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     
     const activeToday = users?.filter(u => {
-      if (!u.last_active) return false;
-      const lastActive = new Date(u.last_active);
+      if (!u.last_login_at) return false;
+      const lastActive = new Date(u.last_login_at);
       return lastActive >= today;
     }).length || 0;
 
