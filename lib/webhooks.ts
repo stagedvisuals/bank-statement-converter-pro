@@ -1,72 +1,79 @@
 import { getSupabaseAdmin } from './supabase-admin'
+import crypto from 'crypto'
 
-export interface WebhookEvent {
-  id: string
-  event: string
-  payload: any
-  url: string
-  signature: string
-  status: 'pending' | 'success' | 'failed'
-  attempts: number
-  lastAttemptAt?: string
-  createdAt: string
-}
-
-export async function triggerWebhook(
+export async function triggerWebhooks(
   userId: string,
   event: string,
-  payload: any
+  payload: Record<string, any>
 ): Promise<void> {
   try {
     const supabase = getSupabaseAdmin()
-    
-    // Haal webhooks op voor deze gebruiker en event
     const { data: webhooks, error } = await supabase
       .from('webhooks')
-      .select('*')
+      .select('id, url, secret, events, is_active, failure_count')
       .eq('user_id', userId)
       .eq('is_active', true)
-      .contains('events', [event])
 
-    if (error) {
-      console.error('Error fetching webhooks:', error)
-      return
-    }
+    if (error || !webhooks || webhooks.length === 0) return
 
-    if (!webhooks || webhooks.length === 0) {
-      return // Geen webhooks geconfigureerd
-    }
-
-    // Voor elke webhook, voeg toe aan queue
     for (const webhook of webhooks) {
-      const webhookEvent: Omit<WebhookEvent, 'id'> = {
-        event,
-        payload,
-        url: webhook.url,
-        signature: '', // Wordt berekend bij verzending
-        status: 'pending',
-        attempts: 0,
-        createdAt: new Date().toISOString()
-      }
+      // Check of webhook dit event type ondersteunt
+      if (webhook.events && !webhook.events.includes(event)) continue
+      
+      // Skip webhooks met te veel failures
+      if (webhook.failure_count >= 10) continue
 
-      const { error: insertError } = await supabase
-        .from('webhook_events')
-        .insert(webhookEvent)
+      try {
+        const signature = crypto
+          .createHmac('sha256', webhook.secret)
+          .update(JSON.stringify({ event, payload }))
+          .digest('hex')
 
-      if (insertError) {
-        console.error('Error queueing webhook event:', insertError)
+        const response = await fetch(webhook.url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Webhook-Signature': signature,
+            'X-Webhook-Event': event,
+          },
+          body: JSON.stringify({
+            event,
+            payload,
+            timestamp: new Date().toISOString()
+          }),
+          signal: AbortSignal.timeout(10000), // 10s timeout
+        })
+
+        if (!response.ok) {
+          // Increment failure count
+          await supabase
+            .from('webhooks')
+            .update({
+              failure_count: webhook.failure_count + 1,
+              last_triggered_at: new Date().toISOString(),
+            })
+            .eq('id', webhook.id)
+        } else {
+          // Reset failure count on success
+          await supabase
+            .from('webhooks')
+            .update({
+              failure_count: 0,
+              last_triggered_at: new Date().toISOString(),
+            })
+            .eq('id', webhook.id)
+        }
+      } catch {
+        // Network error - increment failure
+        await supabase
+          .from('webhooks')
+          .update({
+            failure_count: webhook.failure_count + 1
+          })
+          .eq('id', webhook.id)
       }
     }
   } catch (error) {
-    console.error('Error in triggerWebhook:', error)
+    console.error('[Webhooks] Error triggering webhooks:', error)
   }
-}
-
-// Alias voor backward compatibility
-export const triggerWebhooks = triggerWebhook
-
-export async function processPendingWebhooks(): Promise<void> {
-  // Deze functie wordt aangeroepen door een cron job
-  // Verstuurt pending webhooks met retry logic
-  console.log('Webhook processing not implemented yet')
 }

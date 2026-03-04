@@ -94,23 +94,16 @@ export default function AdminPage() {
     });
   };
 
-  const handleLogin = async () => {
-    try {
-      const res = await fetch("/api/admin/stats", {
-        headers: { "x-admin-secret": password }
-      });
-      if (res.ok) {
-        localStorage.setItem("bscpro_admin", "true");
-        localStorage.setItem("bscpro_admin_secret", password);
-        setIsAuthenticated(true);
-        logActivity("Admin logged in");
-      } else {
-        alert("Onjuist wachtwoord");
-      }
-    } catch {
-      alert("Kan niet verbinden met server");
+  const handleLogin = () => {
+    if (password === (process.env.NEXT_PUBLIC_ADMIN_SECRET || "BSCPro2025!")) {
+      localStorage.setItem('bscpro_admin', 'true');
+      setIsAuthenticated(true);
+      logActivity('Admin logged in');
+    } else {
+      alert('Onjuist wachtwoord');
     }
   };
+
   const handleLogout = () => {
     logActivity('Admin logged out');
     localStorage.removeItem('bscpro_admin');
@@ -125,7 +118,7 @@ export default function AdminPage() {
     setError(null);
     
     try {
-      const adminHeaders = { 'x-admin-secret': localStorage.getItem("bscpro_admin_secret") || "" };
+      const adminHeaders = { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || 'BSCPro2025!' };
       
       // Fetch stats
       const statsRes = await fetch('/api/admin/stats', { headers: adminHeaders });
@@ -160,7 +153,7 @@ export default function AdminPage() {
 
   // Health check - comprehensive
   const checkHealth = async () => {
-    const adminHeaders = { 'x-admin-secret': localStorage.getItem("bscpro_admin_secret") || "" };
+    const adminHeaders = { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || 'BSCPro2025!' };
     
     // Check Database
     try {
@@ -434,7 +427,7 @@ function UsersTab({ users, isLoading, logActivity, onRefresh }: {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'x-admin-secret': localStorage.getItem("bscpro_admin_secret") || ""
+          'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || 'BSCPro2025!'
         },
         body: JSON.stringify({ 
           userId: editUser.id, 
@@ -458,7 +451,7 @@ function UsersTab({ users, isLoading, logActivity, onRefresh }: {
     try {
       const res = await fetch('/api/admin/users?userId=' + userId, {
         method: 'DELETE',
-        headers: { 'x-admin-secret': localStorage.getItem("bscpro_admin_secret") || "" }
+        headers: { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || 'BSCPro2025!' }
       })
       if (res.ok) {
         alert("Gebruiker succesvol verwijderd")
