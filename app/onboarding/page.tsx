@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { CheckCircle, Upload, FileText, Download, ArrowRight, Sparkles } from 'lucide-react'
+import Link from 'next/link'
+import { CheckCircle, Upload, FileText, ArrowRight, Clock, Shield } from 'lucide-react'
 
 export default function OnboardingPage() {
   const router = useRouter()
@@ -10,22 +11,11 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(false)
   const [authChecked, setAuthChecked] = useState(false)
 
+  // Eenvoudige auth check zonder complexe retry logic
   useEffect(() => {
-    let cancelled = false
-    let retryCount = 0
-    const maxRetries = 3
-
     const checkAuth = () => {
-      if (cancelled) return
-      
       const session = localStorage.getItem('bscpro_session')
       if (!session) {
-        if (retryCount < maxRetries) {
-          retryCount++
-          setTimeout(checkAuth, 500)
-          return
-        }
-        // Geen sessie gevonden na retries, redirect naar login
         router.push('/')
         return
       }
@@ -33,32 +23,20 @@ export default function OnboardingPage() {
       try {
         const { access_token } = JSON.parse(session)
         if (!access_token) {
-          if (retryCount < maxRetries) {
-            retryCount++
-            setTimeout(checkAuth, 500)
-            return
-          }
           router.push('/')
           return
         }
         
-        // Auth is geldig
-        if (!cancelled) {
-          setAuthChecked(true)
-        }
+        setAuthChecked(true)
       } catch (error) {
         console.error('Auth check error:', error)
-        if (retryCount < maxRetries) {
-          retryCount++
-          setTimeout(checkAuth, 1000)
-          return
-        }
         router.push('/')
       }
     }
 
     checkAuth()
-      // Loading/Auth check
+  }, [router])
+
   if (!authChecked) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
@@ -70,144 +48,249 @@ export default function OnboardingPage() {
     )
   }
 
-return () => { cancelled = true }
-  }, [router])
-
   const completeOnboarding = async () => {
     setLoading(true)
     try {
       const session = localStorage.getItem('bscpro_session')
       if (!session) {
-        router.push('/dashboard')
+        router.push('/')
         return
       }
       const { access_token } = JSON.parse(session)
       
-      await fetch('/api/user/onboarding', {
+      const response = await fetch('/api/user/onboarding/complete', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${access_token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ step: 'completed', progress: 100 })
+          'Authorization': `Bearer ${access_token}`
+        }
       })
       
-      router.push('/dashboard')
+      if (response.ok) {
+        router.push('/dashboard')
+      } else {
+        console.error('Onboarding completion failed')
+      }
     } catch (error) {
-      console.error('Onboarding completion error:', error)
-      router.push('/dashboard')
+      console.error('Error:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const steps = [
-    {
-      icon: <Sparkles className="w-8 h-8 text-[#00b8d9]" />,
-      title: "Welkom bij BSCPro!",
-      description: "Je slimste keuze voor bankafschrift conversie. Laten we je snel wegwijs maken.",
-      action: "Start rondleiding"
-    },
-    {
-      icon: <Upload className="w-8 h-8 text-[#00b8d9]" />,
-      title: "1. Upload je PDF",
-      description: "Sleep eenvoudig je bankafschrift naar het dashboard. We accepteren PDF's van alle Nederlandse banken.",
-      action: "Volgende"
-    },
-    {
-      icon: <FileText className="w-8 h-8 text-[#00b8d9]" />,
-      title: "2. AI doet het werk",
-      description: "Onze AI herkent automatisch alle transacties, datums, bedragen en omschrijvingen. Geen handmatig werk meer!",
-      action: "Volgende"
-    },
-    {
-      icon: <Download className="w-8 h-8 text-[#00b8d9]" />,
-      title: "3. Download je bestand",
-      description: "Kies uit Excel, CSV, MT940 of CAMT.053 formaat. Direct klaar voor je boekhouding!",
-      action: "Volgende"
-    },
-    {
-      icon: <CheckCircle className="w-8 h-8 text-[#00b8d9]" />,
-      title: "Je hebt 2 gratis conversies!",
-      description: "Probeer BSCPro direct uit met je gratis credits. Daarna kun je eenvoudig upgraden.",
-      action: "Naar dashboard"
-    }
-  ]
-
-  const currentStep = steps[step - 1]
-
   return (
-    <div className="min-h-screen bg-[#080d14] flex items-center justify-center p-6">
-      <div className="max-w-lg w-full">
-        {/* Progress */}
-        <div className="flex gap-2 mb-8">
-          {steps.map((_, idx) => (
-            <div
-              key={idx}
-              className={`flex-1 h-1 rounded-full transition-colors ${
-                idx + 1 <= step ? 'bg-[#00b8d9]' : 'bg-gray-800'
-              }`}
-            />
-          ))}
-        </div>
-
-        {/* Card */}
-        <div className="bg-card border border-border rounded-2xl p-8 text-center">
-          <div className="w-16 h-16 bg-[#00b8d9]/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            {currentStep.icon}
-          </div>
-
-          <h1 className="text-2xl font-bold mb-4">{currentStep.title}</h1>
-          <p className="text-muted-foreground mb-8">{currentStep.description}</p>
-
-          <div className="flex gap-3">
-            {step > 1 && (
-              <button
-                onClick={() => setStep(step - 1)}
-                className="flex-1 px-4 py-3 border border-border rounded-xl hover:bg-accent transition-colors"
-              >
-                Terug
-              </button>
-            )}
-            <button
-              onClick={() => {
-                if (step < steps.length) {
-                  setStep(step + 1)
-                } else {
-                  completeOnboarding()
-                }
-              }}
-              disabled={loading}
-              className="flex-1 px-4 py-3 bg-[#00b8d9] text-[#080d14] rounded-xl font-bold hover:bg-[#00a8c9] transition-colors flex items-center justify-center gap-2"
-            >
-              {loading ? 'Laden...' : currentStep.action}
-              {!loading && <ArrowRight className="w-4 h-4" />}
-            </button>
-          </div>
-
-          {/* Skip option */}
-          <button
-            onClick={completeOnboarding}
-            className="mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Rondleiding overslaan →
-          </button>
-        </div>
-
-        {/* Features preview */}
-        <div className="mt-8 grid grid-cols-3 gap-4 text-center">
-          <div>
-            <p className="text-2xl font-bold text-[#00b8d9]">AI</p>
-            <p className="text-xs text-muted-foreground">Slimme herkenning</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-[#00b8d9]">5+</p>
-            <p className="text-xs text-muted-foreground">Export formaten</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-[#00b8d9]">100%</p>
-            <p className="text-xs text-muted-foreground">Nederlands</p>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="border-b border-border bg-card">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Link href="/">
+                <div className="text-xl font-bold">BSC<span className="text-[#00b8d9]">PRO</span></div>
+              </Link>
+              <div className="hidden md:block">
+                <p className="text-xs text-muted-foreground">Bank Statement Converter</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="text-sm text-muted-foreground">
+                Stap {step} van 3
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Progress bar */}
+      <div className="bg-muted">
+        <div 
+          className="h-1 bg-[#00b8d9] transition-all duration-300"
+          style={{ width: `${(step / 3) * 100}%` }}
+        />
+      </div>
+
+      {/* Main content */}
+      <main className="container mx-auto px-4 py-12 max-w-4xl">
+        <div className="text-center mb-12">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">
+            Welkom bij BSC Pro! 🎉
+          </h1>
+          <p className="text-lg text-muted-foreground">
+            Laten we je account instellen in 3 eenvoudige stappen
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8 mb-12">
+          {/* Step 1 */}
+          <div className={`rounded-xl p-6 border-2 ${step >= 1 ? 'border-[#00b8d9] bg-[#00b8d9]/5' : 'border-border bg-card'}`}>
+            <div className="flex items-center gap-4 mb-4">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-[#00b8d9] text-white' : 'bg-muted'}`}>
+                {step > 1 ? <CheckCircle className="w-5 h-5" /> : '1'}
+              </div>
+              <h3 className="text-lg font-bold">Account bevestigen</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Je account is succesvol aangemaakt. We hebben je email geverifieerd.
+            </p>
+          </div>
+
+          {/* Step 2 */}
+          <div className={`rounded-xl p-6 border-2 ${step >= 2 ? 'border-[#00b8d9] bg-[#00b8d9]/5' : 'border-border bg-card'}`}>
+            <div className="flex items-center gap-4 mb-4">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-[#00b8d9] text-white' : 'bg-muted'}`}>
+                {step > 2 ? <CheckCircle className="w-5 h-5" /> : '2'}
+              </div>
+              <h3 className="text-lg font-bold">Plan kiezen</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Je hebt het <span className="font-bold">Free</span> plan. Upgrade later voor meer features.
+            </p>
+          </div>
+
+          {/* Step 3 */}
+          <div className={`rounded-xl p-6 border-2 ${step >= 3 ? 'border-[#00b8d9] bg-[#00b8d9]/5' : 'border-border bg-card'}`}>
+            <div className="flex items-center gap-4 mb-4">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 3 ? 'bg-[#00b8d9] text-white' : 'bg-muted'}`}>
+                {step > 3 ? <CheckCircle className="w-5 h-5" /> : '3'}
+              </div>
+              <h3 className="text-lg font-bold">Eerste conversie</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Upload je eerste bankafschrift en zie de magie gebeuren.
+            </p>
+          </div>
+        </div>
+
+        {/* Step content */}
+        <div className="bg-card rounded-xl p-8 border border-border mb-8">
+          {step === 1 && (
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Account bevestigd ✅</h2>
+              <p className="text-muted-foreground mb-6">
+                Je account is succesvol aangemaakt en geverifieerd. Je hebt nu toegang tot alle features van het Free plan.
+              </p>
+              <div className="grid md:grid-cols-2 gap-6 mb-8">
+                <div className="flex items-start gap-3">
+                  <Upload className="w-5 h-5 text-[#00b8d9] mt-1" />
+                  <div>
+                    <h4 className="font-bold mb-1">Upload bankafschriften</h4>
+                    <p className="text-sm text-muted-foreground">PDF, CSV, of Excel bestanden</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <FileText className="w-5 h-5 text-[#00b8d9] mt-1" />
+                  <div>
+                    <h4 className="font-bold mb-1">Automatische conversie</h4>
+                    <p className="text-sm text-muted-foreground">Naar Excel, CSV, of boekhoudsoftware</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Shield className="w-5 h-5 text-[#00b8d9] mt-1" />
+                  <div>
+                    <h4 className="font-bold mb-1">Veilig & privé</h4>
+                    <p className="text-sm text-muted-foreground">Je data wordt niet gedeeld of opgeslagen</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Clock className="w-5 h-5 text-[#00b8d9] mt-1" />
+                  <div>
+                    <h4 className="font-bold mb-1">Bespaar uren</h4>
+                    <p className="text-sm text-muted-foreground">Automatiseer je boekhouding</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Je huidige plan: Free</h2>
+              <p className="text-muted-foreground mb-6">
+                Met het Free plan kun je 5 bankafschriften per maand converteren. Perfect om BSC Pro uit te proberen!
+              </p>
+              <div className="bg-muted rounded-lg p-6 mb-6">
+                <h3 className="font-bold mb-2">Free plan features:</h3>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>5 conversies per maand</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>Basis Excel & CSV export</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>Email support</span>
+                  </li>
+                </ul>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Je kunt altijd upgraden naar een betaald plan voor meer conversies en geavanceerde features.
+              </p>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Upload je eerste bankafschrift</h2>
+              <p className="text-muted-foreground mb-6">
+                Probeer BSC Pro nu uit met een testbestand of upload je eigen bankafschrift.
+              </p>
+              <div className="border-2 border-dashed border-border rounded-xl p-12 text-center mb-6">
+                <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground mb-2">Sleep een PDF, CSV, of Excel bestand hierheen</p>
+                <p className="text-xs text-muted-foreground mb-4">of klik om te bladeren</p>
+                <button className="px-6 py-3 bg-[#00b8d9] text-white rounded-lg font-bold hover:bg-[#00a8c9] transition-colors">
+                  Bestand kiezen
+                </button>
+              </div>
+              <p className="text-sm text-muted-foreground text-center">
+                We ondersteunen Rabobank, ING, ABN AMRO, en meer. Je data wordt veilig verwerkt.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Navigation */}
+        <div className="flex items-center justify-between">
+          {step > 1 ? (
+            <button
+              onClick={() => setStep(step - 1)}
+              className="px-6 py-3 border border-border rounded-lg hover:bg-muted transition-colors"
+            >
+              ← Vorige
+            </button>
+          ) : (
+            <div></div>
+          )}
+
+          {step < 3 ? (
+            <button
+              onClick={() => setStep(step + 1)}
+              className="px-6 py-3 bg-[#00b8d9] text-white rounded-lg font-bold hover:bg-[#00a8c9] transition-colors flex items-center gap-2"
+            >
+              Volgende stap <ArrowRight className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              onClick={completeOnboarding}
+              disabled={loading}
+              className="px-8 py-3 bg-[#00b8d9] text-white rounded-lg font-bold hover:bg-[#00a8c9] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Afronden...' : 'Onboarding afronden →'}
+            </button>
+          )}
+        </div>
+
+        <div className="text-center mt-8">
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Onboarding overslaan en naar dashboard
+          </button>
+        </div>
+      </main>
     </div>
   )
 }
