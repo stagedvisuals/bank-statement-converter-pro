@@ -8,6 +8,70 @@ export default function OnboardingPage() {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
+  const [authChecked, setAuthChecked] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    let retryCount = 0
+    const maxRetries = 3
+
+    const checkAuth = () => {
+      if (cancelled) return
+      
+      const session = localStorage.getItem('bscpro_session')
+      if (!session) {
+        if (retryCount < maxRetries) {
+          retryCount++
+          setTimeout(checkAuth, 500)
+          return
+        }
+        // Geen sessie gevonden na retries, redirect naar login
+        router.push('/')
+        return
+      }
+      
+      try {
+        const { access_token } = JSON.parse(session)
+        if (!access_token) {
+          if (retryCount < maxRetries) {
+            retryCount++
+            setTimeout(checkAuth, 500)
+            return
+          }
+          router.push('/')
+          return
+        }
+        
+        // Auth is geldig
+        if (!cancelled) {
+          setAuthChecked(true)
+        }
+      } catch (error) {
+        console.error('Auth check error:', error)
+        if (retryCount < maxRetries) {
+          retryCount++
+          setTimeout(checkAuth, 1000)
+          return
+        }
+        router.push('/')
+      }
+    }
+
+    checkAuth()
+      // Loading/Auth check
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00b8d9] mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Onboarding laden...</p>
+        </div>
+      </div>
+    )
+  }
+
+return () => { cancelled = true }
+  }, [router])
 
   const completeOnboarding = async () => {
     setLoading(true)

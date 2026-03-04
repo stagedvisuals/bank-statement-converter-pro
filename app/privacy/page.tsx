@@ -1,107 +1,104 @@
-import Link from 'next/link';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import Link from 'next/link'
 
 export const metadata = {
-  title: 'Privacyverklaring | BSCPro',
-  description: 'Hoe BSCPro omgaat met jouw persoonsgegevens.',
-};
+  title: 'Privacyverklaring | BSC Pro',
+  description: 'Privacyverklaring voor BSC Pro - Bank Statement Converter',
+}
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
-      <main className="flex-grow">
-        <div className="max-w-4xl mx-auto px-6 py-12">
-          <h1 className="text-4xl font-bold mb-4">Privacyverklaring</h1>
-          <p className="text-muted-foreground mb-8">Laatste update: maart 2026</p>
+    <div className="min-h-screen bg-[#080d14] text-[#e8edf5]">
+      <div className="container mx-auto px-4 py-16 max-w-4xl">
+        <nav className="mb-8">
+          <Link href="/" className="text-[#00b8d9] hover:underline">
+            ← Terug naar homepage
+          </Link>
+        </nav>
 
-          <div className="prose dark:prose-invert max-w-none">
-            <p className="text-muted-foreground mb-8">
-              BSCPro, gevestigd in Nederland, is verantwoordelijk voor de verwerking van persoonsgegevens zoals beschreven in deze verklaring.
-              Contact: <a href="mailto:info@bscpro.nl" className="text-[#00b8d9] hover:underline">info@bscpro.nl</a>
+        <h1 className="text-4xl font-bold mb-8">Privacyverklaring</h1>
+        <p className="text-[#6b7fa3] mb-8">Laatst bijgewerkt: 4 maart 2026</p>
+
+        <div className="space-y-8">
+          <section>
+            <h2 className="text-2xl font-bold mb-4">1. Wie wij zijn</h2>
+            <p className="text-[#6b7fa3]">
+              BSC Pro is een dienst voor het converteren van bankafschriften naar verschillende formaten.
+              Ons websiteadres is: https://www.bscpro.nl
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-bold mb-4">2. Welke persoonsgegevens we verzamelen en waarom</h2>
+            <h3 className="text-xl font-semibold mb-3">Accountgegevens</h3>
+            <p className="text-[#6b7fa3] mb-4">
+              Wanneer je een account aanmaakt, vragen we om je naam, e-mailadres en bedrijfsnaam.
+              Deze gegevens gebruiken we om je account te beheren en je te kunnen helpen.
             </p>
 
-            <h2 className="text-2xl font-bold mt-8 mb-4">1. Welke gegevens verwerken wij?</h2>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-6">
-              <li><strong>E-mailadres:</strong> voor aanmaken en beheren van je account</li>
-              <li><strong>Wachtwoord:</strong> versleuteld opgeslagen, nooit leesbaar</li>
-              <li><strong>Bankafschriften (PDF):</strong> tijdelijk voor conversie, max 24 uur bewaard, daarna automatisch verwijderd</li>
-              <li><strong>IP-adres:</strong> voor beveiliging en fraudepreventie</li>
-              <li><strong>Gebruik van de dienst:</strong> welke functies je gebruikt, voor verbetering van de dienst</li>
-              <li><strong>Betalingsgegevens:</strong> verwerkt via Stripe, BSCPro slaat geen betaalgegevens op</li>
-            </ul>
-
-            <h2 className="text-2xl font-bold mt-8 mb-4">2. Waarom verwerken wij deze gegevens?</h2>
-            <p className="text-muted-foreground mb-4">Wettelijke grondslagen:</p>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-6">
-              <li><strong>Uitvoering overeenkomst (Art. 6 lid 1b AVG):</strong> account, conversie, betaling</li>
-              <li><strong>Gerechtvaardigd belang (Art. 6 lid 1f AVG):</strong> beveiliging, fraudepreventie, verbetering dienst</li>
-              <li><strong>Toestemming (Art. 6 lid 1a AVG):</strong> marketing emails (alleen met expliciete toestemming)</li>
-            </ul>
-
-            <h2 className="text-2xl font-bold mt-8 mb-4">3. Bewaartermijnen</h2>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-6">
-              <li><strong>Bankafschriften:</strong> automatisch verwijderd na 24 uur</li>
-              <li><strong>Accountgegevens:</strong> bewaard tot opzegging + 30 dagen</li>
-              <li><strong>Facturen en betalingshistorie:</strong> 7 jaar (wettelijke plicht)</li>
-              <li><strong>Logs en beveiligingsdata:</strong> maximaal 90 dagen</li>
-              <li><strong>Verwijderd account:</strong> alle data binnen 30 dagen gewist</li>
-            </ul>
-
-            <h2 className="text-2xl font-bold mt-8 mb-4">4. Met wie delen wij je gegevens?</h2>
-            <p className="text-muted-foreground mb-4">Wij delen gegevens alleen met:</p>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-6">
-              <li><strong>Supabase</strong> (database hosting, VS - met SCC-garanties)</li>
-              <li><strong>Stripe</strong> (betalingen, VS - Privacy Shield gecertificeerd)</li>
-              <li><strong>Vercel</strong> (hosting, VS - met SCC-garanties)</li>
-              <li><strong>Anthropic/OpenAI</strong> (AI verwerking, anoniem, geen opslag)</li>
-            </ul>
-            <p className="text-muted-foreground mb-6">
-              <strong>Wij verkopen NOOIT gegevens aan derden.</strong> Wij sturen NOOIT gegevens naar adverteerders.
+            <h3 className="text-xl font-semibold mb-3">Bankafschriften</h3>
+            <p className="text-[#6b7fa3] mb-4">
+              De bankafschriften die je uploadt worden tijdelijk verwerkt om ze te converteren.
+              We bewaren deze bestanden niet langer dan nodig is voor de verwerking.
             </p>
 
-            <h2 className="text-2xl font-bold mt-8 mb-4">5. Beveiliging</h2>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-6">
-              <li>Alle verbindingen via HTTPS/TLS encryptie</li>
-              <li>Bankafschriften versleuteld opgeslagen</li>
-              <li>Toegang tot data beperkt tot noodzakelijk personeel</li>
-              <li>Regelmatige beveiligingsaudits</li>
-              <li>Bij datalek: melding aan AP binnen 72 uur</li>
-              <li>Bij datalek dat jou treft: directe melding per email</li>
-            </ul>
-
-            <h2 className="text-2xl font-bold mt-8 mb-4">6. Jouw rechten (AVG Art. 15-22)</h2>
-            <p className="text-muted-foreground mb-4">Je hebt het recht op:</p>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-6">
-              <li><strong>Inzage:</strong> opvragen welke gegevens wij hebben</li>
-              <li><strong>Correctie:</strong> onjuiste gegevens laten aanpassen</li>
-              <li><strong>Verwijdering:</strong> je account en data laten wissen</li>
-              <li><strong>Beperking:</strong> verwerking tijdelijk stopzetten</li>
-              <li><strong>Bezwaar:</strong> tegen verwerking op basis van belang</li>
-              <li><strong>Overdraagbaarheid:</strong> je data in leesbaar formaat</li>
-              <li><strong>Klacht:</strong> bij <a href="https://autoriteitpersoonsgegevens.nl" className="text-[#00b8d9] hover:underline">Autoriteit Persoonsgegevens</a></li>
-            </ul>
-            <p className="text-muted-foreground mb-6">
-              Verzoeken sturen naar: <a href="mailto:info@bscpro.nl" className="text-[#00b8d9] hover:underline">info@bscpro.nl</a> — Reactie binnen 30 dagen.
+            <h3 className="text-xl font-semibold mb-3">Analytische gegevens</h3>
+            <p className="text-[#6b7fa3]">
+              We gebruiken anonieme analytische gegevens om onze dienst te verbeteren.
+              Deze gegevens kunnen niet naar individuele gebruikers worden herleid.
             </p>
+          </section>
 
-            <h2 className="text-2xl font-bold mt-8 mb-4">7. Cookies</h2>
-            <p className="text-muted-foreground mb-4">BSCPro gebruikt:</p>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-6">
-              <li><strong>Functionele cookies:</strong> ingelogd blijven (noodzakelijk)</li>
-              <li><strong>Analytische cookies:</strong> anoniem gebruiksstatistieken</li>
-            </ul>
-            <p className="text-muted-foreground mb-6">Geen tracking cookies, geen advertentiecookies.</p>
-
-            <h2 className="text-2xl font-bold mt-8 mb-4">8. Wijzigingen</h2>
-            <p className="text-muted-foreground mb-6">
-              Bij belangrijke wijzigingen ontvang je een email. Altijd de meest actuele versie op <Link href="/privacy" className="text-[#00b8d9] hover:underline">bscpro.nl/privacy</Link>.
+          <section>
+            <h2 className="text-2xl font-bold mb-4">3. Met wie we gegevens delen</h2>
+            <p className="text-[#6b7fa3]">
+              We delen je gegevens niet met derden, behalve wanneer dit noodzakelijk is voor:
             </p>
-          </div>
+            <ul className="list-disc pl-6 mt-3 space-y-2 text-[#6b7fa3]">
+              <li>Het verwerken van betalingen (via Stripe)</li>
+              <li>Het versturen van e-mails (via Resend)</li>
+              <li>Het opslaan van gegevens (via Supabase)</li>
+              <li>Het verwerken van AI-analyses (via Groq)</li>
+            </ul>
+            <p className="text-[#6b7fa3] mt-4">
+              Al onze leveranciers zijn GDPR-compliant en hebben strikte privacyovereenkomsten.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-bold mb-4">4. Hoe lang we je gegevens bewaren</h2>
+            <p className="text-[#6b7fa3]">
+              Accountgegevens: Zolang je account actief is<br/>
+              Uploadede bestanden: Maximaal 24 uur na verwerking<br/>
+              Analytische gegevens: Maximaal 12 maanden
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-bold mb-4">5. Je rechten</h2>
+            <p className="text-[#6b7fa3] mb-4">
+              Je hebt het recht om:
+            </p>
+            <ul className="list-disc pl-6 space-y-2 text-[#6b7fa3]">
+              <li>Inzage te vragen in je gegevens</li>
+              <li>Je gegevens te laten corrigeren</li>
+              <li>Je gegevens te laten verwijderen</li>
+              <li>Bezwaar te maken tegen verwerking</li>
+              <li>Je gegevens over te dragen</li>
+            </ul>
+            <p className="text-[#6b7fa3] mt-4">
+              Voor vragen over je privacyrechten kun je contact opnemen via info@bscpro.nl
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-bold mb-4">6. Contactgegevens</h2>
+            <p className="text-[#6b7fa3]">
+              Voor vragen over deze privacyverklaring:<br/>
+              E-mail: info@bscpro.nl
+            </p>
+          </section>
         </div>
-      </main>
-      <Footer />
+      </div>
     </div>
-  );
+  )
 }

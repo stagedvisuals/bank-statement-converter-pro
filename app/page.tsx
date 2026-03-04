@@ -551,7 +551,18 @@ export default function Home() {
               BSC PRO is een ondersteunend hulpmiddel. Controleer alle uitgelezen data altijd zelf. 
               Wij zijn geen boekhoudkantoor en geven geen fiscaal advies.
             </p>
+                    <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-4 text-xs text-slate-500">
+            <div className="flex items-center gap-2">
+              <span>🍪</span>
+              <span>Deze website gebruikt functionele cookies.</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <Link href="/privacy" className="hover:text-[#00b8d9] transition-colors">Privacy</Link>
+              <Link href="/voorwaarden" className="hover:text-[#00b8d9] transition-colors">Voorwaarden</Link>
+              <Link href="/cookies" className="hover:text-[#00b8d9] transition-colors">Cookiebeleid</Link>
+            </div>
           </div>
+        </div>
         </div>
       </footer>
     </div>
