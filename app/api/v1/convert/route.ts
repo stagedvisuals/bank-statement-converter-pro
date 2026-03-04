@@ -1,141 +1,85 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
-import crypto from 'crypto'
-
-// API key authenticatie
-async function authenticateApiKey(request: Request) {
-  const apiKey = request.headers.get('x-api-key') || 
-                 request.headers.get('authorization')?.replace('Bearer ', '')
-  
-  if (!apiKey || !apiKey.startsWith('bsc_')) {
-    return null
-  }
-
-  // Hash de key voor lookup
-  const keyHash = crypto.createHash('sha256').update(apiKey).digest('hex')
-  
-  const supabase = getSupabaseAdmin()
-  const { data: keyData, error } = await supabase
-    .from('api_keys')
-    .select('id, user_id, is_active, requests_count')
-    .eq('key_hash', keyHash)
-    .single()
-
-  if (error || !keyData || !keyData.is_active) {
-    return null
-  }
-
-  // Update request count
-  await supabase
-    .from('api_keys')
-    .update({ 
-      requests_count: (keyData.requests_count || 0) + 1,
-      last_used_at: new Date().toISOString()
-    })
-    .eq('id', keyData.id)
-
-  return keyData
-}
-
-export async function GET() {
-  return NextResponse.json({
-    name: 'BSCPro API v1',
-    version: '1.0.0',
-    documentation: '/api-documentatie',
-    endpoints: {
-      convert: {
-        method: 'POST',
-        path: '/api/v1/convert',
-        description: 'Convert PDF bank statements to Excel/CSV'
-      }
-    }
-  })
-}
+import { performConversion } from '@/lib/convert-logic'
+import { triggerWebhooks } from '@/lib/webhooks'
+import { checkRateLimit } from '@/lib/rate-limiter'
 
 export async function POST(request: Request) {
-  const startTime = Date.now()
-  
-  // Authenticate
-  const apiKey = await authenticateApiKey(request)
-  if (!apiKey) {
-    return NextResponse.json(
-      { error: 'Invalid or missing API key' },
-      { status: 401 }
-    )
-  }
-
   try {
+    // 1. Haal API key uit header
+    const apiKey = request.headers.get('x-api-key') || 
+                   request.headers.get('authorization')?.replace('Bearer ', '')
+    
+    if (!apiKey) {
+      return NextResponse.json({ error: 'API key is verplicht' }, { status: 401 })
+    }
+
+    // 2. Rate limiting (10 requests per minuut per API key)
+    const rateLimit = checkRateLimit(apiKey, 10, 60_000)
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: 'Rate limit bereikt. Probeer het later opnieuw.' },
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': '10',
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': String(Math.ceil(rateLimit.resetAt / 1000)),
+            'Retry-After': String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)),
+          }
+        }
+      )
+    }
+
+    // 3. Valideer API key
+    const supabase = getSupabaseAdmin()
+    const { data: keyData, error: keyError } = await supabase
+      .from('api_keys')
+      .select('user_id, is_active')
+      .eq('key', apiKey)
+      .single()
+
+    if (keyError || !keyData || !keyData.is_active) {
+      return NextResponse.json({ error: 'Ongeldige of inactieve API key' }, { status: 401 })
+    }
+
+    // 4. Lees het bestand uit de request
     const formData = await request.formData()
-    const file = formData.get('file') as File
+    const file = formData.get('file') as File | null
+    const outputFormat = (formData.get('format') as string) || 'csv'
 
     if (!file) {
       return NextResponse.json(
-        { error: 'No file provided' },
+        { error: 'Geen bestand meegegeven. Stuur een PDF als "file" in multipart/form-data.' },
         { status: 400 }
       )
     }
 
-    // Check credits
-    const supabase = getSupabaseAdmin()
-    const { data: credits, error: creditsError } = await supabase
-      .from('user_credits')
-      .select('remaining_credits')
-      .eq('user_id', apiKey.user_id)
-      .single()
-
-    if (creditsError || !credits || credits.remaining_credits < 1) {
-      return NextResponse.json(
-        { error: 'Insufficient credits' },
-        { status: 402 }
-      )
+    // 5. Voer conversie uit (direct, geen HTTP self-call)
+    const result = await performConversion(file, keyData.user_id, outputFormat)
+    
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: result.status || 500 })
     }
 
-    // Deduct credit
-    await supabase
-      .from('user_credits')
-      .update({ 
-        remaining_credits: credits.remaining_credits - 1,
-        used_credits: (credits.remaining_credits || 0) + 1
-      })
-      .eq('user_id', apiKey.user_id)
+    // 6. Trigger webhooks (asynchroon, niet blokkend)
+    triggerWebhooks(keyData.user_id, 'conversion.completed', {
+      transactions: result.data?.count,
+      format: outputFormat,
+    }).catch(() => {}) // Fire and forget
 
-    // Log conversion
-    const { data: conversion, error: convError } = await supabase
-      .from('conversions')
-      .insert({
-        user_id: apiKey.user_id,
-        file_name: file.name,
-        status: 'processing',
-        api_key_id: apiKey.id
-      })
-      .select()
-      .single()
-
-    if (convError) {
-      return NextResponse.json(
-        { error: 'Failed to create conversion' },
-        { status: 500 }
-      )
-    }
-
-    // TODO: Implement actual PDF processing
-    // For now, return mock response
-    const processingTime = Date.now() - startTime
-
+    // 7. Return response met rate limit headers
     return NextResponse.json({
       success: true,
-      conversion_id: conversion.id,
-      status: 'completed',
-      file_name: file.name,
-      download_url: `/api/v1/download/${conversion.id}`,
-      processing_time_ms: processingTime
+      data: result.data,
+    }, {
+      headers: {
+        'X-RateLimit-Limit': '10',
+        'X-RateLimit-Remaining': String(rateLimit.remaining),
+        'X-RateLimit-Reset': String(Math.ceil(rateLimit.resetAt / 1000)),
+      }
     })
-
   } catch (error: any) {
-    console.error('API v1 convert error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }

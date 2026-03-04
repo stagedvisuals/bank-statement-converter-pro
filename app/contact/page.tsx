@@ -78,11 +78,11 @@ export default function ContactPage() {
                     <input
                       type="text"
                       id="naam"
-                      value={formData.naam}
-                      onChange={(e) => setFormData({ ...formData, naam: e.target.value })}
-                      className="w-full px-4 py-2 bg-input border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#00b8d9]"
                       required
-                      disabled={status === 'loading'}
+                      value={formData.naam}
+                      onChange={e => setFormData(prev => ({ ...prev, naam: e.target.value }))}
+                      className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00b8d9]"
+                      placeholder="Jouw naam"
                     />
                   </div>
 
@@ -93,11 +93,11 @@ export default function ContactPage() {
                     <input
                       type="email"
                       id="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-2 bg-input border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#00b8d9]"
                       required
-                      disabled={status === 'loading'}
+                      value={formData.email}
+                      onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                      className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00b8d9]"
+                      placeholder="jouw@email.nl"
                     />
                   </div>
 
@@ -105,15 +105,21 @@ export default function ContactPage() {
                     <label htmlFor="onderwerp" className="block text-sm font-medium text-foreground mb-1">
                       Onderwerp *
                     </label>
-                    <input
-                      type="text"
+                    <select
                       id="onderwerp"
-                      value={formData.onderwerp}
-                      onChange={(e) => setFormData({ ...formData, onderwerp: e.target.value })}
-                      className="w-full px-4 py-2 bg-input border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#00b8d9]"
                       required
-                      disabled={status === 'loading'}
-                    />
+                      value={formData.onderwerp}
+                      onChange={e => setFormData(prev => ({ ...prev, onderwerp: e.target.value }))}
+                      className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00b8d9]"
+                    >
+                      <option value="">Kies een onderwerp</option>
+                      <option value="algemeen">Algemene vraag</option>
+                      <option value="technisch">Technisch probleem</option>
+                      <option value="factuur">Factuur of betaling</option>
+                      <option value="partnership">Partnership / samenwerking</option>
+                      <option value="enterprise">Enterprise aanvraag</option>
+                      <option value="anders">Anders</option>
+                    </select>
                   </div>
 
                   <div>
@@ -122,44 +128,43 @@ export default function ContactPage() {
                     </label>
                     <textarea
                       id="bericht"
-                      value={formData.bericht}
-                      onChange={(e) => setFormData({ ...formData, bericht: e.target.value })}
-                      rows={4}
-                      className="w-full px-4 py-2 bg-input border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#00b8d9]"
                       required
-                      disabled={status === 'loading'}
+                      rows={5}
+                      value={formData.bericht}
+                      onChange={e => setFormData(prev => ({ ...prev, bericht: e.target.value }))}
+                      className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00b8d9]"
+                      placeholder="Vertel ons waarmee we je kunnen helpen..."
                     />
                   </div>
 
-                  <div className="flex items-start">
+                  <div className="flex items-start gap-2">
                     <input
                       type="checkbox"
                       id="privacy"
-                      checked={formData.privacy}
-                      onChange={(e) => setFormData({ ...formData, privacy: e.target.checked })}
-                      className="mt-1 mr-2"
                       required
-                      disabled={status === 'loading'}
+                      checked={formData.privacy}
+                      onChange={e => setFormData(prev => ({ ...prev, privacy: e.target.checked }))}
+                      className="mt-1 w-4 h-4 rounded border-border text-[#00b8d9] focus:ring-[#00b8d9]"
                     />
-                    <label htmlFor="privacy" className="text-sm text-foreground">
-                      Ik ga akkoord met het{' '}
+                    <label htmlFor="privacy" className="text-sm text-muted-foreground">
+                      Ik ga akkoord met de{' '}
                       <Link href="/privacy" className="text-[#00b8d9] hover:underline">
-                        privacybeleid
-                      </Link>
-                      . *
+                        privacyverklaring
+                      </Link>{' '}
+                      *
                     </label>
                   </div>
 
                   {status === 'error' && (
-                    <div className="text-red-500 text-sm">
+                    <p className="text-sm text-red-500">
                       Er is iets misgegaan. Probeer het opnieuw.
-                    </div>
+                    </p>
                   )}
 
                   <button
                     type="submit"
                     disabled={status === 'loading'}
-                    className="w-full py-3 bg-[#00b8d9] text-[#080d14] font-semibold rounded-lg hover:bg-[#00a8c9] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-6 py-3 bg-[#00b8d9] text-[#080d14] rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50"
                   >
                     {status === 'loading' ? 'Verzenden...' : 'Verstuur bericht'}
                   </button>
@@ -169,41 +174,34 @@ export default function ContactPage() {
 
             <div className="space-y-6">
               <div className="bg-card border border-border rounded-xl p-6">
-                <h3 className="text-xl font-semibold mb-4">Contactgegevens</h3>
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Email</p>
-                    <p className="font-medium">info@bscpro.nl</p>
+                <h2 className="text-xl font-semibold mb-4">Direct contact</h2>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">📧</span>
+                    <div>
+                      <p className="font-medium">Email</p>
+                      <a href="mailto:info@bscpro.nl" className="text-[#00b8d9] hover:underline">
+                        info@bscpro.nl
+                      </a>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">KVK</p>
-                    <p className="font-medium">12345678</p>
+
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">🕐</span>
+                    <div>
+                      <p className="font-medium">Reactietijd</p>
+                      <p className="text-muted-foreground">Binnen 2 werkdagen</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">BTW</p>
-                    <p className="font-medium">NL123456789B01</p>
+
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">📍</span>
+                    <div>
+                      <p className="font-medium">Locatie</p>
+                      <p className="text-muted-foreground">Nederland</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <div className="bg-card border border-border rounded-xl p-6">
-                <h3 className="text-xl font-semibold mb-4">Veelgestelde vragen</h3>
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground">
-                    Bekijk onze{' '}
-                    <Link href="/faq" className="text-[#00b8d9] hover:underline">
-                      FAQ pagina
-                    </Link>{' '}
-                    voor veelgestelde vragen over BSCPro.
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-card border border-border rounded-xl p-6">
-                <h3 className="text-xl font-semibold mb-4">Support</h3>
-                <p className="text-sm text-muted-foreground">
-                  Voor technische support, log in op je account en gebruik het support formulier.
-                </p>
               </div>
             </div>
           </div>

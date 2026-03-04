@@ -3,55 +3,48 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
 export async function GET() {
   const results: any = {}
-  let allHealthy = true
 
-  // Check environment variables (alleen kritieke vars)
-  const requiredEnvs = [
-    'NEXT_PUBLIC_SUPABASE_URL',
-    'SUPABASE_SERVICE_ROLE_KEY'
-  ]
+  // 1. Check env vars
+  const requiredEnvs = ['NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']
   const missingEnvs = requiredEnvs.filter(e => !process.env[e])
+  
   results.env_vars = {
-    status: missingEnvs.length === 0 ? 'ok' : 'error',
-    missing: missingEnvs
+    status: missingEnvs.length === 0 ? 'ok' : 'warning',
+    missing: missingEnvs,
+    message: missingEnvs.length === 0 ? 'Alle variabelen aanwezig' : `Missend: ${missingEnvs.join(', ')}`
   }
-  if (missingEnvs.length > 0) allHealthy = false
 
-  // Check database connection
+  // 2. Check database (echte query)
   try {
     const supabase = getSupabaseAdmin()
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .select('count')
-      .limit(1)
-    
+    const { error } = await supabase.from('user_profiles').select('count').limit(1)
     results.database = {
       status: error ? 'error' : 'ok',
-      error: error?.message
+      message: error ? error.message : 'Database bereikbaar'
     }
-    if (error) allHealthy = false
   } catch (e: any) {
-    results.database = { status: 'error', error: e.message }
-    allHealthy = false
+    results.database = { status: 'error', message: e.message }
   }
 
-  // Check Supabase Auth
+  // 3. Check Supabase Auth (echte query)
   try {
     const supabase = getSupabaseAdmin()
-    const { error } = await supabase.auth.getSession()
+    const { error } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1 })
     results.auth = {
       status: error ? 'error' : 'ok',
-      error: error?.message
+      message: error ? error.message : 'Auth service actief'
     }
-    if (error) allHealthy = false
   } catch (e: any) {
-    results.auth = { status: 'error', error: e.message }
-    allHealthy = false
+    results.auth = { status: 'error', message: e.message }
   }
 
+  // 4. Overall status
+  const hasError = Object.values(results).some((r: any) => r.status === 'error')
+  const hasWarning = Object.values(results).some((r: any) => r.status === 'warning')
+
   return NextResponse.json({
-    healthy: allHealthy,
-    checks: results,
-    timestamp: new Date().toISOString()
-  }, { status: allHealthy ? 200 : 503 })
+    status: hasError ? 'error' : hasWarning ? 'warning' : 'ok',
+    timestamp: new Date().toISOString(),
+    checks: results
+  })
 }
