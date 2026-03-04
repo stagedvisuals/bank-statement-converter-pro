@@ -15,7 +15,7 @@ async function extractTextFromPDF(buffer: Buffer): Promise<string> {
       return data.text;
     }
   } catch (err) {
-    console.log('PDF parse error, using fallback:', err.message);
+    console.log('PDF parse error, using fallback:', (err as Error).message);
   }
   
   // Fallback: For testing, return dummy bank statement data
