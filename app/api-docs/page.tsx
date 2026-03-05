@@ -73,7 +73,7 @@ export default function ApiDocsPage() {
             <pre className="text-sm text-green-400 overflow-x-auto">
 {`{
   "success": true,
-  "downloadUrl": "https://bscpro.nl/api/download/abc123",
+  "downloadUrl": "https://www.bscpro.nl/api/download/abc123",
   "expiresAt": "2025-02-28T23:59:59Z"
 }`}
             </pre>
@@ -83,7 +83,7 @@ export default function ApiDocsPage() {
           <p className="text-muted-foreground mb-4">Met cURL:</p>
           <div className="bg-[#0f1419] border border-border rounded-lg p-4 mb-6 overflow-x-auto">
             <code className="text-sm text-[#00b8d9] whitespace-pre">
-{`curl -X POST https://bscpro.nl/api/convert \\
+{`curl -X POST https://www.bscpro.nl/api/convert \\
   -H "x-api-key: JOUW_API_KEY" \\
   -F "file=@bankafschrift.pdf" \\
   -F "bank=auto" \\

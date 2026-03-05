@@ -23,6 +23,8 @@ const PUBLIC_ROUTES = [
   '/contact',
   '/onboarding',
   '/terms',
+  '/cookies',
+  '/accountants',
   '/api/stats',
   '/_next',
   '/favicon.ico',

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { X, 
+import { 
   Shield, 
   FileText, 
   Clock, 
@@ -80,24 +80,9 @@ export default function Home() {
               Converteer bankafschriften <span className="text-[#00b8d9]">in seconden</span>
             </h1>
 
-            <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
               Upload je PDF, laat onze AI de transacties uitlezen, en download direct een Excel/CSV of MT940 bestand. Geen copy-paste meer.
             </p>
-            
-            <div className="flex flex-wrap justify-center gap-4 mb-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full">
-                <span className="text-green-500">✓</span>
-                <span className="text-sm font-medium">Voor ZZP'ers</span>
-              </div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full">
-                <span className="text-purple-500">✓</span>
-                <span className="text-sm font-medium">Voor accountants</span>
-              </div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-full">
-                <span className="text-amber-500">✓</span>
-                <span className="text-sm font-medium">Voor belastingadviseurs</span>
-              </div>
-            </div>
             <div className="flex flex-col items-center gap-4 mb-8">
               <div className="w-full max-w-xl">
                 <FileConverterWithFreeScan />
@@ -170,110 +155,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Use Cases - B2B Sales Focus */}
-      <section className="py-20 bg-secondary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Perfect voor jouw werk</h2>
-            <p className="text-muted-foreground text-base">Of je nu ZZP'er, accountant of belastingadviseur bent</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* ZZP'er Card */}
-            <div className="bg-card border border-border rounded-xl p-6 hover:border-[#00b8d9]/50 transition-all duration-300 hover:shadow-lg">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                  <span className="text-xl">👨‍💼</span>
-                </div>
-                <h3 className="text-xl font-bold text-foreground">ZZP'er</h3>
-              </div>
-              <p className="text-muted-foreground mb-4">
-                Upload je bankafschrift → Download direct voor Moneybird → Boekhouding klaar in 2 minuten.
-              </p>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm">Direct klaar voor je boekhouder</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm">BTW-aangifte in 5 minuten</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm">Geen Excel skills nodig</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Accountant Card */}
-            <div className="bg-card border border-border rounded-xl p-6 hover:border-[#00b8d9]/50 transition-all duration-300 hover:shadow-lg">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-                  <span className="text-xl">👩‍💼</span>
-                </div>
-                <h3 className="text-xl font-bold text-foreground">Accountant</h3>
-              </div>
-              <p className="text-muted-foreground mb-4">
-                Ontvang warrige PDF's van klanten → Converteer foutloos naar MT940 → Importeer in Exact of Twinfield.
-              </p>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm">Bulk upload tot 50 bestanden</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm">MT940 export voor alle pakketten</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm">Bespaar uren per maand</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Belastingadviseur Card */}
-            <div className="bg-card border border-border rounded-xl p-6 hover:border-[#00b8d9]/50 transition-all duration-300 hover:shadow-lg">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-                  <span className="text-xl">👨‍⚖️</span>
-                </div>
-                <h3 className="text-xl font-bold text-foreground">Belastingadviseur</h3>
-              </div>
-              <p className="text-muted-foreground mb-4">
-                Verwerk een heel jaar aan losse afschriften in één bulk-upload → Direct klaar voor de BTW-aangifte.
-              </p>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm">Jaaroverzicht in minuten</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm">Automatische BTW-categorisering</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm">Foutloze data voor aangifte</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center mt-10">
-            <Link 
-              href="/pricing" 
-              className="inline-flex items-center gap-2 bg-[#00b8d9] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#0099b8] transition-colors"
-            >
-              Bekijk pricing voor jouw situatie
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
 
       {/* Demo Mode Preview */}
       <section className="py-12 px-4 bg-background">
@@ -379,7 +260,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Slimme Regels - USP Onthullen */}      <section className="py-20 bg-gradient-to-br from-[#00b8d9]/5 to-[#00b8d9]/10 border-y border-[#00b8d9]/20">        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">          <div className="text-center mb-12">            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">De AI die je administratie onthoudt</h2>            <p className="text-muted-foreground text-base max-w-3xl mx-auto">              Maak één keer een Slimme Regel aan, en BSC Pro categoriseert terugkerende afschrijvingen de volgende keer 100% automatisch. Minder klikken, meer factureren.            </p>          </div>          <div className="grid md:grid-cols-2 gap-8">            {/* Voor Slimme Regels */}            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-8 shadow-lg">              <div className="flex items-center gap-3 mb-6">                <div className="w-12 h-12 rounded-xl bg-[#00b8d9]/10 border border-[#00b8d9]/20 flex items-center justify-center">                  <span className="text-2xl">🧠</span>                </div>                <div>                  <h3 className="text-xl font-bold text-foreground">Voor Slimme Regels</h3>                  <p className="text-sm text-muted-foreground">Handmatig elke transactie categoriseren</p>                </div>              </div>              <div className="space-y-4">                <div className="flex items-center gap-3">                  <X className="w-5 h-5 text-red-500" />                  <span className="text-foreground">Elke maand opnieuw dezelfde transacties handmatig labelen</span>                </div>                <div className="flex items-center gap-3">                  <X className="w-5 h-5 text-red-500" />                  <span className="text-foreground">Fouten door vermoeidheid of haast</span>                </div>                <div className="flex items-center gap-3">                  <X className="w-5 h-5 text-red-500" />                  <span className="text-foreground">Uren verspild aan repetitief werk</span>                </div>                <div className="pt-4 border-t border-gray-200 dark:border-gray-800">                  <p className="text-sm text-muted-foreground">Gemiddeld: <span className="font-bold text-red-500">3-5 uur per maand</span> aan administratie</p>                </div>              </div>            </div>            {/* Met Slimme Regels */}            <div className="bg-gradient-to-br from-[#00b8d9]/5 to-[#00b8d9]/10 border-2 border-[#00b8d9]/30 rounded-xl p-8 shadow-lg relative overflow-hidden">              <div className="absolute top-4 right-4">                <span className="px-3 py-1 bg-[#00b8d9] text-white text-xs font-bold rounded-full">POPULAIR</span>              </div>              <div className="flex items-center gap-3 mb-6">                <div className="w-12 h-12 rounded-xl bg-[#00b8d9] border border-[#00b8d9] flex items-center justify-center">                  <span className="text-2xl text-white">⚡</span>                </div>                <div>                  <h3 className="text-xl font-bold text-foreground">Met Slimme Regels</h3>                  <p className="text-sm text-muted-foreground">AI onthoudt je voorkeuren automatisch</p>                </div>              </div>              <div className="space-y-4">                <div className="flex items-center gap-3">                  <Check className="w-5 h-5 text-green-500" />                  <span className="text-foreground">Eén keer een regel aanmaken → altijd automatisch toegepast</span>                </div>                <div className="flex items-center gap-3">                  <Check className="w-5 h-5 text-green-500" />                  <span className="text-foreground">100% consistentie in je boekhouding</span>                </div>                <div className="flex items-center gap-3">                  <Check className="w-5 h-5 text-green-500" />                  <span className="text-foreground">Meer tijd voor klantcontact en groei</span>                </div>                <div className="pt-4 border-t border-[#00b8d9]/30">                  <p className="text-sm text-muted-foreground">Gemiddeld: <span className="font-bold text-green-500">minder dan 30 minuten per maand</span></p>                </div>              </div>              <div className="mt-8 pt-6 border-t border-[#00b8d9]/20">                <p className="text-sm text-center text-muted-foreground">                  <span className="font-bold text-[#00b8d9]">312+ gebruikers</span> besparen al tijd met Slimme Regels                </p>              </div>            </div>          </div>          <div className="mt-12 text-center">            <button className="px-8 py-4 bg-[#00b8d9] text-white font-bold text-lg rounded-xl hover:bg-[#00a3c4] transition-all shadow-lg hover:shadow-xl">              Start met Slimme Regels (gratis 14 dagen)            </button>            <p className="mt-4 text-sm text-muted-foreground">Geen creditcard nodig • Direct aan de slag</p>          </div>        </div>      </section>      {/* Pricing */}
+      {/* Pricing */}
       {/* Pricing */}
       {/* Pricing */}
       <section id="pricing" className="py-20 bg-background">

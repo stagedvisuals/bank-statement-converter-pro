@@ -136,6 +136,17 @@ export default function Dashboard() {
       });
       if (response.ok) {
         const data = await response.json();
+      // DEBUG LOGGING - Emergency fix voor data-mapping bug
+      console.log('🚨 DASHBOARD API RESPONSE:', {
+        status: response.status,
+        ok: response.ok,
+        data: data,
+        dataKeys: Object.keys(data || {}),
+        hasData: !!data.data,
+        hasTransactions: !!(data.data?.transacties || data.transactions),
+        transactionCount: (data.data?.transacties || data.transactions || []).length,
+        rawResponse: JSON.stringify(data).substring(0, 500)
+      });
         setCredits(data.credits?.remaining_credits || 0);
         setOnboardingComplete(data.onboarding?.progress_percentage === 100);
         setUserPlan(data.plan || '');
@@ -158,6 +169,17 @@ export default function Dashboard() {
       });
       if (response.ok) {
         const data = await response.json();
+      // DEBUG LOGGING - Emergency fix voor data-mapping bug
+      console.log('🚨 DASHBOARD API RESPONSE:', {
+        status: response.status,
+        ok: response.ok,
+        data: data,
+        dataKeys: Object.keys(data || {}),
+        hasData: !!data.data,
+        hasTransactions: !!(data.data?.transacties || data.transactions),
+        transactionCount: (data.data?.transacties || data.transactions || []).length,
+        rawResponse: JSON.stringify(data).substring(0, 500)
+      });
         setCredits(data.remaining_credits);
         return true;
       }
@@ -220,6 +242,17 @@ export default function Dashboard() {
       });
       
       const data = await response.json();
+      // DEBUG LOGGING - Emergency fix voor data-mapping bug
+      console.log('🚨 DASHBOARD API RESPONSE:', {
+        status: response.status,
+        ok: response.ok,
+        data: data,
+        dataKeys: Object.keys(data || {}),
+        hasData: !!data.data,
+        hasTransactions: !!(data.data?.transacties || data.transactions),
+        transactionCount: (data.data?.transacties || data.transactions || []).length,
+        rawResponse: JSON.stringify(data).substring(0, 500)
+      });
       
       if (!response.ok) {
         // Scan mislukt - GEEN credit aftrekken
@@ -230,14 +263,7 @@ export default function Dashboard() {
         throw new Error(data.error || 'Conversie mislukt');
       }
       
-      const transactions = data.data?.transacties || data.transactions || [];
-      if (!transactions.length) {
-        // Geen transacties gevonden - GEEN credit aftrekken
-        throw new Error('Geen transacties gevonden in dit document');
-      }
-      
-      // STAP 2: Scan gelukt - nu pas credit aftrekken
-      setScanStatus('extracting');
+      // App Router API transacties mapping
       const creditUsed = await useCredit();
       if (!creditUsed) {
         setError('Geen credits beschikbaar. Upgrade je abonnement.');
@@ -245,8 +271,14 @@ export default function Dashboard() {
         return;
       }
       
+      
       // Onboarding step pas na succesvolle scan én credit gebruik
       await completeOnboardingStep('first_upload');
+      
+      // STAP 2: Extraheer transacties uit API response (App Router structuur)
+      
+      const responseData = data.data || {};
+      const transactions = responseData.transacties || responseData.transactions || [];
       
       // STAP 3: Verrijk transacties met smart categorisering
       const enrichedTransactions = transactions.map((t: any) => {
@@ -266,14 +298,20 @@ export default function Dashboard() {
       
       setScanStatus('done');
       setTransactions(enrichedTransactions);
-      setBank(data.data?.bank || data.bank || 'Onbekend');
-      setRekeningnummer(data.data?.rekeningnummer || data.rekeningnummer || '');
-      setCategorySummary(data.data?.categorySummary || data.categorySummary || []);
+      // Pages Router API response mapping
+      if (!data.success) {
+        throw new Error(data.error || 'Scan mislukt');
+      }
+      
+      setBank(responseData.banknaam || responseData.bank || 'Onbekend');
+      setRekeningnummer(responseData.rekeningnummer || responseData.accountNumber || '');
+      setCategorySummary(responseData.categorySummary || []);
       setCategoryStats(stats);
       
       // Save scanned data for preview (met gecategoriseerde transacties)
+      // App Router API scan data mapping
       const scanData = {
-        ...data.data || data,
+        ...responseData,
         transacties: enrichedTransactions
       };
       setScannedData(scanData);
@@ -323,7 +361,21 @@ export default function Dashboard() {
       
     } catch (err: any) {
       // Scan mislukt - credit is NIET afgetrokken
-      const errorMessage = err.message || 'Er is iets misgegaan';
+      // Verbeterde error handling
+      let errorMessage = err.message || 'Er is iets misgegaan';
+      
+      // Specifieke error messages voor betere UX
+      if (err.message.includes('404')) {
+        errorMessage = 'API endpoint niet gevonden. Probeer het later opnieuw.';
+      } else if (err.message.includes('500')) {
+        errorMessage = 'Server error. Probeer het later opnieuw.';
+      } else if (err.message.includes('Network')) {
+        errorMessage = 'Netwerk error. Controleer je internetverbinding.';
+      } else if (err.message.includes('Geen transacties')) {
+        errorMessage = 'Geen transacties gevonden in dit PDF bestand. Probeer een ander bankafschrift.';
+      } else if (err.message.includes('PDF')) {
+        errorMessage = 'PDF kon niet worden gelezen. Download je afschrift opnieuw als PDF vanuit je bankapp.';
+      }
       setError(errorMessage);
       setScanStatus('error');
       
