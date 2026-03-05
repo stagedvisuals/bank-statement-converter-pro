@@ -1,0 +1,205 @@
+import { useState, useEffect } from 'react'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+import Link from 'next/link'
+import Navbar from '@/components/Navbar'
+import { Eye, EyeOff } from 'lucide-react'
+
+export default function LoginPage() {
+  const router = useRouter()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [forgotSent, setForgotSent] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const sessionStr = localStorage.getItem('bscpro_session')
+    if (sessionStr) {
+      const session = JSON.parse(sessionStr)
+      if (session?.access_token) {
+        checkOnboarding(session.access_token)
+      }
+    }
+  }, [router])
+
+  const checkOnboarding = async (token: string) => {
+    try {
+      const res = await fetch('/api/user/onboarding', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      const data = await res.json()
+      if (data.progress_percentage === 100) {
+        router.push('/dashboard')
+      } else {
+        router.push('/onboarding')
+      }
+    } catch {
+      router.push('/dashboard')
+    }
+  }
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      alert('Vul eerst je e-mailadres in')
+      return
+    }
+    try {
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
+      if (!response.ok) throw new Error('Failed')
+      setForgotSent(true)
+    } catch (err) {
+      alert('Er ging iets mis. Probeer opnieuw.')
+    }
+  }
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed')
+      }
+
+      localStorage.setItem('bscpro_session', JSON.stringify(data.session))
+      localStorage.setItem('bscpro_user', JSON.stringify(data.user))
+      // Kleine delay voor cookie propagation
+      await new Promise(resolve => setTimeout(resolve, 100))
+      checkOnboarding(data.session.access_token)
+
+    } catch (err: any) {
+      setError(err.message || 'Ongeldige email of wachtwoord')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <>
+      <Head>
+        <title>Login | BSC Pro - Bank Statement Converter</title>
+        <meta name="description" content="Log in op BSC Pro om je bankafschriften te converteren naar Excel/CSV. Veilig en snel." />
+        <meta name="robots" content="noindex, follow" />
+      </Head>
+      
+      <div className="min-h-screen bg-background relative">
+        <Navbar />
+
+        <div className="pt-28 pb-16 min-h-[calc(100vh-200px)] flex items-center justify-center px-4">
+          <div className="w-full max-w-md bg-card border border-border rounded-2xl p-10 shadow-lg">
+            <div className="text-center mb-8">
+              <h1 className="text-2xl font-bold text-foreground mb-2">
+                Welkom terug
+              </h1>
+              <p className="text-muted-foreground text-sm">
+                Log in om je documenten te converteren
+              </p>
+            </div>
+
+            {error && (
+              <div className="mb-5 px-4 py-3 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive text-sm">
+                {error}
+              </div>
+            )}
+
+            {forgotSent && (
+              <div className="mb-5 px-4 py-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-500 text-sm">
+                ✅ Reset link verstuurd! Check je e-mail.
+              </div>
+            )}
+
+            <form onSubmit={handleLogin} className="flex flex-col gap-5">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 bg-background border border-input rounded-lg text-foreground text-sm outline-none transition-all focus:border-[#00b8d9] focus:ring-1 focus:ring-[#00b8d9]"
+                  placeholder="jouw@email.nl"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Wachtwoord
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 bg-background border border-input rounded-lg text-foreground text-sm outline-none transition-all focus:border-[#00b8d9] focus:ring-1 focus:ring-[#00b8d9] pr-12"
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                <div className="flex justify-end mt-2">
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="text-xs text-[#00b8d9] hover:underline"
+                  >
+                    Wachtwoord vergeten?
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full py-3.5 font-semibold rounded-lg text-base mt-2 transition-all ${
+                  loading 
+                    ? 'bg-muted text-muted-foreground cursor-not-allowed' 
+                    : 'bg-[#00b8d9] text-[#080d14] hover:shadow-[0_0_20px_rgba(0,184,217,0.4)]'
+                }`}
+              >
+                {loading ? 'Inloggen...' : 'Inloggen'}
+              </button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <p className="text-sm text-muted-foreground">
+                Nog geen account?{' '}
+                <Link href="/register" className="text-[#00b8d9] hover:underline">
+                  Registreer hier
+                </Link>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <footer className="py-6 text-center border-t border-border bg-background">
+          <p className="text-sm text-muted-foreground">
+            {new Date().getFullYear()} BSC Pro. Alle rechten voorbehouden.
+          </p>
+        </footer>
+      </div>
+    </>
+  )
+}

@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --primary: #00b8d9;
+  --primary-foreground: #080d14;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --ring: #00b8d9;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: #080d14;
+  --foreground: #f8fafc;
+  --card: rgba(10, 18, 32, 0.9);
+  --card-foreground: #f8fafc;
+  --border: rgba(0, 184, 217, 0.2);
+  --input: rgba(0, 184, 217, 0.15);
+  --primary: #00b8d9;
+  --primary-foreground: #080d14;
+  --secondary: rgba(10, 18, 32, 0.6);
+  --secondary-foreground: #f8fafc;
+  --muted: rgba(10, 18, 32, 0.6);
+  --muted-foreground: #94a3b8;
+  --accent: rgba(10, 18, 32, 0.6);
+  --accent-foreground: #f8fafc;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --ring: #00b8d9;
+  --radius: 0.5rem;
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-syne), 'Syne', sans-serif;
+  font-weight: 700;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Dark mode grid pattern */
+.dark body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(0, 184, 217, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 184, 217, 0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dark body::after {
+  content: '';
+  position: fixed;
+  top: -300px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 600px;
+  background: radial-gradient(ellipse, rgba(0, 102, 204, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+main, nav, footer, section {
+  position: relative;
+  z-index: 1;
+}
