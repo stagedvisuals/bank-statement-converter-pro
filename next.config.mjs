@@ -1,21 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  trailingSlash: false,
+  reactStrictMode: true,
   swcMinify: true,
-  compress: true,
   images: {
-    formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 60,
+    domains: ['localhost', 'www.bscpro.nl', 'bscpro.nl'],
   },
-  env: {
-    NEXT_PUBLIC_SITE_URL: 'https://www.bscpro.nl',
-  },
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.externals = [...(config.externals || []), 'canvas']
-    }
-    return config
-  },
+  // Environment variables are loaded from .env.local
+  // Use process.env.NEXT_PUBLIC_SITE_URL in your code
 }
 
 export default nextConfig

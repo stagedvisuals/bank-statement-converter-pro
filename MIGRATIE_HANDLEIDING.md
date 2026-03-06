@@ -19,10 +19,10 @@ De SQL migratie kan NIET automatisch worden uitgevoerd vanwege Supabase beveilig
 3. **Klik "Run"**
 
 ### Wat wordt aangemaakt:
-- ✅ `user_profiles` tabel
+- ✅ `profiles` tabel
 - ✅ RLS policies (beveiliging)
-- ✅ Automatische triggers voor nieuwe users
-- ✅ Profielen voor bestaande users
+- ✅ Automatische triggers voor nieuwe profiles
+- ✅ Profielen voor bestaande profiles
 
 ---
 

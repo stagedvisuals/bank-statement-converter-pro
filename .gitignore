@@ -15,3 +15,21 @@
 *.tmp
 .env.local.backup
 .env.backup
+
+# Environment backups
+.env.local.backup*
+.env.local.*backup
+.env.backup*
+
+# Temporary files
+*.backup
+*.backup.*
+backup/
+backups/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

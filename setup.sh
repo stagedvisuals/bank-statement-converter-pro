@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "🌑 BSC Pro - Setup Script"
-echo "=========================="
+echo "🌑 BSC Pro - Setup Script (Unified Architecture)"
+echo "================================================"
 echo ""
 
 # Check if .env.local exists
@@ -17,12 +17,6 @@ fi
 echo "📦 Installing dependencies..."
 npm install
 
-# Install Resend for email
-if ! npm list resend > /dev/null 2>&1; then
-    echo "📧 Installing Resend for email automation..."
-    npm install resend
-fi
-
 echo ""
 echo "✅ Dependencies installed"
 echo ""
@@ -30,30 +24,58 @@ echo ""
 # Check required env vars
 echo "🔍 Checking environment variables..."
 
-if grep -q "your-moonshot-api-key" .env.local; then
-    echo "❌ MOONSHOT_API_KEY not configured"
-    echo "   Get your key from: https://platform.moonshot.cn/"
+# Supabase check
+if grep -q "your-supabase-url" .env.local; then
+    echo "❌ NEXT_PUBLIC_SUPABASE_URL not configured"
+    echo "   Get your URL from: https://supabase.com/dashboard"
 fi
 
-if grep -q "re_..." .env.local; then
-    echo "❌ RESEND_API_KEY not configured"
-    echo "   Get your key from: https://resend.com/api-keys"
-    echo "   IMPORTANT: Verify bscpro.nl domain in Resend first!"
+if grep -q "your-supabase-anon-key" .env.local; then
+    echo "❌ NEXT_PUBLIC_SUPABASE_ANON_KEY not configured"
+    echo "   Get your key from: https://supabase.com/dashboard"
 fi
 
-if grep -q "pk_test_..." .env.local; then
-    echo "❌ Clerk keys not configured"
-    echo "   Get your keys from: https://dashboard.clerk.dev"
+if grep -q "your-supabase-service-role-key" .env.local; then
+    echo "❌ SUPABASE_SERVICE_ROLE_KEY not configured"
+    echo "   Get your key from: https://supabase.com/dashboard"
+fi
+
+# Groq AI check
+if grep -q "your-groq-api-key" .env.local; then
+    echo "❌ GROQ_API_KEY not configured"
+    echo "   Get your key from: https://console.groq.com/keys"
+fi
+
+# Upstash Redis check (for rate limiting)
+if grep -q "your-upstash-redis-url" .env.local; then
+    echo "⚠️  UPSTASH_REDIS_URL not configured (optional for rate limiting)"
+    echo "   Get your URL from: https://upstash.com/"
+fi
+
+if grep -q "your-upstash-redis-token" .env.local; then
+    echo "⚠️  UPSTASH_REDIS_TOKEN not configured (optional for rate limiting)"
+    echo "   Get your token from: https://upstash.com/"
+fi
+
+# Admin secret check
+if grep -q "your-admin-secret" .env.local; then
+    echo "⚠️  ADMIN_SECRET not configured (server-side only)"
+    echo "   Generate a secure random string for admin access"
 fi
 
 echo ""
 echo "📋 Setup Checklist:"
 echo "  [ ] Fill in .env.local with your API keys"
 echo "  [ ] Run database schema in Supabase SQL Editor:"
-echo "       - supabase_chat_schema.sql"
-echo "  [ ] Verify bscpro.nl domain in Resend dashboard"
-echo "  [ ] Set up cron job for daily digest:"
-echo "       0 20 * * * cd $(pwd) && node scripts/daily-digest.js"
+echo "       - unified_final_schema.sql (complete unified schema)"
+echo "  [ ] Verify domain in your email provider (Resend/SendGrid)"
+echo "  [ ] Configure Vercel environment variables"
 echo ""
 echo "🚀 Ready to deploy: npm run build && vercel --prod"
+echo ""
+echo "🔧 Architecture Notes:"
+echo "  • Auth: Supabase Auth only (no Clerk)"
+echo "  • Database: Unified profiles table (single source of truth)"
+echo "  • Rate limiting: Upstash Redis (optional)"
+echo "  • Security: Server-side ADMIN_SECRET only"
 echo ""

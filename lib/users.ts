@@ -2,7 +2,7 @@ import { supabase } from './supabase'
 
   // Check if user exists
   const { data: existing } = await supabase
-    .from('users')
+    .from('profiles')
     .select('*')
     .single()
 
@@ -10,9 +10,9 @@ import { supabase } from './supabase'
 
   // Create new user with 2 free credits
   const { data: newUser, error } = await supabase
-    .from('users')
+    .from('profiles')
     .insert({
-      email: email,
+      email: userEmail,
       credits: 2,
       plan_type: 'starter'
     })
@@ -24,7 +24,7 @@ import { supabase } from './supabase'
 }
 
   const { data } = await supabase
-    .from('users')
+    .from('profiles')
     .select('credits, plan_type')
     .single()
   
@@ -32,7 +32,7 @@ import { supabase } from './supabase'
 }
 
   const { data: user } = await supabase
-    .from('users')
+    .from('profiles')
     .select('credits, plan_type')
     .single()
 
@@ -40,18 +40,18 @@ import { supabase } from './supabase'
   if ((user?.credits || 0) <= 0) return false
 
   await supabase
-    .from('users')
+    .from('profiles')
     .update({ credits: (user?.credits || 0) - 1 })
 
   return true
 }
 
   const { data: user } = await supabase
-    .from('users')
+    .from('profiles')
     .select('credits')
     .single()
 
   await supabase
-    .from('users')
+    .from('profiles')
     .update({ credits: (user?.credits || 0) + amount })
 }

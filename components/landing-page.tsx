@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 
 export default function LandingPage() {
-  const { isSignedIn } = useAuth()
+  const { isSignedIn } = { isSignedIn: false }
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 

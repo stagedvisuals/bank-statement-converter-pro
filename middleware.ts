@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
 // Routes die ALTIJD toegankelijk zijn (zonder login check)
 const PUBLIC_ROUTES = [
   '/',
   '/login',
   '/register',
-  '/admin',
-  '/beheer',
   '/over-ons',
   '/tools',
   '/privacy',
@@ -36,36 +35,144 @@ const PUBLIC_ROUTES = [
   '/api-documentatie', // API documentatie is publiek
 ]
 
-// API rate limiting
-const apiRateLimit = new Map<string, { count: number; resetTime: number }>()
-
-function checkApiRateLimit(apiKey: string): { allowed: boolean; remaining: number; resetIn: number } {
+// Upstash Redis rate limiting (serverless stable)
+async function checkApiRateLimit(apiKey: string): Promise<{ allowed: boolean; remaining: number; resetIn: number }> {
   const now = Date.now()
   const windowMs = 60 * 1000 // 1 minute
   const maxRequests = 10 // 10 requests per minute per API key
   
-  const keyData = apiRateLimit.get(apiKey)
-  
-  if (!keyData || now > keyData.resetTime) {
-    // New window
-    apiRateLimit.set(apiKey, { count: 1, resetTime: now + windowMs })
-    return { allowed: true, remaining: maxRequests - 1, resetIn: windowMs }
+  try {
+    // Use Upstash Redis for serverless rate limiting
+    const redisUrl = process.env.UPSTASH_REDIS_REST_URL
+    const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN
+    
+    if (!redisUrl || !redisToken) {
+      // Fallback to in-memory if Redis not configured
+      console.warn('Upstash Redis not configured, using in-memory rate limiting')
+      const keyData = globalThis.rateLimitMap?.get(apiKey)
+      
+      if (!globalThis.rateLimitMap) {
+        globalThis.rateLimitMap = new Map<string, { count: number; resetTime: number }>()
+      }
+      
+      if (!keyData || now > keyData.resetTime) {
+        // New window
+        globalThis.rateLimitMap.set(apiKey, { count: 1, resetTime: now + windowMs })
+        return { allowed: true, remaining: maxRequests - 1, resetIn: windowMs }
+      }
+      
+      if (keyData.count >= maxRequests) {
+        return { allowed: false, remaining: 0, resetIn: keyData.resetTime - now }
+      }
+      
+      // Increment count
+      keyData.count++
+      globalThis.rateLimitMap.set(apiKey, keyData)
+      return { allowed: true, remaining: maxRequests - keyData.count, resetIn: keyData.resetTime - now }
+    }
+    
+    // Upstash Redis implementation
+    const key = `rate_limit:${apiKey}`
+    const current = await fetch(`${redisUrl}/get/${key}`, {
+      headers: {
+        'Authorization': `Bearer ${redisToken}`
+      }
+    }).then(res => res.json())
+    
+    const currentCount = current.result ? parseInt(current.result) : 0
+    
+    if (currentCount >= maxRequests) {
+      const ttl = await fetch(`${redisUrl}/ttl/${key}`, {
+        headers: {
+          'Authorization': `Bearer ${redisToken}`
+        }
+      }).then(res => res.json())
+      
+      return { allowed: false, remaining: 0, resetIn: (ttl.result || 60) * 1000 }
+    }
+    
+    // Increment count
+    await fetch(`${redisUrl}/incr/${key}`, {
+      headers: {
+        'Authorization': `Bearer ${redisToken}`
+      }
+    })
+    
+    // Set expiry if first request
+    if (currentCount === 0) {
+      await fetch(`${redisUrl}/expire/${key}/60`, {
+        headers: {
+          'Authorization': `Bearer ${redisToken}`
+        }
+      })
+    }
+    
+    return { allowed: true, remaining: maxRequests - (currentCount + 1), resetIn: windowMs }
+    
+  } catch (error) {
+    console.error('Rate limit error:', error)
+    // Allow on error (fail open for availability)
+    return { allowed: true, remaining: maxRequests, resetIn: windowMs }
   }
-  
-  if (keyData.count >= maxRequests) {
-    return { allowed: false, remaining: 0, resetIn: keyData.resetTime - now }
-  }
-  
-  // Increment count
-  keyData.count++
-  apiRateLimit.set(apiKey, keyData)
-  return { allowed: true, remaining: maxRequests - keyData.count, resetIn: keyData.resetTime - now }
+}
+
+// Declare global rate limit map for fallback
+declare global {
+  var rateLimitMap: Map<string, { count: number; resetTime: number }> | undefined
 }
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // 1. ALLE API ROUTES ZIJN PUBLIEK (behalve admin API)
+  // 1. ADMIN ROUTES CHECK - ALTIJD EERST (priority check)
+  if (pathname.startsWith('/admin') || pathname.startsWith('/beheer')) {
+    try {
+      // Get Supabase client
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      
+      if (!supabaseUrl || !supabaseKey) {
+        console.error('Supabase config missing in middleware')
+        return NextResponse.redirect(new URL('/login', request.url))
+      }
+      
+      const supabase = createClient(supabaseUrl, supabaseKey)
+      
+      // Get session cookie
+      const sessionCookie = request.cookies.get('sb-access-token') || request.cookies.get('sb-refresh-token') || request.cookies.get('bscpro-session')
+      
+      if (!sessionCookie) {
+        return NextResponse.redirect(new URL('/login', request.url))
+      }
+      
+      // Get user from session
+      const { data: { user }, error: authError } = await supabase.auth.getUser(sessionCookie.value)
+      
+      if (authError || !user) {
+        return NextResponse.redirect(new URL('/login', request.url))
+      }
+      
+      // Check role in profiles table (NEW: uses profiles table, not users)
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single()
+      
+      if (profileError || !profile || profile.role !== 'admin') {
+        return NextResponse.redirect(new URL('/', request.url))
+      }
+      
+      // User is admin, allow access
+      return NextResponse.next()
+      
+    } catch (error) {
+      console.error('Admin role check error:', error)
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+  }
+
+  // 2. ALLE API ROUTES ZIJN PUBLIEK (behalve admin API)
   if (pathname.startsWith('/api/')) {
     // Admin API routes vereisen admin secret
     if (pathname.startsWith('/api/admin/')) {
@@ -92,8 +199,8 @@ export async function middleware(request: NextRequest) {
         )
       }
       
-      // Check rate limit
-      const rateLimit = checkApiRateLimit(apiKey)
+      // Check rate limit with Upstash Redis
+      const rateLimit = await checkApiRateLimit(apiKey)
       if (!rateLimit.allowed) {
         return NextResponse.json(
           { 
@@ -126,7 +233,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // 2. Check of het een publieke route is - ALTJD toestaan zonder check
+  // 3. Check of het een publieke route is - ALTJD toestaan zonder check
   const isPublicRoute = PUBLIC_ROUTES.some(route => 
     pathname === route || pathname.startsWith(route + '/')
   )
@@ -135,7 +242,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // 3. Alleen voor non-public routes: check sessie
+  // 4. Alleen voor non-public routes: check sessie
   const sessionCookie = request.cookies.get('sb-access-token') || request.cookies.get('sb-refresh-token') || request.cookies.get('bscpro-session')
   
   if (!sessionCookie) {
@@ -143,30 +250,6 @@ export async function middleware(request: NextRequest) {
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('returnUrl', pathname)
     return NextResponse.redirect(loginUrl)
-  }
-
-  // 4. Voor admin routes: extra check
-  if (pathname.startsWith('/admin') || pathname.startsWith('/beheer')) {
-    try {
-      // Check of gebruiker admin is
-      const response = await fetch(new URL('/api/auth/session', request.url), {
-        headers: {
-          'Cookie': request.headers.get('cookie') || ''
-        }
-      })
-      
-      if (response.ok) {
-        const session = await response.json()
-        if (!session?.user?.is_admin) {
-          return NextResponse.redirect(new URL('/', request.url))
-        }
-      } else {
-        return NextResponse.redirect(new URL('/login', request.url))
-      }
-    } catch (error) {
-      console.error('Admin check error:', error)
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
   }
 
   return NextResponse.next()
