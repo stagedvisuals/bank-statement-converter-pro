@@ -12,7 +12,6 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  clerk_id TEXT UNIQUE NOT NULL,
   email TEXT UNIQUE NOT NULL,
   credits INTEGER DEFAULT 2,
   plan_type TEXT DEFAULT 'starter',
@@ -36,7 +35,6 @@ CREATE TABLE IF NOT EXISTS conversions (
 );
 
 -- Create indexes
-CREATE INDEX IF NOT EXISTS idx_users_clerk_id ON users(clerk_id);
 CREATE INDEX IF NOT EXISTS idx_conversions_user_id ON conversions(user_id);
 CREATE INDEX IF NOT EXISTS idx_conversions_created_at ON conversions(created_at DESC);
 
@@ -46,10 +44,8 @@ ALTER TABLE conversions ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
 CREATE POLICY "Users can view own data" ON users
-  FOR SELECT USING (clerk_id = current_setting('request.jwt.claims', true)::json->>'sub');
 
 CREATE POLICY "Users can view own conversions" ON conversions
-  FOR SELECT USING (user_id IN (SELECT id FROM users WHERE clerk_id = current_setting('request.jwt.claims', true)::json->>'sub')));
 `;
 
 async function initDatabase() {

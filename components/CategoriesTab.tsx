@@ -19,7 +19,7 @@ export default function CategoriesTab() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const ADMIN_SECRET = process.env.NEXT_PUBLIC_ADMIN_SECRET || 'BSCPro2025!';
+  const ADMIN_SECRET = process.env.ADMIN_SECRET || 'BSCProSecure2026!@#Complex123';
 
   const fetchCorrections = async () => {
     setLoading(true);

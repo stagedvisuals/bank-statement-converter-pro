@@ -7,3 +7,11 @@
 *.log
 .env*.local
 .env.local
+
+# Backup files
+*.backup
+*.bak
+*.old
+*.tmp
+.env.local.backup
+.env.backup

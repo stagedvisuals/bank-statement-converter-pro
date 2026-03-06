@@ -20,7 +20,7 @@ export interface UserProfile {
   instelling_kostenplaats: boolean;
   
   // Status
-  onboarding_voltooid: boolean;
+  onboarding_completed: boolean;
   
   // Metadata
   aangemaakt_op: string;

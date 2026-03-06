@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { 
+import { X, 
   Shield, 
   FileText, 
   Clock, 
@@ -21,8 +21,6 @@ import {
   Calculator
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import DemoMode from '@/components/DemoMode';
-import DemoSection from './sections/DemoSection';
 import FileConverterWithFreeScan from '@/components/FileConverterWithFreeScan';
 
 export default function Home() {
@@ -50,7 +48,6 @@ export default function Home() {
     setEnterpriseSubmitted(true)
     setEnterpriseEmail('')
     setEnterpriseLoading(false)
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -221,7 +218,6 @@ export default function Home() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm">Bulk upload tot 50 bestanden</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-green-500" />
@@ -243,7 +239,6 @@ export default function Home() {
                 <h3 className="text-xl font-bold text-foreground">Belastingadviseur</h3>
               </div>
               <p className="text-muted-foreground mb-4">
-                Verwerk een heel jaar aan losse afschriften in één bulk-upload → Direct klaar voor de BTW-aangifte.
               </p>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
@@ -281,11 +276,9 @@ export default function Home() {
           <h2 className="text-2xl font-bold mb-2">Zie het zelf</h2>
           <p className="text-muted-foreground">Bekijk hoe BSCPro een bankafschrift verwerkt</p>
         </div>
-        <DemoMode />
       </section>
 
       {/* Demo Section */}
-      <DemoSection />
 
       {/* Features Grid */}
       <section id="features" className="py-20 bg-secondary">
@@ -379,7 +372,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* Slimme Regels - USP Onthullen */}      <section className="py-20 bg-gradient-to-br from-[#00b8d9]/5 to-[#00b8d9]/10 border-y border-[#00b8d9]/20">        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">          <div className="text-center mb-12">            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">De AI die je administratie onthoudt</h2>            <p className="text-muted-foreground text-base max-w-3xl mx-auto">              Maak één keer een Slimme Regel aan, en BSC Pro categoriseert terugkerende afschrijvingen de volgende keer 100% automatisch. Minder klikken, meer factureren.            </p>          </div>          <div className="grid md:grid-cols-2 gap-8">            {/* Voor Slimme Regels */}            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-8 shadow-lg">              <div className="flex items-center gap-3 mb-6">                <div className="w-12 h-12 rounded-xl bg-[#00b8d9]/10 border border-[#00b8d9]/20 flex items-center justify-center">                  <span className="text-2xl">🧠</span>                </div>                <div>                  <h3 className="text-xl font-bold text-foreground">Voor Slimme Regels</h3>                  <p className="text-sm text-muted-foreground">Handmatig elke transactie categoriseren</p>                </div>              </div>              <div className="space-y-4">                <div className="flex items-center gap-3">                  <X className="w-5 h-5 text-red-500" />                  <span className="text-foreground">Elke maand opnieuw dezelfde transacties handmatig labelen</span>                </div>                <div className="flex items-center gap-3">                  <X className="w-5 h-5 text-red-500" />                  <span className="text-foreground">Fouten door vermoeidheid of haast</span>                </div>                <div className="flex items-center gap-3">                  <X className="w-5 h-5 text-red-500" />                  <span className="text-foreground">Uren verspild aan repetitief werk</span>                </div>                <div className="pt-4 border-t border-gray-200 dark:border-gray-800">                  <p className="text-sm text-muted-foreground">Gemiddeld: <span className="font-bold text-red-500">3-5 uur per maand</span> aan administratie</p>                </div>              </div>            </div>            {/* Met Slimme Regels */}            <div className="bg-gradient-to-br from-[#00b8d9]/5 to-[#00b8d9]/10 border-2 border-[#00b8d9]/30 rounded-xl p-8 shadow-lg relative overflow-hidden">              <div className="absolute top-4 right-4">                <span className="px-3 py-1 bg-[#00b8d9] text-white text-xs font-bold rounded-full">POPULAIR</span>              </div>              <div className="flex items-center gap-3 mb-6">                <div className="w-12 h-12 rounded-xl bg-[#00b8d9] border border-[#00b8d9] flex items-center justify-center">                  <span className="text-2xl text-white">⚡</span>                </div>                <div>                  <h3 className="text-xl font-bold text-foreground">Met Slimme Regels</h3>                  <p className="text-sm text-muted-foreground">AI onthoudt je voorkeuren automatisch</p>                </div>              </div>              <div className="space-y-4">                <div className="flex items-center gap-3">                  <Check className="w-5 h-5 text-green-500" />                  <span className="text-foreground">Eén keer een regel aanmaken → altijd automatisch toegepast</span>                </div>                <div className="flex items-center gap-3">                  <Check className="w-5 h-5 text-green-500" />                  <span className="text-foreground">100% consistentie in je boekhouding</span>                </div>                <div className="flex items-center gap-3">                  <Check className="w-5 h-5 text-green-500" />                  <span className="text-foreground">Meer tijd voor klantcontact en groei</span>                </div>                <div className="pt-4 border-t border-[#00b8d9]/30">                  <p className="text-sm text-muted-foreground">Gemiddeld: <span className="font-bold text-green-500">minder dan 30 minuten per maand</span></p>                </div>              </div>              <div className="mt-8 pt-6 border-t border-[#00b8d9]/20">                <p className="text-sm text-center text-muted-foreground">                  <span className="font-bold text-[#00b8d9]">312+ gebruikers</span> besparen al tijd met Slimme Regels                </p>              </div>            </div>          </div>          <div className="mt-12 text-center">            <button className="px-8 py-4 bg-[#00b8d9] text-white font-bold text-lg rounded-xl hover:bg-[#00a3c4] transition-all shadow-lg hover:shadow-xl">              Start met Slimme Regels (gratis 14 dagen)            </button>            <p className="mt-4 text-sm text-muted-foreground">Geen creditcard nodig • Direct aan de slag</p>          </div>        </div>      </section>      {/* Pricing */}
       {/* Pricing */}
       {/* Pricing */}
       <section id="pricing" className="py-20 bg-background">
@@ -453,7 +446,6 @@ export default function Home() {
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>100 scans per maand</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Alle formaten: Excel, CSV, MT940, CAMT.053, QBO</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>BTW categorisering automatisch</span></li>
-                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Bulk upload tot 5 PDFs tegelijk</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Prioriteit email support</span></li>
               </ul>
               <a href="/register" className="block text-center px-4 py-2.5 bg-[#00b8d9] text-black rounded-lg text-sm font-bold hover:bg-[#00a8c9] transition-colors">Start 14-daagse trial</a>
@@ -474,7 +466,6 @@ export default function Home() {
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>500 scans per maand</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Alle formaten incl. CAMT.053 en QBO</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>BTW categorisering automatisch</span></li>
-                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Bulk upload tot 25 PDFs tegelijk</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>3 gebruikers inbegrepen</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>API toegang</span></li>
               </ul>
@@ -495,7 +486,6 @@ export default function Home() {
               <ul className="space-y-2 flex-1 mb-6 text-sm">
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>2.000 scans/maand</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Alle formaten + toekomstige formaten</span></li>
-                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Max 50 bulk upload</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Tot 25 gebruikers</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>API toegang + webhooks</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>White-label optie</span></li>
@@ -551,7 +541,6 @@ export default function Home() {
                 <tr className="border-b border-border/50 bg-muted/20"><td className="py-3 px-4">CAMT.053 export</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td></tr>
                 <tr className="border-b border-border/50"><td className="py-3 px-4">QBO (QuickBooks)</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td></tr>
                 <tr className="border-b border-border/50 bg-muted/20"><td className="py-3 px-4">BTW categorisering</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td></tr>
-                <tr className="border-b border-border/50"><td className="py-3 px-4">Bulk upload</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4">Max 5</td><td className="text-center py-3 px-4">Max 25</td><td className="text-center py-3 px-4">2.000</td></tr>
                 <tr className="border-b border-border/50 bg-muted/20"><td className="py-3 px-4">Gebruikers</td><td className="text-center py-3 px-4">1</td><td className="text-center py-3 px-4">1</td><td className="text-center py-3 px-4">1</td><td className="text-center py-3 px-4">3</td><td className="text-center py-3 px-4">10+</td></tr>
                 <tr className="border-b border-border/50"><td className="py-3 px-4">API toegang</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td></tr>
                 <tr className="border-b border-border/50 bg-muted/20"><td className="py-3 px-4">White-label</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-green-500">✓</td></tr>
@@ -613,73 +602,4 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="py-12 border-t border-border bg-secondary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-5 gap-8 mb-8">
-            <div>
-              <h3 className="text-lg font-bold text-foreground mb-4">BSC<span className="text-[#00b8d9]">PRO</span></h3>
-              <p className="text-sm text-muted-foreground">De slimste manier om bankafschriften te converteren. Bespaar uren werk per maand.</p>
-              <div className="mt-4 flex items-center gap-2">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                  🧪 Testfase
-                </span>
-                <span className="text-slate-500 text-xs">v1.0 – In bèta</span>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-semibold text-foreground mb-3">Product</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="#features" className="hover:text-[#00b8d9]">Features</Link></li>
-                <li><Link href="#pricing" className="hover:text-[#00b8d9]">Prijzen</Link></li>
-                <li><Link href="#calculator" className="hover:text-[#00b8d9]">Besparing berekenen</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-foreground mb-3">Koppelingen</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/moneybird/priverekening-pdf-importeren" className="hover:text-[#00b8d9]">PDF → Moneybird</Link></li>
-                <li><Link href="/snelstart/rabobank-pdf-importeren" className="hover:text-[#00b8d9]">Rabobank → SnelStart</Link></li>
-                <li><Link href="/exact-online/ing-prive-importeren" className="hover:text-[#00b8d9]">ING → Exact Online</Link></li>
-                <li><Link href="/abn-amro/twinfield-importeren" className="hover:text-[#00b8d9]">ABN AMRO → Twinfield</Link></li>
-                <li><Link href="/ing/afas-importeren" className="hover:text-[#00b8d9]">ING → AFAS</Link></li>
-                <li><Link href="/rabobank/mt940-exporteren" className="hover:text-[#00b8d9]">Rabobank → MT940</Link></li>
-                <li><Link href="/ing/mt940-exporteren" className="hover:text-[#00b8d9]">ING → MT940</Link></li>
-                <li><Link href="/abn-amro/exact-online-importeren" className="hover:text-[#00b8d9]">ABN AMRO → Exact Online</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-foreground mb-3">Support</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/api-docs" className="hover:text-[#00b8d9]">API Documentatie</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-foreground mb-3">Juridisch</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/privacy" className="hover:text-[#00b8d9]">Privacyverklaring</Link></li>
-                <li><Link href="/voorwaarden" className="hover:text-[#00b8d9]">Algemene Voorwaarden</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="text-center pt-8 border-t border-border">
-            <p className="text-sm text-muted-foreground mb-2">{new Date().getFullYear()} BSC Pro. Alle rechten voorbehouden.</p>
-            <p className="text-xs text-slate-500 max-w-md mx-auto">
-              BSC PRO is een ondersteunend hulpmiddel. Controleer alle uitgelezen data altijd zelf. 
-              Wij zijn geen boekhoudkantoor en geven geen fiscaal advies.
-            </p>
-                    <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-4 text-xs text-slate-500">
-            <div className="flex items-center gap-2">
-              <span>🍪</span>
-              <span>Deze website gebruikt functionele cookies.</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link href="/privacy" className="hover:text-[#00b8d9] transition-colors">Privacy</Link>
-              <Link href="/voorwaarden" className="hover:text-[#00b8d9] transition-colors">Voorwaarden</Link>
-              <Link href="/cookies" className="hover:text-[#00b8d9] transition-colors">Cookiebeleid</Link>
-            </div>
-          </div>
-        </div>
-        </div>
-      </footer>
-    </div>
-  );
 }

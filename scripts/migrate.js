@@ -27,7 +27,7 @@ const sqlStatements = [
     instelling_lopend_saldo BOOLEAN DEFAULT true,
     instelling_logo_in_excel BOOLEAN DEFAULT false,
     instelling_kostenplaats BOOLEAN DEFAULT false,
-    onboarding_voltooid BOOLEAN DEFAULT false,
+    onboarding_completed BOOLEAN DEFAULT false,
     aangemaakt_op TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     bijgewerkt_op TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     CONSTRAINT unique_user_id UNIQUE (user_id)
@@ -35,7 +35,7 @@ const sqlStatements = [
 
   // 2. Indexes
   `CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON public.user_profiles(user_id);`,
-  `CREATE INDEX IF NOT EXISTS idx_user_profiles_onboarding ON public.user_profiles(onboarding_voltooid);`,
+  `CREATE INDEX IF NOT EXISTS idx_user_profiles_onboarding ON public.user_profiles(onboarding_completed);`,
 
   // 3. Enable RLS
   `ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;`,

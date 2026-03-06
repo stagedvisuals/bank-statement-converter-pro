@@ -13,7 +13,6 @@ async function setupDatabase() {
     sql: `
       CREATE TABLE IF NOT EXISTS users (
         id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        clerk_id TEXT UNIQUE NOT NULL,
         email TEXT UNIQUE NOT NULL,
         credits INTEGER DEFAULT 2,
         plan_type TEXT DEFAULT 'starter',
@@ -22,7 +21,6 @@ async function setupDatabase() {
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       );
       
-      CREATE INDEX IF NOT EXISTS idx_users_clerk_id ON users(clerk_id);
     `
   });
   

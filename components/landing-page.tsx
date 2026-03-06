@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useAuth } from '@clerk/nextjs'
 
 export default function LandingPage() {
   const { isSignedIn } = useAuth()
