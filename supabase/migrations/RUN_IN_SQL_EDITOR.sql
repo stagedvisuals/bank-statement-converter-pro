@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
     instelling_kostenplaats BOOLEAN DEFAULT false,
     
     -- Onboarding status
-    onboarding_voltooid BOOLEAN DEFAULT false,
+    onboarding_completed BOOLEAN DEFAULT false,
     
     -- Metadata
     aangemaakt_op TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
 
 -- 2. Indexes voor performance
 CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON public.user_profiles(user_id);
-CREATE INDEX IF NOT EXISTS idx_user_profiles_onboarding ON public.user_profiles(onboarding_voltooid);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_onboarding ON public.user_profiles(onboarding_completed);
 
 -- 3. Enable RLS
 ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
@@ -76,7 +76,7 @@ CREATE TRIGGER update_user_profiles_updated_at
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO public.user_profiles (user_id, bedrijfsnaam, beroep, onboarding_voltooid)
+    INSERT INTO public.user_profiles (user_id, bedrijfsnaam, beroep, onboarding_completed)
     VALUES (NEW.id, '', 'zzp', false);
     RETURN NEW;
 END;
@@ -89,7 +89,7 @@ CREATE TRIGGER on_auth_user_created
     EXECUTE FUNCTION public.handle_new_user();
 
 -- 7. Voor bestaande users: maak lege profielen aan
-INSERT INTO public.user_profiles (user_id, bedrijfsnaam, beroep, onboarding_voltooid)
+INSERT INTO public.user_profiles (user_id, bedrijfsnaam, beroep, onboarding_completed)
 SELECT id, '', 'zzp', false
 FROM auth.users
 WHERE id NOT IN (SELECT user_id FROM public.user_profiles);

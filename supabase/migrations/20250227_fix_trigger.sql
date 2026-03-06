@@ -13,7 +13,7 @@ $$ language 'plpgsql';
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO public.user_profiles (user_id, email, full_name, bedrijfsnaam, beroep, onboarding_voltooid)
+    INSERT INTO public.user_profiles (user_id, email, full_name, bedrijfsnaam, beroep, onboarding_completed)
     VALUES (NEW.id, NEW.email, COALESCE(NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1)), '', 'zzp', false)
     ON CONFLICT (user_id) DO UPDATE SET
         email = EXCLUDED.email,

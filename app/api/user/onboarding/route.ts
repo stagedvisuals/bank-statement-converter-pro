@@ -31,7 +31,7 @@ export async function GET(request: Request) {
 
     const { data, error } = await supabase
       .from('user_profiles')
-      .select('onboarding_voltooid')
+      .select('onboarding_completed')
       .eq('user_id', user.id)
       .single()
 
@@ -44,9 +44,9 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json({
-      progress_percentage: data.onboarding_voltooid ? 100 : 0,
-      current_step: data.onboarding_voltooid ? 'completed' : 'in_progress',
-      completed_steps: data.onboarding_voltooid ? ['welcome', 'tutorial', 'first_upload'] : []
+      progress_percentage: data.onboarding_completed ? 100 : 0,
+      current_step: data.onboarding_completed ? 'completed' : 'in_progress',
+      completed_steps: data.onboarding_completed ? ['welcome', 'tutorial', 'first_upload'] : []
     })
   } catch (error: any) {
     return NextResponse.json({ 
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
       const { error } = await supabase
         .from('user_profiles')
         .update({ 
-          onboarding_voltooid: true,
+          onboarding_completed: true,
           bijgewerkt_op: new Date().toISOString()
         })
         .eq('user_id', user.id)
@@ -102,7 +102,7 @@ export async function POST(request: Request) {
       .from('user_profiles')
       .upsert({
         user_id: user.id,
-        onboarding_voltooid: progress === 100 ? true : false,
+        onboarding_completed: progress === 100 ? true : false,
         bijgewerkt_op: new Date().toISOString()
       }, { onConflict: 'user_id' })
 

@@ -221,7 +221,6 @@ export default function Home() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm">Bulk upload tot 50 bestanden</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-green-500" />
@@ -243,7 +242,6 @@ export default function Home() {
                 <h3 className="text-xl font-bold text-foreground">Belastingadviseur</h3>
               </div>
               <p className="text-muted-foreground mb-4">
-                Verwerk een heel jaar aan losse afschriften in één bulk-upload → Direct klaar voor de BTW-aangifte.
               </p>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
@@ -453,7 +451,6 @@ export default function Home() {
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>100 scans per maand</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Alle formaten: Excel, CSV, MT940, CAMT.053, QBO</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>BTW categorisering automatisch</span></li>
-                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Bulk upload tot 5 PDFs tegelijk</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Prioriteit email support</span></li>
               </ul>
               <a href="/register" className="block text-center px-4 py-2.5 bg-[#00b8d9] text-black rounded-lg text-sm font-bold hover:bg-[#00a8c9] transition-colors">Start 14-daagse trial</a>
@@ -474,7 +471,6 @@ export default function Home() {
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>500 scans per maand</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Alle formaten incl. CAMT.053 en QBO</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>BTW categorisering automatisch</span></li>
-                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Bulk upload tot 25 PDFs tegelijk</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>3 gebruikers inbegrepen</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>API toegang</span></li>
               </ul>
@@ -495,7 +491,6 @@ export default function Home() {
               <ul className="space-y-2 flex-1 mb-6 text-sm">
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>2.000 scans/maand</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Alle formaten + toekomstige formaten</span></li>
-                <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Max 50 bulk upload</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>Tot 25 gebruikers</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>API toegang + webhooks</span></li>
                 <li className="flex items-start gap-2"><span className="text-green-500 shrink-0">✓</span><span>White-label optie</span></li>
@@ -551,7 +546,6 @@ export default function Home() {
                 <tr className="border-b border-border/50 bg-muted/20"><td className="py-3 px-4">CAMT.053 export</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td></tr>
                 <tr className="border-b border-border/50"><td className="py-3 px-4">QBO (QuickBooks)</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td></tr>
                 <tr className="border-b border-border/50 bg-muted/20"><td className="py-3 px-4">BTW categorisering</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td></tr>
-                <tr className="border-b border-border/50"><td className="py-3 px-4">Bulk upload</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4">Max 5</td><td className="text-center py-3 px-4">Max 25</td><td className="text-center py-3 px-4">2.000</td></tr>
                 <tr className="border-b border-border/50 bg-muted/20"><td className="py-3 px-4">Gebruikers</td><td className="text-center py-3 px-4">1</td><td className="text-center py-3 px-4">1</td><td className="text-center py-3 px-4">1</td><td className="text-center py-3 px-4">3</td><td className="text-center py-3 px-4">10+</td></tr>
                 <tr className="border-b border-border/50"><td className="py-3 px-4">API toegang</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-green-500">✓</td><td className="text-center py-3 px-4 text-green-500">✓</td></tr>
                 <tr className="border-b border-border/50 bg-muted/20"><td className="py-3 px-4">White-label</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-muted-foreground">✗</td><td className="text-center py-3 px-4 text-green-500">✓</td></tr>

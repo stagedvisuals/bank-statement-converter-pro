@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
     instelling_kostenplaats BOOLEAN DEFAULT false,
     
     -- Onboarding status
-    onboarding_voltooid BOOLEAN DEFAULT false,
+    onboarding_completed BOOLEAN DEFAULT false,
     
     -- Metadata
     aangemaakt_op TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
 
 -- Create index for faster lookups
 CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON public.user_profiles(user_id);
-CREATE INDEX IF NOT EXISTS idx_user_profiles_onboarding ON public.user_profiles(onboarding_voltooid);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_onboarding ON public.user_profiles(onboarding_completed);
 
 -- RLS Policies
 -- Users can only view their own profile
@@ -81,7 +81,7 @@ CREATE TRIGGER update_user_profiles_updated_at
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO public.user_profiles (user_id, bedrijfsnaam, beroep, onboarding_voltooid)
+    INSERT INTO public.user_profiles (user_id, bedrijfsnaam, beroep, onboarding_completed)
     VALUES (NEW.id, '', 'zzp', false);
     RETURN NEW;
 END;
