@@ -4,7 +4,6 @@ import { cookies } from 'next/headers'
 
 export const dynamic = 'force-dynamic'
 
-
 export async function GET(request: NextRequest) {
   try {
     const cookieStore = cookies()
@@ -34,20 +33,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Niet ingelogd' }, { status: 401 })
     }
 
-    // Haal profiel op
+    // Haal profiel op - gebruik onboarding_completed (nieuwe kolomnaam)
     const { data: profile, error } = await supabase
       .from('user_profiles')
-      .select('onboarding_voltooid')
+      .select('onboarding_completed')
       .eq('user_id', session.user.id)
       .single()
 
     if (error) {
       console.error('Error fetching profile:', error)
-      return NextResponse.json({ onboardingVoltooid: false }, { status: 200 })
+      return NextResponse.json({ onboardingCompleted: false }, { status: 200 })
     }
 
     return NextResponse.json({ 
-      onboardingVoltooid: profile?.onboarding_voltooid || false 
+      onboardingCompleted: profile?.onboarding_completed || false 
     })
 
   } catch (error) {
