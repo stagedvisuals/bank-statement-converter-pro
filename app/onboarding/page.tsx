@@ -58,13 +58,14 @@ export default function OnboardingPage() {
       }
       const { access_token } = JSON.parse(session)
       
-      const response = await fetch('/api/user/onboarding/complete', {
+      const response = await fetch('/api/user/onboarding', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${access_token}`
-        }
+          'Authorization': `Bearer ${access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ action: 'complete' })
       })
-      
       if (response.ok) {
         router.push('/dashboard')
       } else {

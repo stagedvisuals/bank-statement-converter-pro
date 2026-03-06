@@ -1,0 +1,228 @@
+# BSC PRO COMPLETE DOCUMENTATION - www.bscpro.nl
+# Generated: 2026-03-05 23:32 UTC
+# For AI Handover to Gemini/Claude/Other AI
+
+## 🚨 KRITISCHE CONTEXT
+**Project:** BSC Pro (Bank Statement Converter Pro)
+**Website:** https://www.bscpro.nl (LIVE)
+**Status:** Volledig operationeel met AI-pipeline
+**Doel:** €30.000-€50.000 winst jaar 1 via Nederlandse makelaars & accountants
+
+## 🏗️ TECH STACK
+- **Frontend:** Next.js 14.2.0 (App Router EXCLUSIEF)
+- **Styling:** Tailwind CSS
+- **Database:** Supabase (PostgreSQL met RLS)
+- **AI Engine:** Groq API (Llama 3.3 70B)
+- **Auth:** Supabase Auth
+- **Deployment:** Vercel (custom domain: www.bscpro.nl)
+
+## 🧭 ARCHITECTUUR - ABSOLUTE REGELS
+1. App Router only - Pages Router VERWIJDERD
+2. API paths: app/api/[endpoint]/route.ts → fetch('/api/[endpoint]')
+3. NO mock data - 100% productie-klare code
+4. NO fail-open - Database errors → 503 Service Unavailable
+
+## 🗄️ DATABASE SCHEMA (Supabase)
+
+### free_scans (Fort Knox Anti-Misbruik)
+```sql
+CREATE TABLE free_scans (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  ip_address INET NOT NULL,
+  cookie_id TEXT,
+  localStorage_id TEXT,
+  expires_at TIMESTAMPTZ NOT NULL DEFAULT (NOW() + INTERVAL '24 hours'),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  conversion_attempted BOOLEAN DEFAULT FALSE,
+  conversion_attempted_at TIMESTAMPTZ,
+  lead_source TEXT DEFAULT 'free_scan'
+);
+```
+
+### user_profiles
+```sql
+CREATE TABLE user_profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id),
+  plan TEXT NOT NULL DEFAULT 'free',
+  credits INTEGER NOT NULL DEFAULT 0,
+  onboarding_completed BOOLEAN DEFAULT FALSE,
+  last_activity TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+## 📁 BELANGRIJKSTE BESTANDEN
+
+### API ENDPOINTS (app/api/)
+- convert/route.ts              # 🚀 HOOFD API - AI conversie
+- free-scan/route.ts           # 🛡️ Fort Knox anti-misbruik
+- admin/conversions/route.ts   # ⚠️ Beveiligd met ADMIN_SECRET
+- admin/stats/route.ts
+- admin/users/route.ts
+
+### PAGES (app/)
+- page.tsx                     # 🏠 Homepage (Free Scan + Trust Score)
+- dashboard/page.tsx           # 📊 Authenticated user dashboard
+- admin/page.tsx              # ⚠️ Admin panel
+- bulk-upload/page.tsx        # 🚀 B2B Enterprise (50 files)
+
+### COMPONENTS
+- FileConverterWithFreeScan.tsx  # 🎯 HOOFD COMPONENT - Free scan flow
+- FreeScanPreview.tsx           # 📊 Preview met Trust Score (85-99%)
+- BulkUploadDropzone.tsx        # 🚀 B2B Multi-file upload
+- AuthModal.tsx                 # 🔐 Login/Register modal
+
+## ✅ WAT WERKT 100%
+
+### 🛡️ FORT KNOX ANTI-MISBRUIK
+- 1 scan per 24h (IP + Cookie + localStorage tracking)
+- Geen Fail-Open: Database errors → 503 Service Unavailable
+- CFO-Mode Tracking: conversion_attempted flag
+
+### 🚀 FREE SCAN UX
+- Trust Scores: 85-99% (geen 0% meer)
+- Preview Table: 3-5 geëxtraheerde transacties
+- CTA: "🔒 Maak een gratis account om je bestand te downloaden"
+
+### 📊 DASHBOARD UPLOAD
+- FormData: file → app/api/convert/route.ts
+- API Response: { success: true, data: { transacties: [...] } }
+- Mobile Responsive
+
+### 🚀 B2B BULK UPLOAD SYSTEM
+- 50 bestanden tegelijk (drag & drop)
+- Visual Queue: individuele progress bars
+- Error Isolation: 1 file faalt → rest blijft werken
+- Rate Limiting: Batches van 3 tegelijk
+
+## ⚠️ WAT STAAT OPEN
+
+### 📧 E-MAIL AUTOPILOT (Niet geïmplementeerd)
+- Database schema klaar: email_communications table
+- API: /api/email/send moet worden gebouwd
+- Triggers: Welcome email, conversion nudge, trial ending reminder
+
+### 🛠️ TECHNISCHE DEBT
+- TypeScript Strictness: Sommige `any` types vervangen
+- Error Logging: Centraliseren naar Supabase
+- Performance Monitoring: Real-time API metrics
+
+## 🔐 OMGEVINGSVARIABELEN (Vercel)
+```
+NEXT_PUBLIC_SUPABASE_URL=https://[project].supabase.co
+SUPABASE_SERVICE_ROLE_KEY=sb.[service_role_key]  # ⚠️ NOOIT in git
+NEXT_PUBLIC_SUPABASE_ANON_KEY=[anon_key]
+GROQ_API_KEY=gsk_[groq_key]  # 🤖 AI parsing
+ADMIN_SECRET=[secure_password]  # ⚠️ Admin API protection
+```
+
+## 🚨 KRITISCHE BESLISSINGEN
+
+### 1. APP ROUTER EXCLUSIEF
+- Pages Router is VERWIJDERD - alle `/pages/api/` files zijn weg
+- Fetch URLs: `/api/convert` → `app/api/convert/route.ts`
+
+### 2. JURIDISCHE GRENZEN (Nederlandse AVG)
+- Financiële Data: Bankafschriften zijn "bijzondere persoonsgegevens"
+- Retentie: Free scan data maximaal 24h bewaren
+- Legal Basis: Legitiem belang (fraudepreventie) voor free scan tracking
+
+### 3. SECURITY POSTURE
+- RLS: Alle Supabase tables hebben Row Level Security
+- Service Role: Alleen server-side APIs gebruiken SUPABASE_SERVICE_ROLE_KEY
+- Admin API: Beveiligd met ADMIN_SECRET header check
+
+## 🚀 VOLGENDE STAPPEN
+
+### PRIORITEIT 1: E-MAIL AUTOPILOT
+1. Build /api/email/send endpoint
+2. Implementeer email templates
+3. Voeg cron job toe voor scheduled emails
+4. AVG compliance: Opt-out mechanism
+
+### PRIORITEIT 2: CONVERSIE OPTIMALISATIE
+1. A/B test CTA button teksten
+2. Implementeer exit-intent popup
+3. Voeg social proof toe (live counter, testimonials)
+
+### PRIORITEIT 3: B2B SALES
+1. Build accountant/ZZP'er use case pages
+2. Implementeer demo request form
+3. Voeg enterprise pricing calculator toe
+
+## 📞 CONTACT & LINKS
+- **Live URL:** https://www.bscpro.nl
+- **GitHub:** https://github.com/stagedvisuals/bank-statement-converter-pro/tree/clean-branch
+- **AI_HANDOVER.md:** Complete documentatie in GitHub repo
+
+## ⚠️ WAARSCHUWINGEN VOOR OVERNEMENDE AI
+1. NOOIT `pages/` directory herstellen - App Router is de wet
+2. NOOIT `/route` toevoegen aan fetch URLs
+3. NOOIT mock data gebruiken - 100% productie-klare code
+4. AVG compliance handhaven - Nederlandse financiële data
+5. Service Role Key beschermen - Nooit in git, alleen in Vercel env vars
+
+## 🎯 PROJECT STATUS SAMENVATTING
+**BSC Pro is een volledig operationele Nederlandse SaaS met:**
+- ✅ Live website: www.bscpro.nl
+- ✅ AI-powered bankafschrift conversie
+- ✅ Fort Knox anti-misbruik systeem
+- ✅ B2B Bulk Upload voor enterprise klanten
+- ✅ Mobile-responsive dashboard
+- ✅ AVG/GDPR compliant architectuur
+- ✅ Conversie-optimized free scan flow
+
+**Ready voor scaling naar €30.000-€50.000 jaaromzet via Nederlandse makelaars & accountants.**
+
+---
+
+# COMPLETE CODE OVERVIEW
+
+## API ENDPOINTS LIST:
+- /api/convert              # Main AI conversion
+- /api/free-scan           # Fort Knox anti-abuse
+- /api/admin/conversions   # Admin stats
+- /api/admin/stats         # Admin dashboard
+- /api/admin/users         # User management
+- /api/auth/check-onboarding
+- /api/cleanup
+- /api/contact
+- /api/developer/keys
+- /api/enterprise-waitlist
+- /api/feedback
+- /api/health
+- /api/send-email
+- /api/stats/public
+- /api/user/onboarding
+- /api/user/profile
+
+## COMPONENTS LIST:
+- FileConverterWithFreeScan.tsx
+- FreeScanPreview.tsx
+- BulkUploadDropzone.tsx
+- AuthModal.tsx
+- SmartRulesManager.tsx
+- DashboardSmartTools.tsx
+- EnterpriseWaitlist.tsx
+- FeedbackModal.tsx
+- LiveCounter.tsx
+- OnboardingTracker.tsx
+- ROICalculator.tsx
+- ThemeToggle.tsx
+- Navbar.tsx
+- Footer.tsx
+
+## DATABASE MIGRATIONS:
+- 20260304230000_create_free_scans_table.sql
+- 20260305095000_enhanced_free_scans_with_rls.sql
+- 20260305102700_simple_free_scans.sql
+
+## CRON AGENTS:
+- Quality Agent: Dagelijks 20:00 (AI scan outputs check)
+- Market Agent: Dagelijks 19:00 (competitor monitoring)
+- Onboarding Agent: Dagelijks 19:02 (user engagement)
+
+---
+
+**END OF DOCUMENTATION - READY FOR AI HANDOVER**

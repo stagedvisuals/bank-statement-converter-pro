@@ -1,0 +1,9 @@
+.next
+node_modules
+*.log
+.DS_Store
+.git
+*.tar.gz
+*.zip
+supabase/migrations/*.backup
+*.sql.backup
