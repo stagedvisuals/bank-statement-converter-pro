@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { data: profile, error } = await supabase
-      .from('user_profiles')
+      .from('profiles')
       .select('*')
       .eq('user_id', session.user.id)
       .single()
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     updates.updated_at = new Date().toISOString()
 
     const { data: profile, error } = await supabase
-      .from('user_profiles')
+      .from('profiles')
       .update(updates)
       .eq('user_id', session.user.id)
       .select()

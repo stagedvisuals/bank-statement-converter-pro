@@ -47,12 +47,12 @@ export default function Home() {
     } catch {}
     setEnterpriseSubmitted(true)
     setEnterpriseEmail('')
-    setEnterpriseLoading(false)
-  }
-
-  return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+      setEnterpriseLoading(false)
+    }
+  
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
 
       {/* Hero */}
       <section className="pt-28 pb-20 bg-background">

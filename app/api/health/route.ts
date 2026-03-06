@@ -17,7 +17,7 @@ export async function GET() {
   // 2. Check database (echte query)
   try {
     const supabase = getSupabaseAdmin()
-    const { error } = await supabase.from('user_profiles').select('count').limit(1)
+    const { error } = await supabase.from('profiles').select('count').limit(1)
     results.database = {
       status: error ? 'error' : 'ok',
       message: error ? error.message : 'Database bereikbaar'

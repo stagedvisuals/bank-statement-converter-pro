@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     const supabase = getSupabaseAdmin()
 
     const { data: users, error: usersError } = await supabase
-      .from('user_profiles')
+      .from('profiles')
       .select('id, created_at, last_login_at')
 
     if (usersError) {

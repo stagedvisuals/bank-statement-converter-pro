@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   try {
     const supabase = getSupabaseAdmin()
     const { data: profiles, error: profilesError } = await supabase
-      .from('user_profiles')
+      .from('profiles')
       .select('*')
       .order('created_at', { ascending: false })
 
@@ -50,7 +50,7 @@ export async function PATCH(request: Request) {
 
     if (plan !== undefined) {
       const { error } = await supabase
-        .from('user_profiles')
+        .from('profiles')
         .update({ plan, updated_at: new Date().toISOString() })
         .eq('user_id', userId)
 
@@ -136,7 +136,7 @@ export async function DELETE(request: Request) {
     await supabase.from('api_keys').delete().eq('user_id', userId)
     await supabase.from('webhooks').delete().eq('user_id', userId)
     await supabase.from('onboarding_status').delete().eq('user_id', userId)
-    await supabase.from('user_profiles').delete().eq('user_id', userId)
+    await supabase.from('profiles').delete().eq('user_id', userId)
     
     const { error } = await supabase.auth.admin.deleteUser(userId)
     if (error) {

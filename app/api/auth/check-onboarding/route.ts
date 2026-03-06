@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 
     // Haal profiel op - gebruik onboarding_completed (nieuwe kolomnaam)
     const { data: profile, error } = await supabase
-      .from('user_profiles')
+      .from('profiles')
       .select('onboarding_completed')
       .eq('user_id', session.user.id)
       .single()

@@ -29,8 +29,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
+    // Use new profiles table
     const { data, error } = await supabase
-      .from('user_profiles')
+      .from('profiles')
       .select('onboarding_completed')
       .eq('user_id', user.id)
       .single()
@@ -85,10 +86,10 @@ export async function POST(request: Request) {
     // Speciale complete actie - voor "Onboarding afronden" knop
     if (action === 'complete') {
       const { error } = await supabase
-        .from('user_profiles')
+        .from('profiles')
         .update({ 
           onboarding_completed: true,
-          bijgewerkt_op: new Date().toISOString()
+          updated_at: new Date().toISOString()
         })
         .eq('user_id', user.id)
 
@@ -99,11 +100,12 @@ export async function POST(request: Request) {
     // Normale progress update
     const { progress } = body
     const { error } = await supabase
-      .from('user_profiles')
+      .from('profiles')
       .upsert({
         user_id: user.id,
+        email: user.email,
         onboarding_completed: progress === 100 ? true : false,
-        bijgewerkt_op: new Date().toISOString()
+        updated_at: new Date().toISOString()
       }, { onConflict: 'user_id' })
 
     if (error) throw error
