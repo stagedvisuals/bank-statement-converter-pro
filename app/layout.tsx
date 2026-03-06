@@ -3,6 +3,8 @@ import { Syne, DM_Sans } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "next-themes";
+import BetaBanner from "./components/BetaBanner";
+import GlobalFooter from "./components/GlobalFooter";
 import "./globals.css";
 
 const syne = Syne({
@@ -31,11 +33,10 @@ export default function RootLayout({
   return (
     <html lang="nl" className={`${syne.variable} ${dmSans.variable}`} suppressHydrationWarning>
       <body style={{ fontFamily: "var(--font-dm-sans), sans-serif" }}>
-        <div className="w-full bg-[#00b8d9]/10 border-b border-[#00b8d9]/30 py-2 px-4 text-center text-sm">
-          🧪 BSCPro is momenteel in bèta – <a href="/contact" className="underline text-[#00b8d9] ml-1">Feedback welkom</a>
-        </div>
+        <BetaBanner />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
+          <GlobalFooter />
           <SpeedInsights />
           <Analytics />
         </ThemeProvider>
