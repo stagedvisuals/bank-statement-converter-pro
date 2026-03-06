@@ -32,7 +32,7 @@ export async function GET(request: Request) {
     const { data, error } = await supabase
       .from('user_profiles')
       .select('onboarding_completed')
-      .eq('user_id', user.id)
+      .eq('id', user.id)
       .single()
 
     if (error || !data) {
@@ -90,7 +90,7 @@ export async function POST(request: Request) {
           onboarding_completed: true,
           bijgewerkt_op: new Date().toISOString()
         })
-        .eq('user_id', user.id)
+        .eq('id', user.id)
 
       if (error) throw error
       return NextResponse.json({ success: true, completed: true })
