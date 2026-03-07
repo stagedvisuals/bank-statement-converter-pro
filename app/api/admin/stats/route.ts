@@ -19,16 +19,10 @@ export async function GET(request: Request) {
       }, { status: 500 })
     }
 
-    const { data: conversions, error: convError } = await supabase
+    const { data: conversions } = await supabase
       .from('conversions')
       .select('id, created_at, status')
 
-    if (convError) {
-      return NextResponse.json({ 
-        error: 'Database error: conversions table', 
-        details: convError.message 
-      }, { status: 500 })
-    }
 
     const { data: payments } = await supabase
       .from('payments')
