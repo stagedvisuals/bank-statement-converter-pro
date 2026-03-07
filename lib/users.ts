@@ -1,9 +1,11 @@
 import { supabase } from './supabase'
 
+export async function getOrCreateUser(userId: string, email: string) {
   // Check if user exists
   const { data: existing } = await supabase
     .from('profiles')
     .select('*')
+    .eq('user_id', userId)
     .single()
 
   if (existing) return existing
@@ -12,7 +14,8 @@ import { supabase } from './supabase'
   const { data: newUser, error } = await supabase
     .from('profiles')
     .insert({
-      email: userEmail,
+      user_id: userId,
+      email: email,
       credits: 2,
       plan_type: 'starter'
     })
@@ -23,17 +26,21 @@ import { supabase } from './supabase'
   return newUser
 }
 
+export async function getUserCredits(userId: string) {
   const { data } = await supabase
     .from('profiles')
     .select('credits, plan_type')
+    .eq('user_id', userId)
     .single()
   
   return data
 }
 
+export async function useCredit(userId: string) {
   const { data: user } = await supabase
     .from('profiles')
     .select('credits, plan_type')
+    .eq('user_id', userId)
     .single()
 
   if (user?.plan_type === 'unlimited') return true
@@ -42,16 +49,20 @@ import { supabase } from './supabase'
   await supabase
     .from('profiles')
     .update({ credits: (user?.credits || 0) - 1 })
+    .eq('user_id', userId)
 
   return true
 }
 
+export async function addCredits(userId: string, amount: number) {
   const { data: user } = await supabase
     .from('profiles')
     .select('credits')
+    .eq('user_id', userId)
     .single()
 
   await supabase
     .from('profiles')
     .update({ credits: (user?.credits || 0) + amount })
+    .eq('user_id', userId)
 }

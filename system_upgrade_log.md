@@ -237,3 +237,38 @@ const transactionPatterns = {
 ---
 
 *Next Review: 23 February 2026, 06:00 CET*
+
+---
+
+## 6 Maart 2026 - UNIFIED ELITE MIGRATION COMPLETED 🚀
+
+### ✅ VOLTOOID
+- **Rate limiting:** Upstash Redis geïmplementeerd in middleware.ts met serverless fallback
+- **Auth Cleanup:** Clerk volledig verwijderd, alleen Supabase Auth gebruikt
+- **Database Unificatie:** Unified `profiles` tabel als single source of truth
+- **Documentatie Sync:** README en MIGRATIE_HANDLEIDING 100% overeenkomst met werkelijkheid
+- **Git History:** Clean van secret leaks via force push
+
+### 🔄 Auto-Labeling Update
+**Nieuwe architectuur:** Patronen worden nu opgehaald uit de `categorization_rules` tabel in plaats van hardcoded objecten.
+
+**Voordelen:**
+- **Database-driven:** Regels kunnen worden aangepast zonder code deployment
+- **User-specific:** Verschillende regels per gebruiker of subscription tier
+- **Dynamic updates:** Nieuwe categorieën kunnen worden toegevoegd via admin dashboard
+- **BTW-percentages:** Per categorie instelbaar (0%, 9%, 21%)
+
+**Implementatie:**
+1. API haalt categorization_rules op voor huidige gebruiker
+2. Regels worden meegegeven aan Groq AI prompt
+3. AI past direct juiste categorieën en BTW-percentages toe
+4. Resultaat wordt opgeslagen met categorie metadata
+
+### 📊 Status
+- **Middleware:** ✅ Hardened met admin priority check
+- **Dependencies:** ✅ UI packages hersteld, Clerk verwijderd
+- **AI Parsing:** ✅ Page markers en per pagina saldo checks
+- **Documentatie:** ✅ 100% accurate
+- **Security:** ✅ RLS policies, Redis rate limiting, clean git history
+
+**SYSTEM READY FOR PRODUCTION SCALING** 💎

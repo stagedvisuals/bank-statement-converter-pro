@@ -79,7 +79,7 @@ async function analyzeWithGroq(text: string, categorizationRules?: any[]): Promi
   
   let categorizationInstructions = ''
   if (categorizationRules && categorizationRules.length > 0) {
-    const categories = Array.from(new Set(categorizationRules.map(rule => rule.category)))
+    const categories = [...new Set(categorizationRules.map(rule => rule.category))]
     categorizationInstructions = `\n\nCATEGORISATIE REGELS:\nWijs elke transactie toe aan één van deze categorieën: ${categories.join(', ')}.`
     
     for (const category of categories) {
@@ -158,7 +158,7 @@ Geef antwoord in dit JSON formaat:
     throw new Error('Geen response van Groq API')
   }
 
-  return JSON.parse(response.choices[0].message.content || '{}')
+  return JSON.parse(response.choices[0].message.content)
 }
 
 // GET endpoint for status
@@ -173,7 +173,7 @@ export async function GET(request: NextRequest) {
   })
 }
 
-// POST endpoint for bank statement conversion with TRANSACTIONELE CREDIT DEDUCTIE
+// POST endpoint for bank statement conversion with STRICT CREDIT LOGIC
 export async function POST(request: NextRequest) {
   try {
     // ========== STAP 1: AUTHENTICATIE CHECK ==========
@@ -196,19 +196,36 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ========== STAP 2: STRICTE CREDIT CHECK ==========
-    console.log(`🔍 Strict credit check voor gebruiker: ${user.id}`)
+    // ========== STAP 2: CREDIT PRE-CHECK ==========
+    console.log(`🔍 Credit check voor gebruiker: ${user.id}`)
     
-    // Haal huidige credits op uit profiles.credits_remaining (ENIGE BRON VAN WAARHEID)
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('credits_remaining')
+      .select('credits')
       .eq('user_id', user.id)
       .single()
 
     if (profileError) {
       console.error('Profile fetch error:', profileError)
-      // Geen profile gevonden = geen credits
+      const { data: userCredits, error: creditsError } = await supabase
+        .from('user_credits')
+        .select('remaining_credits')
+        .eq('user_id', user.id)
+        .single()
+
+      if (creditsError) {
+        console.log('Geen credits gevonden voor gebruiker, gebruik default 0')
+      } else if (userCredits?.remaining_credits <= 0) {
+        return NextResponse.json(
+          { 
+            error: 'Je credits zijn op. Upgrade je plan op bscpro.nl om verder te gaan.',
+            remaining_credits: 0,
+            upgrade_url: 'https://www.bscpro.nl/#pricing'
+          },
+          { status: 402 }
+        )
+      }
+    } else if (profile?.credits <= 0) {
       return NextResponse.json(
         { 
           error: 'Je credits zijn op. Upgrade je plan op bscpro.nl om verder te gaan.',
@@ -219,19 +236,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // STRICTE CHECK: credits_remaining moet > 0 zijn
-    if (!profile?.credits_remaining || profile.credits_remaining <= 0) {
-      return NextResponse.json(
-        { 
-          error: 'Je credits zijn op. Upgrade je plan op bscpro.nl om verder te gaan.',
-          remaining_credits: 0,
-          upgrade_url: 'https://www.bscpro.nl/#pricing'
-        },
-        { status: 402 }
-      )
-    }
-
-    const currentCredits = profile.credits_remaining
+    const currentCredits = profile?.credits || 0
     console.log(`✅ Credits beschikbaar: ${currentCredits}`)
 
     // ========== STAP 3: BESTAND VERWERKING ==========
@@ -293,7 +298,6 @@ export async function POST(request: NextRequest) {
     // ========== STAP 5: VALIDATIE ==========
     if (!analysisResult || !analysisResult.transactions || !Array.isArray(analysisResult.transactions)) {
       console.error('Ongeldige AI response:', analysisResult)
-      // FOUT-VEILIG: GEEN CREDIT VERLOREN
       return NextResponse.json(
         { error: 'AI scan mislukt. Kon geen transacties extraheren.' },
         { status: 500 }
@@ -302,77 +306,45 @@ export async function POST(request: NextRequest) {
 
     if (analysisResult.transactions.length === 0) {
       console.error('Geen transacties gevonden in AI response')
-      // FOUT-VEILIG: GEEN CREDIT VERLOREN
       return NextResponse.json(
         { error: 'Geen transacties gevonden in het bankafschrift.' },
         { status: 400 }
       )
     }
 
-    // ========== STAP 6: TRANSACTIONELE DEDUCTIE (ALLEEN BIJ SUCCES) ==========
+    // ========== STAP 6: CREDIT AFGESCHREVEN (ALLEEN BIJ SUCCES) ==========
     console.log(`✅ Scan succesvol! ${analysisResult.transactions.length} transacties geëxtraheerd.`)
-    console.log('💰 Transactionele credit aftrek starten...')
+    console.log('💰 Credit aftrekken...')
     
-    // 🔥 BEWIJS: Transactionele deductie PAS na succesvolle validatie
+    // 🔥 BEWIJS: Database update PAS na succesvolle validatie
     try {
-      // Voer beide database operaties uit in één transactie
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ 
-          credits_remaining: currentCredits - 1,
+          credits: currentCredits - 1,
           updated_at: new Date().toISOString()
         })
         .eq('user_id', user.id)
 
       if (updateError) {
         console.error('Credit update error:', updateError)
-        throw new Error(`Credit update mislukt: ${updateError.message}`)
-      }
-
-      // Log de credit aftrek in credit_logs tabel
-      const { error: logError } = await supabase
-        .from('credit_logs')
-        .insert({
-          user_id: user.id,
-          action_type: 'scan_success',
-          amount: -1,
-          description: 'Succesvolle PDF conversie',
-          metadata: {
-            transaction_count: analysisResult.transactions.length,
-            confidence_score: analysisResult.confidence_score,
-            bank: analysisResult.bank,
-            file_size: file.size
-          },
-          created_at: new Date().toISOString()
-        })
-
-      if (logError) {
-        console.error('Credit log error:', logError)
-        // Rollback de credit update als loggen mislukt
-        await supabase
-          .from('profiles')
+        const { error: creditsUpdateError } = await supabase
+          .from('user_credits')
           .update({ 
-            credits_remaining: currentCredits,
+            remaining_credits: currentCredits - 1,
+            used_credits: () => 'used_credits + 1',
             updated_at: new Date().toISOString()
           })
           .eq('user_id', user.id)
-        
-        throw new Error(`Credit logging mislukt: ${logError.message}`)
+
+        if (creditsUpdateError) {
+          console.error('Fallback credit update ook mislukt:', creditsUpdateError)
+        }
       }
       
-      console.log(`✅ Transactionele deductie voltooid. 1 credit afgeschreven. Nieuw saldo: ${currentCredits - 1}`)
-      
+      console.log(`✅ 1 credit afgeschreven. Nieuw saldo: ${currentCredits - 1}`)
     } catch (updateError) {
-      console.error('Exception tijdens transactionele deductie:', updateError)
-      // FOUT-VEILIG: Bij exception wordt er GEEN credit afgeschreven
-      return NextResponse.json(
-        { 
-          error: 'Credit verwerking mislukt. Probeer het opnieuw.',
-          credits_used: 0,
-          note: 'Er is geen credit afgeschreven vanwege een database fout.'
-        },
-        { status: 500 }
-      )
+      console.error('Exception tijdens credit update:', updateError)
     }
 
     // ========== STAP 7: SUCCESS RESPONSE ==========
@@ -382,15 +354,12 @@ export async function POST(request: NextRequest) {
       data: analysisResult,
       credits_used: 1,
       credits_remaining: currentCredits - 1,
-      transaction_id: `scan_${Date.now()}_${user.id.substring(0, 8)}`,
       timestamp: new Date().toISOString()
     })
 
   } catch (error) {
     console.error('Convert API error:', error)
     
-    // ========== ERROR HANDLING: FOUT-VEILIG ==========
-    // Bij ANY error wordt er NOOIT een credit afgeschreven
     return NextResponse.json(
       { 
         error: 'Conversie mislukt: ' + (error instanceof Error ? error.message : 'Onbekende fout'),

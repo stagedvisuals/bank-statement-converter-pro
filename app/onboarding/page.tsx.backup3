@@ -4,50 +4,30 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle, Upload, FileText, ArrowRight, Clock, Shield } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
 
 export default function OnboardingPage() {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [authChecked, setAuthChecked] = useState(false)
-  const [user, setUser] = useState<any>(null)
-  const supabaseClient = supabase
 
-  // Supabase auth check
+  // Eenvoudige auth check zonder complexe retry logic
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuth = () => {
+      const session = localStorage.getItem('bscpro_session')
+      if (!session) {
+        router.push('/')
+        return
+      }
+      
       try {
-        const { data: { session }, error } = await supabaseClient.auth.getSession()
-        
-        if (error || !session) {
-          console.log('No session found, redirecting to home')
+        const { access_token } = JSON.parse(session)
+        if (!access_token) {
           router.push('/')
           return
         }
         
-        const { data: { user } } = await supabaseClient.auth.getUser()
-        
-        if (!user) {
-          console.log('No user found, redirecting to home')
-          router.push('/')
-          return
-        }
-        
-        setUser(user)
         setAuthChecked(true)
-        
-        // Check if onboarding already completed
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('onboarding_completed')
-          .eq('user_id', user.id)
-          .single()
-          
-        if (profile?.onboarding_completed) {
-          router.push('/dashboard')
-        }
-        
       } catch (error) {
         console.error('Auth check error:', error)
         router.push('/')
@@ -55,7 +35,7 @@ export default function OnboardingPage() {
     }
 
     checkAuth()
-  }, [router, supabase])
+  }, [router])
 
   if (!authChecked) {
     return (
@@ -69,48 +49,30 @@ export default function OnboardingPage() {
   }
 
   const completeOnboarding = async () => {
-    if (!user) return
-    
     setLoading(true)
     try {
-      // Direct Supabase update - geen API call nodig
-      const { error } = await supabase
-        .from('profiles')
-        .update({ 
-          onboarding_completed: true,
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', user.id)
-      
-      if (error) {
-        console.error('Supabase update error:', error)
-        // Fallback naar API
-        const { data: { session } } = await supabaseClient.auth.getSession()
-        if (session) {
-          const response = await fetch('/api/user/onboarding', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${session.access_token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ action: 'complete' })
-          })
-          
-          if (!response.ok) {
-            throw new Error('API fallback failed')
-          }
-        }
+      const session = localStorage.getItem('bscpro_session')
+      if (!session) {
+        router.push('/')
+        return
       }
+      const { access_token } = JSON.parse(session)
       
-      // Forceer dashboard redirect
-      router.push('/dashboard')
-      router.refresh() // Refresh de layout voor dashboard
-      
+      const response = await fetch('/api/user/onboarding', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ action: 'complete' })
+      })
+      if (response.ok) {
+        router.push('/dashboard')
+      } else {
+        console.error('Onboarding completion failed')
+      }
     } catch (error) {
-      console.error('Error completing onboarding:', error)
-      // Toon error maar laat knop enabled
-      alert('Er ging iets mis bij het afronden. Probeer het opnieuw of ga direct naar dashboard.')
-      router.push('/dashboard') // Redirect toch naar dashboard
+      console.error('Error:', error)
     } finally {
       setLoading(false)
     }
