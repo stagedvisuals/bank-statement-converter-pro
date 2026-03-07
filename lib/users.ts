@@ -1,12 +1,12 @@
-import { auth } from '@clerk/nextjs/server'
+
 import { supabase } from './supabase'
 
-export async function getOrCreateUser(clerkId: string, email: string) {
+export async function getOrCreateUser(userId: string, email: string) {
   // Check if user exists
   const { data: existing } = await supabase
     .from('user_profiles')
     .select('*')
-    .eq('clerk_id', clerkId)
+    .eq('user_id', userId)
     .single()
 
   if (existing) return existing
@@ -15,7 +15,7 @@ export async function getOrCreateUser(clerkId: string, email: string) {
   const { data: newUser, error } = await supabase
     .from('user_profiles')
     .insert({
-      clerk_id: clerkId,
+      user_id: userId,
       email: email,
       credits: 2,
       plan_type: 'starter'
@@ -27,21 +27,21 @@ export async function getOrCreateUser(clerkId: string, email: string) {
   return newUser
 }
 
-export async function getUserCredits(clerkId: string) {
+export async function getUserCredits(userId: string) {
   const { data } = await supabase
     .from('user_profiles')
     .select('credits, plan_type')
-    .eq('clerk_id', clerkId)
+    .eq('user_id', userId)
     .single()
   
   return data
 }
 
-export async function deductCredit(clerkId: string) {
+export async function deductCredit(userId: string) {
   const { data: user } = await supabase
     .from('user_profiles')
     .select('credits, plan_type')
-    .eq('clerk_id', clerkId)
+    .eq('user_id', userId)
     .single()
 
   if (user?.plan_type === 'unlimited') return true
@@ -50,20 +50,20 @@ export async function deductCredit(clerkId: string) {
   await supabase
     .from('user_profiles')
     .update({ credits: (user?.credits || 0) - 1 })
-    .eq('clerk_id', clerkId)
+    .eq('user_id', userId)
 
   return true
 }
 
-export async function addCredits(clerkId: string, amount: number) {
+export async function addCredits(userId: string, amount: number) {
   const { data: user } = await supabase
     .from('user_profiles')
     .select('credits')
-    .eq('clerk_id', clerkId)
+    .eq('user_id', userId)
     .single()
 
   await supabase
     .from('user_profiles')
     .update({ credits: (user?.credits || 0) + amount })
-    .eq('clerk_id', clerkId)
+    .eq('user_id', userId)
 }

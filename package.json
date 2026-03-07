@@ -8,7 +8,6 @@
     "start": "next start"
   },
   "dependencies": {
-    "@clerk/nextjs": "^5.7.5",
     "@radix-ui/react-slot": "^1.2.4",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.97.0",
