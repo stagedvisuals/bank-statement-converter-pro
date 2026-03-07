@@ -70,7 +70,7 @@ export async function middleware(request: NextRequest) {
     // Admin API routes vereisen admin secret
     if (pathname.startsWith('/api/admin/')) {
       const adminSecret = request.headers.get('x-admin-secret')
-      if (adminSecret !== process.env.ADMIN_SECRET && adminSecret !== 'BSCPro2025!') {
+      if (adminSecret !== process.env.ADMIN_SECRET) {
         return NextResponse.json(
           { error: 'Unauthorized' },
           { status: 401 }
@@ -145,29 +145,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // 4. Voor admin routes: extra check
-  if (pathname.startsWith('/admin') || pathname.startsWith('/beheer')) {
-    try {
-      // Check of gebruiker admin is
-      const response = await fetch(new URL('/api/auth/session', request.url), {
-        headers: {
-          'Cookie': request.headers.get('cookie') || ''
-        }
-      })
-      
-      if (response.ok) {
-        const session = await response.json()
-        if (!session?.user?.is_admin) {
-          return NextResponse.redirect(new URL('/', request.url))
-        }
-      } else {
-        return NextResponse.redirect(new URL('/login', request.url))
-      }
-    } catch (error) {
-      console.error('Admin check error:', error)
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
-  }
+  // 4. Admin auth wordt afgehandeld in de pagina zelf via x-admin-secret header
 
   return NextResponse.next()
 }
