@@ -1,25 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-// Initialize Supabase clients
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+// Helper functions for Supabase clients
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
 
-// Initialize Supabase clients only if environment variables are available
-let supabase: any = null
-let supabaseAdmin: any = null
-
-if (supabaseUrl && supabaseAnonKey && supabaseServiceKey) {
-  supabase = createClient(supabaseUrl, supabaseAnonKey)
-  supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
 }
 
 // Helper function to check free scan limit directly via RPC
 async function checkFreeScanLimit(ipAddress: string, cookieId: string, localStorageId: string): Promise<{ allowed: boolean; error?: string }> {
-  if (!supabaseAdmin) {
-    return { allowed: false, error: 'Service not initialized' }
-  }
+  
 
   try {
     console.log('Checking free scan limit with EXACT parameters:', { 
@@ -29,7 +28,7 @@ async function checkFreeScanLimit(ipAddress: string, cookieId: string, localStor
     })
     
     // EXACT parameters as per SQL function definition
-    const { data, error } = await supabaseAdmin.rpc('can_perform_free_scan', {
+    const { data, error } = await getSupabaseAdmin().rpc('can_perform_free_scan', {
       p_ip: ipAddress || 'unknown',
       p_cookie: cookieId || 'no-cookie'
     })
@@ -54,9 +53,7 @@ async function checkFreeScanLimit(ipAddress: string, cookieId: string, localStor
 
 // Helper function to record free scan directly
 async function recordFreeScan(ipAddress: string, cookieId: string, localStorageId: string): Promise<{ success: boolean; scanId?: string; error?: string }> {
-  if (!supabaseAdmin) {
-    return { success: false, error: 'Service not initialized' }
-  }
+  
 
   try {
     console.log('Recording free scan with EXACT parameters:', {
@@ -66,7 +63,7 @@ async function recordFreeScan(ipAddress: string, cookieId: string, localStorageI
     })
     
     // EXACT parameters as per SQL function definition
-    const { data, error } = await supabaseAdmin.rpc('record_free_scan', {
+    const { data, error } = await getSupabaseAdmin().rpc('record_free_scan', {
       p_ip: ipAddress || 'unknown',
       p_cookie: cookieId || 'no-cookie',
       p_local_storage: localStorageId || null // Must be included, even if null
@@ -90,9 +87,7 @@ async function recordFreeScan(ipAddress: string, cookieId: string, localStorageI
 
 // Helper function to record conversion attempt for CFO-mode
 async function recordConversionAttempt(ipAddress: string, cookieId: string): Promise<{ success: boolean; error?: string }> {
-  if (!supabaseAdmin) {
-    return { success: false, error: 'Service not initialized' }
-  }
+  
 
   try {
     console.log('Recording conversion attempt with EXACT parameters:', {
@@ -101,7 +96,7 @@ async function recordConversionAttempt(ipAddress: string, cookieId: string): Pro
     })
     
     // EXACT parameters as per SQL function definition
-    const { error } = await supabaseAdmin.rpc('record_conversion_attempt', {
+    const { error } = await getSupabaseAdmin().rpc('record_conversion_attempt', {
       p_ip: ipAddress || 'unknown',
       p_cookie: cookieId || 'no-cookie'
     })
@@ -166,15 +161,7 @@ export async function POST(request: NextRequest) {
   console.log('=== CONVERT API CALL (EXACT PARAMETERS) ===')
   
   try {
-    if (!supabase || !supabaseAdmin) {
-      return NextResponse.json(
-        { 
-          error: 'Service not initialized',
-          message: 'Service tijdelijk niet beschikbaar'
-        },
-        { status: 503 }
-      )
-    }
+    
 
     const formData = await request.formData()
     const file = formData.get('file') as File
@@ -205,7 +192,7 @@ export async function POST(request: NextRequest) {
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.substring(7)
       try {
-        const { data: { user }, error } = await supabase.auth.getUser(token)
+        const { data: { user }, error } = await getSupabase().auth.getUser(token)
         if (!error && user) {
           isAuthenticated = true
           userId = user.id
@@ -253,7 +240,7 @@ export async function POST(request: NextRequest) {
     // If authenticated, save to database
     if (isAuthenticated && userId) {
       try {
-        const { data: conversion, error } = await supabaseAdmin
+        const { data: conversion, error } = await getSupabaseAdmin()
           .from('conversions')
           .insert({
             user_id: userId,
