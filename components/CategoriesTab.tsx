@@ -19,16 +19,12 @@ export default function CategoriesTab() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const ADMIN_SECRET = process.env.NEXT_PUBLIC_ADMIN_SECRET || 'BSCPro2025!';
+  
 
   const fetchCorrections = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/admin/corrections', {
-        headers: {
-          'x-admin-secret': ADMIN_SECRET
-        }
-      });
+      const response = await fetch('/api/admin/corrections');
       
       if (!response.ok) throw new Error('Failed to fetch');
       
@@ -46,10 +42,7 @@ export default function CategoriesTab() {
     
     try {
       const response = await fetch(`/api/admin/corrections?id=${id}`, {
-        method: 'DELETE',
-        headers: {
-          'x-admin-secret': ADMIN_SECRET
-        }
+        method: 'DELETE'
       });
       
       if (!response.ok) throw new Error('Failed to delete');
