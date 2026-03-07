@@ -1,19 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-let supabaseAdmin: any = null
-
-if (supabaseUrl && supabaseServiceKey) {
-  supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
-}
-
-// Helper function to check free scan limit via RPC
 async function checkFreeScanLimit(ipAddress: string, cookieId: string): Promise<{ allowed: boolean; error?: string }> {
-  if (!supabaseAdmin) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl || !supabaseServiceKey) {
     return { allowed: false, error: 'Service not initialized' }
   }
+
+  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
 
   try {
     console.log('Checking free scan limit with EXACT parameters:', { 
@@ -21,7 +16,6 @@ async function checkFreeScanLimit(ipAddress: string, cookieId: string): Promise<
       p_cookie: cookieId || 'no-cookie'
     })
     
-    // EXACT parameters as per SQL function definition
     const { data, error } = await supabaseAdmin.rpc('can_perform_free_scan', {
       p_ip: ipAddress || 'unknown',
       p_cookie: cookieId || 'no-cookie'
@@ -29,40 +23,41 @@ async function checkFreeScanLimit(ipAddress: string, cookieId: string): Promise<
 
     if (error) {
       console.error('RPC call failed:', error)
-      // FAIL-CLOSED: If RPC fails, block the scan
       return { allowed: false, error: 'Database check failed' }
     }
 
-    // The function returns a boolean directly
     const allowed = data === true
     console.log('RPC check result:', { allowed })
     
     return { allowed }
   } catch (error) {
     console.error('Exception in free scan check:', error)
-    // FAIL-CLOSED: If any exception occurs, block the scan
     return { allowed: false, error: 'Check failed with exception' }
   }
 }
 
 // Helper function to record free scan via RPC
 async function recordFreeScan(ipAddress: string, cookieId: string, localStorageId: string): Promise<{ success: boolean; scanId?: string; error?: string }> {
-  if (!supabaseAdmin) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl || !supabaseServiceKey) {
     return { success: false, error: 'Service not initialized' }
   }
+
+  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
 
   try {
     console.log('Recording free scan with EXACT parameters:', {
       p_ip: ipAddress || 'unknown',
       p_cookie: cookieId || 'no-cookie',
-      p_local_storage: localStorageId || null // EXACT parameter name from SQL
+      p_local_storage: localStorageId || null
     })
     
-    // EXACT parameters as per SQL function definition
     const { data, error } = await supabaseAdmin.rpc('record_free_scan', {
       p_ip: ipAddress || 'unknown',
       p_cookie: cookieId || 'no-cookie',
-      p_local_storage: localStorageId || null // Must be included, even if null
+      p_local_storage: localStorageId || null
     })
 
     if (error) {
@@ -70,7 +65,6 @@ async function recordFreeScan(ipAddress: string, cookieId: string, localStorageI
       return { success: false, error: 'Failed to record scan' }
     }
 
-    // The function returns a UUID directly
     const scanId = data
     console.log('Scan recorded with ID:', scanId)
     
@@ -84,14 +78,19 @@ async function recordFreeScan(ipAddress: string, cookieId: string, localStorageI
 export async function POST(request: NextRequest) {
   console.log('=== FREE-SCAN API POST (EXACT PARAMETERS) ===')
   
-  if (!supabaseAdmin) {
-    return NextResponse.json(
-      { allowed: false, error: 'Service not initialized', message: 'Service tijdelijk niet beschikbaar' },
-      { status: 503 }
-    )
-  }
-  
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return NextResponse.json(
+        { allowed: false, error: 'Service not initialized', message: 'Service tijdelijk niet beschikbaar' },
+        { status: 503 }
+      )
+    }
+    
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+    
     const body = await request.json()
     const { action, ipAddress, cookieId, localStorageId } = body
     
@@ -99,16 +98,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Action is required' }, { status: 400 })
     }
 
-    // Validate parameters
     const safeIpAddress = ipAddress || 'unknown'
     const safeCookieId = cookieId || 'no-cookie'
-    const safeLocalStorageId = localStorageId || null // Can be null
+    const safeLocalStorageId = localStorageId || null
 
     if (action === 'check') {
       const checkResult = await checkFreeScanLimit(safeIpAddress, safeCookieId)
       
       if (checkResult.error) {
-        // FAIL-CLOSED: Return 503 if check fails
         return NextResponse.json(
           { 
             allowed: false,
@@ -158,7 +155,10 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    if (!supabaseAdmin) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !supabaseServiceKey) {
       return NextResponse.json({ 
         status: 'error', 
         databaseConnected: false, 
@@ -166,6 +166,8 @@ export async function GET(request: NextRequest) {
         timestamp: new Date().toISOString() 
       }, { status: 503 })
     }
+    
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
     
     const { error } = await supabaseAdmin.from('free_scans').select('count').limit(1)
     
