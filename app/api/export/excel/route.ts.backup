@@ -1,0 +1,242 @@
+import { NextRequest, NextResponse } from 'next/server'
+import ExcelJS from 'exceljs'
+
+// CORS headers voor API
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+}
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders })
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { transactions, filename = 'transacties.xlsx' } = body
+
+    if (!transactions || !Array.isArray(transactions) || transactions.length === 0) {
+      return NextResponse.json(
+        { error: 'Geen transacties gevonden om te exporteren' },
+        { status: 400, headers: corsHeaders }
+      )
+    }
+
+    // Genereer Excel met watermerk
+    const excelBuffer = await generateExcelWithWatermark(transactions)
+
+    // Return Excel file
+    return new NextResponse(excelBuffer, {
+      status: 200,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
+
+  } catch (error) {
+    console.error('Excel export error:', error)
+    return NextResponse.json(
+      { error: 'Excel export mislukt: ' + (error instanceof Error ? error.message : 'Onbekende fout') },
+      { status: 500, headers: corsHeaders }
+    )
+  }
+}
+
+async function generateExcelWithWatermark(transactions: any[]): Promise<Buffer> {
+  // Maak een nieuwe workbook
+  const workbook = new ExcelJS.Workbook()
+  workbook.creator = 'BSC Pro'
+  workbook.created = new Date()
+  workbook.modified = new Date()
+  
+  // Voeg een worksheet toe
+  const worksheet = workbook.addWorksheet('Transacties')
+  
+  // ========== WATERMERK IN CEL A1 ==========
+  const watermarkCell = worksheet.getCell('A1')
+  watermarkCell.value = 'Gegenereerd door BSC Pro - www.bscpro.nl'
+  watermarkCell.font = {
+    name: 'Calibri',
+    size: 11,
+    color: { argb: 'FFCCCCCC' }, // Lichtgrijs (ARGB formaat)
+    italic: true
+  }
+  watermarkCell.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FFFFFFFF' } // Witte achtergrond
+  }
+  watermarkCell.alignment = {
+    vertical: 'middle',
+    horizontal: 'left'
+  }
+  
+  // Maak de rij hoger voor het watermerk
+  worksheet.getRow(1).height = 25
+  
+  // Lege rij 2 voor spacing
+  worksheet.getRow(2).height = 5
+  
+  // ========== HEADERS (START OP RIJ 3) ==========
+  const headers = [
+    'Datum',
+    'Omschrijving', 
+    'Bedrag (€)',
+    'Saldo na (€)',
+    'Type',
+    'Categorie',
+    'BTW %',
+    'Vertrouwen'
+  ]
+  
+  const headerRow = worksheet.getRow(3)
+  headerRow.values = headers
+  
+  // Header styling
+  headerRow.font = {
+    bold: true,
+    color: { argb: 'FFFFFFFF' }, // Witte tekst
+    size: 11
+  }
+  headerRow.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FF2E5A8C' } // Donkerblauw
+  }
+  headerRow.alignment = {
+    vertical: 'middle',
+    horizontal: 'center'
+  }
+  
+  // ========== TRANSACTIES (START OP RIJ 4) ==========
+  transactions.forEach((transaction, index) => {
+    const row = worksheet.getRow(4 + index)
+    
+    // Formatteer bedragen
+    const bedrag = parseFloat(transaction.bedrag || transaction.amount || 0)
+    const saldo = parseFloat(transaction.saldo_na || transaction.balance_after || 0)
+    
+    // Formatteer BTW
+    const btw = transaction.btw_percentage || transaction.vat_percentage || 21
+    const btwDisplay = btw === 0 ? '0%' : btw === 9 ? '9%' : '21%'
+    
+    // Formatteer confidence
+    const confidence = transaction.confidence_score || transaction.vertrouwen || 0.95
+    const confidenceDisplay = `${(confidence * 100).toFixed(0)}%`
+    
+    row.values = [
+      transaction.datum || transaction.date || '',
+      transaction.omschrijving || transaction.description || '',
+      bedrag,
+      saldo,
+      transaction.type || '',
+      transaction.categorie || transaction.category || '',
+      btwDisplay,
+      confidenceDisplay
+    ]
+    
+    // Nummer formattering voor bedragen
+    const bedragCell = row.getCell(3)
+    bedragCell.numFmt = '#,##0.00'
+    if (bedrag < 0) {
+      bedragCell.font = { color: { argb: 'FFFF0000' } } // Rood voor negatief
+    } else {
+      bedragCell.font = { color: { argb: 'FF00AA00' } } // Groen voor positief
+    }
+    
+    const saldoCell = row.getCell(4)
+    saldoCell.numFmt = '#,##0.00'
+    
+    // Confidence kleurcodering
+    const confidenceCell = row.getCell(8)
+    if (confidence >= 0.9) {
+      confidenceCell.font = { color: { argb: 'FF00AA00' } } // Groen
+    } else if (confidence >= 0.7) {
+      confidenceCell.font = { color: { argb: 'FFFFA500' } } // Oranje
+    } else {
+      confidenceCell.font = { color: { argb: 'FFFF0000' } } // Rood
+    }
+    
+    // Alternerende rij kleuren voor leesbaarheid
+    if (index % 2 === 0) {
+      row.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFF5F5F5' } // Lichtgrijs
+      }
+    }
+  })
+  
+  // ========== KOLOMBREEDTES ==========
+  worksheet.columns = [
+    { key: 'datum', width: 12 },
+    { key: 'omschrijving', width: 40 },
+    { key: 'bedrag', width: 12 },
+    { key: 'saldo', width: 12 },
+    { key: 'type', width: 15 },
+    { key: 'categorie', width: 20 },
+    { key: 'btw', width: 8 },
+    { key: 'vertrouwen', width: 12 }
+  ]
+  
+  // ========== SAMENVATTING ONDERAAN ==========
+  const summaryStartRow = 4 + transactions.length + 2
+  
+  // Totaal transacties
+  worksheet.getCell(`A${summaryStartRow}`).value = 'Totaal transacties:'
+  worksheet.getCell(`B${summaryStartRow}`).value = transactions.length
+  worksheet.getCell(`B${summaryStartRow}`).font = { bold: true }
+  
+  // Totaal bedrag
+  const totalBedrag = transactions.reduce((sum, t) => {
+    return sum + parseFloat(t.bedrag || t.amount || 0)
+  }, 0)
+  
+  worksheet.getCell(`A${summaryStartRow + 1}`).value = 'Totaal bedrag:'
+  const totaalCell = worksheet.getCell(`B${summaryStartRow + 1}`)
+  totaalCell.value = totalBedrag
+  totaalCell.numFmt = '€#,##0.00'
+  totaalCell.font = { bold: true }
+  if (totalBedrag < 0) {
+    totaalCell.font = { bold: true, color: { argb: 'FFFF0000' } }
+  }
+  
+  // Gemiddelde confidence
+  const avgConfidence = transactions.reduce((sum, t) => {
+    return sum + (t.confidence_score || t.vertrouwen || 0.95)
+  }, 0) / transactions.length
+  
+  worksheet.getCell(`A${summaryStartRow + 2}`).value = 'Gemiddelde vertrouwen:'
+  worksheet.getCell(`B${summaryStartRow + 2}`).value = `${(avgConfidence * 100).toFixed(1)}%`
+  worksheet.getCell(`B${summaryStartRow + 2}`).font = { bold: true }
+  
+  // Export info
+  worksheet.getCell(`A${summaryStartRow + 4}`).value = 'Gegenereerd door:'
+  worksheet.getCell(`B${summaryStartRow + 4}`).value = 'BSC Pro - www.bscpro.nl'
+  worksheet.getCell(`B${summaryStartRow + 4}`).font = { italic: true, color: { argb: 'FF666666' } }
+  
+  worksheet.getCell(`A${summaryStartRow + 5}`).value = 'Datum:'
+  worksheet.getCell(`B${summaryStartRow + 5}`).value = new Date().toLocaleString('nl-NL')
+  worksheet.getCell(`B${summaryStartRow + 5}`).font = { italic: true, color: { argb: 'FF666666' } }
+  
+  // Genereer buffer
+  const buffer = await workbook.xlsx.writeBuffer()
+  return Buffer.from(buffer)
+}
+
+// GET endpoint voor status check
+export async function GET() {
+  return NextResponse.json({
+    status: 'ok',
+    message: 'Excel export API is beschikbaar',
+    watermark: 'Gegenereerd door BSC Pro - www.bscpro.nl',
+    timestamp: new Date().toISOString()
+  }, { headers: corsHeaders })
+}
